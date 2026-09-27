@@ -1,0 +1,40 @@
+# Planning Application Monitor — configuration
+# CLI flags override anything set here (see: python -m pam --help)
+
+home_postcode: N19 4HF          # used for the distance_km column
+
+# Areas to monitor. Each run queries all of them; the ledger dedupes overlaps.
+# Supported forms:
+#   postcode + radius_km   (PlanIt pcode/krad)
+#   authority              (PlanIt auth param — council name as PlanIt knows it)
+areas:
+  - name: local
+    postcode: N19 4HF
+    radius_km: 5
+  # - name: camden
+  #   authority: Camden
+
+defaults:
+  # States the spreadsheet treats as leads. "Conditions" = approved with
+  # conditions (about a third of approvals — do NOT drop it).
+  lead_states: [Permitted, Conditions]
+  # States tracked in the ledger for future transitions to a lead state.
+  watch_states: [Undecided]
+  app_size: null                # Small | Medium | Large | null (all)
+  keywords: null                # list of words, matched against description (any)
+                                # e.g. ["discharge of condition"] flags imminent construction
+
+backfill:
+  enabled: true
+  start_date: "2026-06-27"      # 3 months back; filters PlanIt start_date server-side,
+                                # then decided_date client-side for the leads sheet
+
+api:
+  page_size: 100                # PlanIt is flaky below ~10; 100 keeps requests few
+  delay_seconds: 5              # pacing between pages — PlanIt rate-limits (429)
+  timeout_seconds: 120          #   aggressively; keep well under the radar
+  max_retries: 6
+
+output:
+  leads_path: data/leads.xlsx   # spreadsheet of Permitted/Conditions
+  ledger_path: data/ledger.sqlite
