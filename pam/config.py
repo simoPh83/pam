@@ -29,6 +29,7 @@ class Config:
     watch_states: list[str]
     app_size: str | None
     keywords: list[str] | None
+    exclude_app_types: list[str] = field(default_factory=list)
     backfill_start: date | None
     page_size: int
     delay_seconds: float
@@ -102,6 +103,7 @@ def load_config(path: Path = DEFAULT_CONFIG_PATH, argv: list[str] | None = None)
         watch_states=watch_states,
         app_size=defaults.get("app_size"),
         keywords=defaults.get("keywords"),
+        exclude_app_types=list(defaults.get("exclude_app_types", [])),
         backfill_start=backfill_start,
         page_size=int(api.get("page_size", 100)),
         delay_seconds=float(api.get("delay_seconds", 2)),

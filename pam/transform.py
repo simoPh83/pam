@@ -90,7 +90,10 @@ def _date_or_none(value) -> date | None:
 
 
 def matches_filters(row: dict, cfg) -> bool:
-    """Client-side filters: app_size and keywords (PlanIt supports neither)."""
+    """Client-side filters: app_size, keywords, excluded app_types."""
+    excluded = getattr(cfg, "exclude_app_types", None) or []
+    if row["app_type"] in excluded:
+        return False
     if cfg.app_size and row["app_size"] != cfg.app_size:
         return False
     if cfg.keywords:
