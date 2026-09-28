@@ -29,7 +29,6 @@ class Config:
     watch_states: list[str]
     app_size: str | None
     keywords: list[str] | None
-    exclude_app_types: list[str] = field(default_factory=list)
     backfill_start: date | None
     page_size: int
     delay_seconds: float
@@ -37,6 +36,7 @@ class Config:
     max_retries: int
     leads_path: Path
     ledger_path: Path
+    exclude_app_types: list[str] = field(default_factory=list)
     # CLI-only modifiers
     cli_start_date: date | None = None
     cli_end_date: date | None = None

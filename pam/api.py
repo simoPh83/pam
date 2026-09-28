@@ -30,12 +30,12 @@ USER_AGENT = "pam-lead-monitor/0.1 (personal research; github.com/planit)"
 log = logging.getLogger(__name__)
 
 
-def _get(params: dict, cfg: Config) -> dict:
+def _get(params: dict, cfg: Config, url: str = BASE_URL) -> dict:
     headers = {"User-Agent": USER_AGENT}
     last_exc: Exception | None = None
     for attempt in range(cfg.max_retries):
         try:
-            resp = requests.get(BASE_URL, params=params, headers=headers,
+            resp = requests.get(url, params=params, headers=headers,
                                 timeout=cfg.timeout_seconds)
             if resp.status_code == 429:
                 # PlanIt rate-limits aggressively; respect Retry-After, else long backoff
