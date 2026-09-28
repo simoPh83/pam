@@ -2,3 +2,8 @@ __pycache__/
 *.pyc
 .venv/
 *.egg-info/
+
+# data/ is committed: the ledger is the project's memory and must survive
+# across machines (dedupe + state-transition detection depend on its history).
+# NOTE: it contains applicant/agent names and addresses — keep the repo private.
+# logs/ stays committable as an audit trail.

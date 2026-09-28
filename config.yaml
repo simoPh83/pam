@@ -14,6 +14,8 @@ areas:
   # until Enfield validates end-to-end; expand per docs/audit-progress.md.
   - name: enfield
     authority: Enfield
+  - name: greenwich
+    authority: Greenwich
   # - name: islington
   #   authority: Islington
   # - name: camden

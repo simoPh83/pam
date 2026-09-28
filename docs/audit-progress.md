@@ -63,6 +63,22 @@ pages are skipped via fetch_progress; each new borough backfills. Expect
 roughly 232 × 7 ≈ 1,600 leads total and several hours of wall time (rate
 limits); can also be done one borough per sitting via `--area NAME`.
 
+**Greenwich (added same evening, `--area greenwich`): ✅**
+- 520 fetched → **133 leads added**, 383 Undecided tracked; no errors, no 429s.
+- Agent names on **98/133 leads (74%)** — real practices: Taylor Wimpey London,
+  Stantec UK, SAM Planning services, Sphere25, Redwoods Projects.
+- ⚠️ **Greenwich has ZERO `Conditions` records** — everything decided lands as
+  `Permitted`. Per-council state vocabularies differ (the audit's core theme);
+  the config's `lead_states: [Permitted, Conditions]` covers both shapes, but
+  remember "no Conditions" ≠ broken when comparing boroughs.
+- Running totals: 365 leads (294 with agent, 80%), 968 Undecided tracked.
+- gitignore changed: `data/` is now COMMITTED (ledger must survive across
+  machines for dedupe/transition detection) — keep the repo private, and
+  note binary files dirty the tree on every run.
+
+**Remaining agent boroughs to add:** lambeth, lewisham, newham, southwark,
+sutton, tower-hamlets.
+
 ---
 
 ## Status: 2026-09-28 (session 3) — AUDIT COMPLETE 33/33
