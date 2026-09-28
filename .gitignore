@@ -1,6 +1,4 @@
-data/
 __pycache__/
 *.pyc
 .venv/
 *.egg-info/
-scratch_*.py

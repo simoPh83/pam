@@ -68,6 +68,8 @@ def load_config(path: Path = DEFAULT_CONFIG_PATH, argv: list[str] | None = None)
                         help="Run only the named area from config")
     parser.add_argument("--dry-run", action="store_true",
                         help="Fetch and report, but write nothing to ledger or spreadsheet")
+    parser.add_argument("--log", type=Path, metavar="FILE",
+                        help="Also write the progress log to FILE (append)")
     args = parser.parse_args(argv)
 
     if args.config != path:

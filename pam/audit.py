@@ -16,6 +16,7 @@ Usage:
     python -m pam.audit --days 30 --dry-run      # narrower window, print only
     python -m pam.audit --areas                  # download/cache the full area list
     python -m pam.audit --areas --match kensing  #   ...and grep it for a name
+    python -m pam.audit --log docs/audit.log     # tee progress log into a file
 """
 
 from __future__ import annotations
@@ -52,7 +53,12 @@ DEFAULT_WINDOW_DAYS = 90
 # Display name -> PlanIt `auth` param, for councils whose feed name differs.
 # The CSV already annotates known cases, e.g. "City of London (as 'City')" —
 # those annotations are parsed first; this dict is for new discoveries.
-ALIASES: dict[str, str] = {}
+# Resolved 2026-09-28 from docs/planit-areas.json:
+ALIASES: dict[str, str] = {
+    "Kensington and Chelsea": "Kensington",   # max_date 2026-07-27 — stale crawl
+    "Kingston upon Thames": "Kingston",
+    "Richmond upon Thames": "Richmond",
+}
 
 _AS_PATTERN = re.compile(r"\(as '([^']+)'\)")
 
@@ -124,10 +130,11 @@ def fetch_areas(cache: Path, pacing) -> list[dict]:
         areas.extend(records)
         total = data.get("total", 0)
         log.info("areas: %d/%d", len(areas), total)
+        # checkpoint after every page — a 429 ban or Ctrl-C loses nothing
+        cache.write_text(json.dumps(areas, indent=1), encoding="utf-8")
         if len(areas) >= total or not records:
             break
         offset += len(records)
-    cache.write_text(json.dumps(areas, indent=1), encoding="utf-8")
     log.info("cached %d areas -> %s", len(areas), cache)
     return areas
 
@@ -154,7 +161,15 @@ def main(argv: list[str] | None = None) -> int:
                              "of auditing (uses cache if present and fresh today)")
     parser.add_argument("--match", metavar="TEXT",
                         help="With --areas: print areas whose names contain TEXT")
+    parser.add_argument("--log", type=Path, metavar="FILE",
+                        help="Also write the progress log to FILE (append)")
     args = parser.parse_args(argv)
+
+    if args.log:
+        handler = logging.FileHandler(args.log, encoding="utf-8")
+        handler.setFormatter(logging.Formatter(
+            "%(asctime)s %(levelname)s %(message)s", "%Y-%m-%d %H:%M:%S"))
+        logging.getLogger().addHandler(handler)
 
     pacing = load_pacing(args.config)
 

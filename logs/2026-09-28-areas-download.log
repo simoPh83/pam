@@ -1,0 +1,73 @@
+﻿.\.venv\Scripts\python.exe : INFO areas: 10/485
+At line:1 char:36
++ ... older\pam'; .\.venv\Scripts\python.exe -m pam.audit --areas > "$env:T ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (INFO areas: 10/485:String) [], Re 
+   moteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+INFO areas: 20/485
+INFO areas: 30/485
+INFO areas: 40/485
+INFO areas: 50/485
+INFO areas: 60/485
+INFO areas: 70/485
+INFO areas: 80/485
+INFO areas: 90/485
+INFO areas: 100/485
+INFO areas: 110/485
+INFO areas: 120/485
+INFO areas: 130/485
+INFO areas: 140/485
+INFO areas: 150/485
+INFO areas: 160/485
+INFO areas: 170/485
+INFO areas: 180/485
+INFO areas: 190/485
+INFO areas: 200/485
+WARNING Rate limited (429); waiting 1417s before retry 1/6
+WARNING Request failed (403 Client Error: Forbidden for url: 
+https://www.planit.org.uk/api/areas/json?offset=200); retry 2/6 in 10s
+INFO areas: 210/485
+INFO areas: 220/485
+INFO areas: 230/485
+INFO areas: 240/485
+INFO areas: 250/485
+INFO areas: 260/485
+INFO areas: 270/485
+INFO areas: 280/485
+INFO areas: 290/485
+INFO areas: 300/485
+INFO areas: 310/485
+INFO areas: 320/485
+INFO areas: 330/485
+INFO areas: 340/485
+INFO areas: 350/485
+INFO areas: 360/485
+INFO areas: 370/485
+INFO areas: 380/485
+INFO areas: 390/485
+INFO areas: 400/485
+INFO areas: 410/485
+INFO areas: 420/485
+WARNING Rate limited (429); waiting 3578s before retry 1/6
+WARNING Request failed (403 Client Error: Forbidden for url: 
+https://www.planit.org.uk/api/areas/json?offset=420); retry 2/6 in 10s
+INFO areas: 430/485
+INFO areas: 440/485
+INFO areas: 450/485
+INFO areas: 460/485
+INFO areas: 470/485
+INFO areas: 480/485
+INFO areas: 485/485
+INFO cached 485 areas -> C:\python working folder\pam\docs\planit-areas.json
+485 areas cached (418 planning authorities) -> C:\python working folder\pam\docs\planit-areas.json
+# --- tail reconstructed from terminal transcript (original was mangled by PS UTF-16 redirect) ---
+2026-09-28 INFO Auditing 3 authorities (window: last 90 days)
+2026-09-28 INFO [1/3] Kensington and Chelsea (as 'Kensington') (auth='Kensington') ...
+2026-09-28 INFO   -> fetched=84 agents=0 applicants=0 docs=84 trees%=0 scraped=2026-08-02
+2026-09-28 INFO [2/3] Kingston upon Thames (as 'Kingston') (auth='Kingston') ...
+2026-09-28 INFO   -> fetched=100 agents=1 applicants=0 docs=97 trees%=29 scraped=2026-09-26
+2026-09-28 INFO [3/3] Richmond upon Thames (as 'Richmond') (auth='Richmond') ...
+2026-09-28 INFO   -> fetched=100 agents=0 applicants=0 docs=0 trees%=24 scraped=2026-09-26
+2026-09-28 CSV updated; audited 3/3; 0 still pending.

@@ -7,7 +7,92 @@ PlanIt API, what data each exposes, and what remains. Updated per session; see
 **Tooling:** `python -m pam.audit` ([pam/audit.py](../pam/audit.py)) — fills CSV
 rows where `fetched = -1`. Flags: `--refresh` (redo all), `--authority X Y`
 (targeted), `--dry-run`, `--days N`, `--areas [--match TEXT]` (area-list cache
-and name lookup).
+and name lookup), `--log FILE` (tee timestamped progress into a committable log).
+
+---
+
+## Backfill — first live run (session 3, evening)
+
+**Goal:** validate the full pipeline (`pam.main`: fetch → ledger → leads.xlsx)
+on ONE borough before spending the rate-limit budget on all of them.
+
+**Borough choice: Enfield.** Highest agent-name coverage in the audit (86/100),
+fresh crawl (2026-09-26), and never previously fetched by `pam` — so the run
+exercises the full backfill path from a cold ledger.
+
+**Setup:**
+- [config.yaml](../config.yaml): only `enfield` enabled; the 10 session-1 areas
+  commented out (re-enable after this validates). Backfill window 2026-06-27 →
+  today (3 months), as configured. States fetched: Permitted + Conditions +
+  Undecided (watch). Trees excluded via `exclude_app_types`.
+- Command: `.\.venv\Scripts\python.exe -m pam --log logs\2026-09-28-backfill-enfield.log`
+  (NOT `--dry-run` — writes `data/leads.xlsx` + `data/ledger.sqlite`).
+- Resumability: `fetch_progress` table checkpoints per (window, area, state)
+  page — if rate-limited or interrupted, re-running the same command skips
+  completed state/area pages.
+
+**What to check after (acceptance criteria):**
+1. `data/leads.xlsx` exists; rows are Permitted/Conditions decided within the
+   window; agent_name populated on most rows (Enfield ~86%).
+2. Ledger row counts: `SELECT app_state, COUNT(*) FROM applications GROUP BY 1`
+   — expect a few hundred Undecided tracked for future transitions.
+3. Log shows no unhandled errors; any 429s were waited out cleanly.
+4. Sanity-check 2–3 rows against their `council_url` — does the agent name
+   match the council portal?
+
+**Estimated cost:** Enfield 3-month volume unknown, likely 300–800 records
+across 3 states → ~10–30 pages at 100/page → 15–60 min with 429 waits.
+
+**OUTCOME (same evening): ✅ PASSED, no rate-limit waits needed.**
+
+- 820 fetched → **232 leads added** (176 Permitted + 56 Conditions decided
+  in-window), 585 Undecided tracked for future transitions, 0 errors.
+- **Agent names on 196/232 leads (84%)** — audit prediction (86%) confirmed.
+  Real practices: DPP Planning, NIE ASSOCIATES, Praktical Solutions Ltd…
+- Artifacts: data/leads.xlsx, data/ledger.sqlite,
+  logs/2026-09-28-backfill-enfield.log.
+- Invocation notes: main entry is `python -m pam.main` (package has no
+  `__main__.py`); `--log` had to be registered in config.py's parser AND
+  handled in main.py — both done this session.
+- Spot-check of 2–3 rows against council portals still worth doing by eye.
+
+**Next session: expand to the other 7 agent boroughs.** Uncomment/add in
+config.yaml areas: greenwich, lambeth, lewisham, newham, southwark, sutton,
+tower-hamlets (keep enfield). Run the same command — Enfield's completed
+pages are skipped via fetch_progress; each new borough backfills. Expect
+roughly 232 × 7 ≈ 1,600 leads total and several hours of wall time (rate
+limits); can also be done one borough per sitting via `--area NAME`.
+
+---
+
+## Status: 2026-09-28 (session 3) — AUDIT COMPLETE 33/33
+
+Name mismatches resolved from the areas cache ([docs/planit-areas.json](planit-areas.json),
+485 areas, full download log in [logs/2026-09-28-areas-download.log](../logs/2026-09-28-areas-download.log)):
+
+| CSV name | PlanIt feed name | Result |
+|---|---|---|
+| Kensington and Chelsea | `Kensington` | **stale crawl** (last scrape 2026-08-02; areas table max_date 2026-07-27) — 84 records, 0 agents. Moved to the stale watchlist. |
+| Kingston upon Thames | `Kingston` | fresh; 100 records, **1 agent** (outlier, not a usable source) |
+| Richmond upon Thames | `Richmond` | fresh; 100 records, 0 agents |
+
+Aliases live in `ALIASES` in [pam/audit.py](../pam/audit.py); CSV rows carry
+`(as '...')` annotations like the earlier City/Westminster rows.
+
+**Final tally: 8 boroughs with usable agent names** (Enfield, Greenwich, Lambeth,
+Lewisham, Newham, Southwark, Sutton, Tower Hamlets), 19 fresh without agents,
+6 stale crawls (Barking & Dagenham, Hackney, Harrow, Kensington, Merton,
+Waltham Forest).
+
+**Config impact:** the eight agent-name boroughs are the obvious expansion
+candidates for [config.yaml](../config.yaml) `areas:` — agent name is the field
+the whole project is for. Fresh-no-agent boroughs can still feed the pipeline
+(address + decided_date + council URL), with agent lookup as v2 portal scraping.
+
+**Operational note:** the areas download (49 pages) consumed the rate-limit
+budget twice over (429 waits of ~24 min and ~60 min mid-run). The downloader
+now checkpoints the cache after every page, and `--log` writes straight into
+the repo. Plan areas refreshes as standalone runs.
 
 ---
 
@@ -41,13 +126,14 @@ Hammersmith and Fulham, Haringey, Havering, Hillingdon, Hounslow, Islington,
 Redbridge, Wandsworth. These need portal scraping (v2) or `applicant_name`
 as a weak fallback (only Camden exposes it, ~83%).
 
-### 🕸️ Stale PlanIt crawls (5) — monitor, don't build on
+### 🕸️ Stale PlanIt crawls (6) — monitor, don't build on
 
 | Borough | Last scrape |
 |---|---|
 | Barking and Dagenham | 2026-07-06 |
 | Hackney | 2026-07-09 |
 | Harrow | 2026-07-03 |
+| Kensington | 2026-08-02 (found session 3) |
 | Merton | 2026-07-05 |
 | Waltham Forest | 2026-07-03 |
 
@@ -56,11 +142,10 @@ Re-check periodically: `--authority Hackney ...` after a few weeks.
 
 ### ⏳ Pending — name mismatch (3)
 
-`Kensington and Chelsea`, `Kingston upon Thames`, `Richmond upon Thames`
-return persistent **HTTP 400** (not 404/429) — feed almost certainly uses a
-different name (cf. `City of London (as 'City')`).
+**RESOLVED in session 3** — see top of file. All three used short feed names
+(`Kensington`, `Kingston`, `Richmond`); HTTP 400 = unknown auth name.
 
-**Next step (once rate limit resets):**
+<details><summary>Original notes</summary>
 
 ```
 .\.venv\Scripts\python.exe -m pam.audit --areas
@@ -73,6 +158,8 @@ Add discovered names to `ALIASES` in [pam/audit.py](../pam/audit.py) (and as
 `(as '...')` annotations in the CSV), then `python -m pam.audit` to fill the
 rows. Guesses to try: "Royal Borough of Kensington and Chelsea", "Kensington",
 "Kingston", "Richmond".
+
+</details>
 
 ---
 
@@ -95,6 +182,17 @@ rows. Guesses to try: "Royal Borough of Kensington and Chelsea", "Kensington",
   `isinstance(data, list)` — fixed in the script.
 - **PowerShell:** `... | Select-Object -Last N` buffers all output — looks
   hung on long commands. Prefer redirecting to a file and tailing it.
+- **PowerShell `>` redirect writes UTF-16LE.** Mixing it with Python's
+  `--log` (UTF-8) in one file produced a mixed-encoding log that VS Code
+  flagged ("unusual line terminators") and that needed manual repair.
+  Rule: always use `--log logs\FILE` for runs you want to commit; never
+  append to a `>`-created file. (Fixed logs/2026-09-28-areas-download.log;
+  tail reconstructed from the terminal transcript.)
+- **Audit accuracy caveat:** `agent_names` counts only non-junk values via
+  `_agent_name()`'s strict filter. A borough with a handful of real agents
+  among mostly-null rows can show ~0 (Barnet reportedly has some). Treat the
+  8 winners as solid, but the 0s as "weak/absent", not proven-absent —
+  re-probe individual boroughs before writing them off for v2 scraping.
 
 ## Code changes this session
 

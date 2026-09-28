@@ -33,7 +33,16 @@ def geocode_home(postcode: str) -> tuple[float, float] | None:
 
 def run(argv: list[str] | None = None) -> int:
     cfg = load_config(argv=argv)
-    dry_run = "--dry-run" in (argv if argv is not None else sys.argv[1:])
+    args = argv if argv is not None else sys.argv[1:]
+    dry_run = "--dry-run" in args
+
+    if "--log" in args:
+        from pathlib import Path
+        log_path = Path(args[args.index("--log") + 1])
+        handler = logging.FileHandler(log_path, encoding="utf-8")
+        handler.setFormatter(logging.Formatter(
+            "%(asctime)s %(levelname)s %(message)s", "%Y-%m-%d %H:%M:%S"))
+        logging.getLogger().addHandler(handler)
 
     home = geocode_home(cfg.home_postcode)
     today = date.today()

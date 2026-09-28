@@ -9,26 +9,31 @@ home_postcode: N19 4HF          # recorded as distance_km on every row (never a 
 # Barking & Dagenham is STALE (July) — excluded until the crawl recovers.
 # Remaining ~23 London boroughs: audit pending rate-limit reset, add after.
 areas:
-  - name: islington
-    authority: Islington
-  - name: camden
-    authority: Camden
-  - name: westminster
-    authority: Westminster
-  - name: barnet
-    authority: Barnet
-  - name: brent
-    authority: Brent
-  - name: bexley
-    authority: Bexley
-  - name: bromley
-    authority: Bromley
-  - name: croydon
-    authority: Croydon
-  - name: ealing
-    authority: Ealing
-  - name: city-of-london
-    authority: City
+  # First live backfill (2026-09-28): Enfield only — best agent coverage in the
+  # audit (86%) and not previously backfilled. Other areas below stay disabled
+  # until Enfield validates end-to-end; expand per docs/audit-progress.md.
+  - name: enfield
+    authority: Enfield
+  # - name: islington
+  #   authority: Islington
+  # - name: camden
+  #   authority: Camden
+  # - name: westminster
+  #   authority: Westminster
+  # - name: barnet
+  #   authority: Barnet
+  # - name: brent
+  #   authority: Brent
+  # - name: bexley
+  #   authority: Bexley
+  # - name: bromley
+  #   authority: Bromley
+  # - name: croydon
+  #   authority: Croydon
+  # - name: ealing
+  #   authority: Ealing
+  # - name: city-of-london
+  #   authority: City
 
 defaults:
   # States the spreadsheet treats as leads. "Conditions" = approved with
