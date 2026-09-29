@@ -16,6 +16,19 @@ areas:
     authority: Enfield
   - name: greenwich
     authority: Greenwich
+  # Remaining agent-name boroughs from the audit (added 2026-09-29):
+  - name: lambeth
+    authority: Lambeth
+  - name: lewisham
+    authority: Lewisham
+  - name: newham
+    authority: Newham
+  - name: southwark
+    authority: Southwark
+  - name: sutton
+    authority: Sutton
+  - name: tower-hamlets
+    authority: Tower Hamlets
   # - name: islington
   #   authority: Islington
   # - name: camden

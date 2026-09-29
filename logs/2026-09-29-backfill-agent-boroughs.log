@@ -1,0 +1,940 @@
+2026-09-29 12:45:08 INFO Window: 2026-06-27 -> 2026-09-29 | areas: enfield, greenwich, lambeth, lewisham, newham, southwark, sutton, tower-hamlets
+2026-09-29 12:45:08 INFO [enfield/Permitted] page at offset 0: 100 records
+2026-09-29 12:45:08 INFO LEAD CHANGED: [Permitted] Enfield/26/03497/PRH — 152 Galliard Road London N9 7LP
+2026-09-29 12:45:08 INFO LEAD CHANGED: [Permitted] Enfield/26/03488/PRH — 78 Tewkesbury Terrace London N11 2LU
+2026-09-29 12:45:08 INFO LEAD CHANGED: [Permitted] Enfield/26/03469/PRH — 3 Cross Road Enfield EN1 1PD
+2026-09-29 12:45:08 INFO LEAD CHANGED: [Permitted] Enfield/26/03381/CND — 2 Forestdale London N14 7DP
+2026-09-29 12:45:14 INFO [enfield/Permitted] page at offset 100: 100 records
+2026-09-29 12:45:14 INFO LEAD new: [Permitted] Enfield/26/03043/CEA — 4 Pentrich Avenue Enfield EN1 4LZ
+2026-09-29 12:45:14 INFO LEAD new: [Permitted] Enfield/26/03077/PRH — 5 Longfield Avenue Enfield EN3 5RX
+2026-09-29 12:45:14 INFO LEAD CHANGED: [Permitted] Enfield/26/03027/CND — 100 Church Street Enfield EN2 6AR
+2026-09-29 12:45:20 INFO [enfield/Permitted] page at offset 200: 9 records
+2026-09-29 12:45:25 INFO [enfield/Conditions] page at offset 0: 63 records
+2026-09-29 12:45:25 INFO LEAD CHANGED: [Conditions] Enfield/26/03240/FUL — 16 Sebastopol Road London N9 0PF
+2026-09-29 12:45:25 INFO LEAD CHANGED: [Conditions] Enfield/26/02777/HOU — 9 Soham Road Enfield EN3 6HD
+2026-09-29 12:45:31 INFO [enfield/Undecided] page at offset 0: 100 records
+2026-09-29 12:45:37 INFO [enfield/Undecided] page at offset 100: 100 records
+2026-09-29 12:45:42 INFO [enfield/Undecided] page at offset 200: 100 records
+2026-09-29 12:45:48 INFO [enfield/Undecided] page at offset 300: 100 records
+2026-09-29 12:45:54 INFO [enfield/Undecided] page at offset 400: 100 records
+2026-09-29 12:45:59 INFO [enfield/Undecided] page at offset 500: 100 records
+2026-09-29 12:46:05 INFO [enfield/Undecided] page at offset 600: 7 records
+2026-09-29 12:46:10 INFO [greenwich/Permitted] page at offset 0: 100 records
+2026-09-29 12:46:16 WARNING Rate limited (429); waiting 295s before retry 1/6
+2026-09-29 12:51:11 WARNING Request failed (403 Client Error: Forbidden for url: https://www.planit.org.uk/api/applics/json?app_state=Permitted&start_date=2026-06-27&end_date=2026-09-29&pg_sz=100&auth=Greenwich&offset=100); retry 2/6 in 10s
+2026-09-29 12:51:22 INFO [greenwich/Permitted] page at offset 100: 98 records
+2026-09-29 12:51:22 INFO LEAD CHANGED: [Permitted] Greenwich/26/1987/SD — 25 BENDMORE AVENUE
+2026-09-29 12:51:27 INFO [greenwich/Conditions] page at offset 0: 0 records
+2026-09-29 12:51:33 INFO [greenwich/Undecided] page at offset 0: 100 records
+2026-09-29 12:51:38 INFO [greenwich/Undecided] page at offset 100: 100 records
+2026-09-29 12:51:44 INFO [greenwich/Undecided] page at offset 200: 100 records
+2026-09-29 12:51:50 INFO [greenwich/Undecided] page at offset 300: 100 records
+2026-09-29 12:51:56 INFO [greenwich/Undecided] page at offset 400: 17 records
+2026-09-29 12:52:01 INFO [lambeth/Permitted] page at offset 0: 100 records
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02484/LDCE — 1 - 4 Brixton Hill Place London SW2 1HJ
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02442/NMC — Land At Clarence Avenue Poynders Road Atkins Road King's Ave
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02387/DET — Michael Tippett College Belthorn Crescent London SW12 0NS
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02392/DET — Land At Clarence Avenue Poynders Road Atkins Road King's Ave
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02459/OBS — Adjoining Borough Observations Within Southwark
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02358/LDCP — 27 Doverfield Road London SW2 5NE
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02400/EIASCR — Lambeth College Vauxhall Centre Belmore Street London SW8 2J
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02295/LDCP — 103 Narbonne Avenue London SW4 9LQ
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02471/OBS — Adjoining Borough Observations Within Westminster
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02294/PDE — 81 Hubert Grove London SW9 9NY
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02280/DET — 1 - 5 Lower Marsh London SE1 7RJ
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02277/DET — Land To The East Of Shakespeare Road, Shakespeare Road Londo
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02279/DET — 1 - 5 Lower Marsh London SE1 7RJ
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02265/DET — 10 Halsmere Road London SE5 9LN
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02253/PDE — 34 Acland Crescent London Lambeth SE5 8EQ
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02243/FUL — 38 Tankerville Road London SW16 5LP
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02242/PDE — 143 Sherwood Avenue London Lambeth SW16 5EE
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02246/DET — Land To The East Of Shakespeare Road, Shakespeare Road Londo
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02350/DET — 35-37 Leigham Court Road And Land To West And Rear Of 39-49 
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02239/G31 — 1 Lambeth Depot, The Community Shop Vale Street London Lambe
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02237/NMC — 127 Heath Road London SW8 3BB
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02229/NMC — 87 South Lambeth Road London Lambeth SW8 1RN
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02204/FUL — 93 Edgeley Road London SW4 6HD
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02196/FUL — 11 Parkthorne Road London SW12 0JN
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02206/ADV — 33 Weir Road London SW12 0NU
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02188/FUL — 57 Hargwyne Street London Lambeth SW9 9RQ
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02182/FUL — 69A Kings Avenue London SW4 8DX
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02186/LDCP — 57 Hargwyne Street London SW9 9RQ
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02194/FUL — 293 Croxted Road London Lambeth SE21 8NN
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02168/LDCP — 13 Fontaine Road London SW16 3PB
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02160/FUL — 32 Cambria Road London SE5 9AE
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02148/DET — 144 Coldharbour Lane London SE5 9QH
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02157/DET — 2 Gleneagle Mews London SW16 6AE
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02149/FUL — 2D Kinfauns Road London Lambeth SW2 3JL
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02145/LDCP — 1 Glanville Road London SW2 5DE
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02146/LDCP — 77 Prague Place London SW2 5ED
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02143/LDCP — 30 Ramillies Close London SW2 5DG
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02130/LDCP — 1 Ramillies Close London SW2 5DG
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02144/LDCP — 47 Glanville Road London SW2 5DE
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02139/DET — Land On The Corner Of Avenue Park Road Thurlow Park Road Lon
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02142/LDCP — 103 Glanville Road London SW2 5DF
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02258/DET — St Stephens Church Of England Church Weir Road London SW12 0
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02114/ADV — Bus Shelter Outside 6 De Montfort Parade Streatham High Road
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02195/S106D — 1 - 4 Brixton Hill Place London SW2 1HJ
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02127/FUL — 46 Mount Nod Road London SW16 2LL
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02117/DET — Land Rear Of 218-220 Stockwell Road London
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02126/FUL — 64 Abbeville Road London SW4 9NE
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02226/G18 — Waterloo Station London SE1 8SW
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02096/ADV — 34 Stockwell Green London SW9 9HZ
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02103/DET — The Southbank Centre Belvedere Road London SE1 8XX
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02111/NMC — 94 Mayall Road London Lambeth SE24 0PJ
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02110/LB — Royal Festival Hall South Bank London SE1 8XX
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02098/FUL — 87 Effra Road London Lambeth SW2 1DF
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02087/LDCP — 25A St Louis Road London SE27 9QN
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02086/LB — 3 Eagle House Mews London Lambeth SW4 9JY
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02084/LDCP — 63 Eylewood Road London SE27 9LZ
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02089/FUL — 135 Sternhold Avenue London SW2 4PF
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02088/S106 — 1, 3-11 Wellfit Street, 7-9 Hinton Road & Units 1-4 Hardess 
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02066/DET — 43 - 59 Clapham Road London SW9 0JD
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02067/FUL — 6 Rodenhurst Road London SW4 8AR
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02081/ADV — The Young Vic Theatre 66 The Cut London SE1 8LZ
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02080/LDCP — 19 Probert Road London SW2 1BN
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02072/NMC — 35-37 Leigham Court Road And Land To West And Rear Of 39-49 
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02074/FUL — Ujima Court Sunnyhill Road London SW16 2UG
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02064/FUL — 5 Macaulay Road London SW4 0QP
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02063/FUL — 5 to 8 Heritage Close London SW9 8RA
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02071/FUL — 33 Endymion Road London SW2 2BU
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02070/G31 — Oakfield School 125 - 127 Thurlow Park Road London SE21 8JJ
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02060/LDCE — 3 Loughborough Street London SE11 5RB
+2026-09-29 12:52:01 INFO LEAD new: [Permitted] Lambeth/26/02056/NMC — Land Rear Of 77 To 79 Westow Hill London
+2026-09-29 12:52:07 INFO [lambeth/Permitted] page at offset 100: 65 records
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02058/FUL — 43 Fairmount Road London Lambeth SW2 2BJ
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02061/FUL — 239 Cavendish Road London SW12 0BP
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02047/FUL — 2 Evandale Road London SW9 6SX
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02046/DET — Hungerford Coach Park At South Bank London SE1
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02028/FUL — 80 Valleyfield Road London SW16 2JA
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02027/FUL — 101 Wavertree Road London Lambeth SW2 3SN
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02036/DET — Land Between Somerleyton Rd And Rail Line, Excluding Brixton
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02038/LDCP — 74 Kay Road London SW9 9DE
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02026/LDCP — 34 Fairmile Avenue London SW16 6AG
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02037/DET — Land Between Somerleyton Rd And Rail Line, Excluding Brixton
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02018/DET — 23 Hoadly Road London SW16 1AE
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02022/DET — 10 Wyvil Road London SW8 2TG
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02023/FUL — 2 Ferndale Road London Lambeth SW4 7SF
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02025/DET — 87 South Lambeth Road London SW8 1RN
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02012/FUL — 9 Coney Acre London SE21 8LL
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02024/LB — 2 Ferndale Road London Lambeth SW4 7SF
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/02000/DET — Land To The Rear Of 60-62 Streatham High Road London SW16 1D
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01999/LDCE — 60 Brixton Road London SW9 6BS
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01998/LDCE — 18 Burnley Road London SW9 0SJ
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01997/DET — 4 Macaulay Road London SW4 0QX
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01995/DET — Unit 38 Market Row SW9 8LD And Unit 44 Atlantic Road London 
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01989/FUL — Brixton Police Station 367 Brixton Road London Lambeth SW9 7
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01987/LDCP — 9 Morval Road London Lambeth SW2 1DG
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01978/FUL — 5 Brantwood Road London SE24 0DH
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01980/NMC — 133 Kennington Road London Lambeth SE11 6SF
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01977/FUL — 18 Baytree Road London SW2 5RP
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01970/LDCE — 145 Elms Crescent London SW4 8QQ
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01975/DET — 1 - 5 Lower Marsh London SE1 7RJ
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01986/LB — 5 Pratt Walk London Lambeth SE11 6AR
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01985/FUL — 5 Pratt Walk London Lambeth SE11 6AR
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01971/FUL — 213 Rosendale Road London SE21 8LW
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01982/FUL — 34 Harpenden Road London SE27 0AE
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01972/NMC — 35 Hoadly Road London SW16 1AE
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01974/DET — 1 - 5 Lower Marsh London SE1 7RJ
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01981/LDCE — 41 Richborne Terrace London SW8 1AT
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01976/DET — 1 - 5 Lower Marsh London SE1 7RJ
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01964/LDCP — 143 Downton Avenue London SW2 3TX
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01963/ADV — Gasholder Station Kennington Oval London SE11 5SG
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01958/LDCE — 140 Clapham High Street London Lambeth SW4 7UH
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01968/LDCP — 199 Clive Road London SE21 8DG
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01954/FUL — 59 Athlone Road London Lambeth SW2 2DU
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01955/FUL — 66 South Lambeth Road London SW8 1RL
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01952/DET — A E Chapman And Son Ltd Timber Mill Way London Lambeth SW4 6
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01948/DET — 94 Mayall Road London SE24 0PJ
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01947/FUL — 105 Edgeley Road London SW4 6HD
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01946/FUL — 73 Pathfield Road London Lambeth SW16 5PA
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01945/LDCP — 3 Alderton Road London SE24 0HS
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01932/FUL — 76 Bavent Road London SE5 9RZ
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01926/DET — 43 - 59 Clapham Road London SW9 0JD
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01924/FUL — 53 Casewick Road London SE27 0TB
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01929/FUL — 7 Poplar Walk London SE24 0BX
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01931/LDCP — 23 Springwell Road London Lambeth SW16 2QU
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01921/DET — Land Between Somerleyton Rd And Rail Line, Excluding Brixton
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01920/DET — Land Between Somerleyton Rd And Rail Line, Excluding Brixton
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01913/LDCP — 56 Englewood Road London SW12 9NY
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01922/FUL — 1 Wilderness Mews London Lambeth SW4 0NE
+2026-09-29 12:52:07 INFO LEAD new: [Permitted] Lambeth/26/01918/FUL — 39 Atkins Road London Lambeth SW12 0AA
+2026-09-29 12:52:12 INFO [lambeth/Conditions] page at offset 0: 0 records
+2026-09-29 12:52:18 INFO [lambeth/Undecided] page at offset 0: 100 records
+2026-09-29 12:52:24 INFO [lambeth/Undecided] page at offset 100: 100 records
+2026-09-29 12:52:29 WARNING Rate limited (429); waiting 522s before retry 1/6
+2026-09-29 13:01:12 INFO [lambeth/Undecided] page at offset 200: 100 records
+2026-09-29 13:01:17 INFO [lambeth/Undecided] page at offset 300: 70 records
+2026-09-29 13:01:24 INFO [lewisham/Permitted] page at offset 0: 100 records
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/145418 — 210A HITHER GREEN LANE, LONDON, SE13 6RT
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/145289 — UNIT A, SIRIUS HOUSE, SEAFARER WAY, MARINE WHARF WEST, PLOUG
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/145194 — MACKLIN HOUSE, SHACKLETON CLOSE, LONDON, SE23 3YP
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/145091 — 76 OLDSTEAD ROAD, BROMLEY, BR1 5RJ
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/145069 — LAND TO THE REAR OF, 69-75 LAUSANNE ROAD, LONDON, SE15 2HY
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/145086 — GARAGES AT LAND ON WESTERN SIDE OF MILLBANK WAY LONDON SE12
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/145079 — 11 WELLMEADOW ROAD, LONDON, SE13 6SY
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/145035 — 51 FIRHILL ROAD, LONDON, SE6 3SA
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/145019 — RIVERDALE SCULPTURE PARK, MOLESWORTH STREET, LONDON, SE13 7E
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/145041 — 57 KIRKDALE, LONDON, SE26 4BL
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/145010 — 151 UPPER BROCKLEY ROAD, LONDON, SE4 1TF
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/144955 — LAND AT THE FORMER BELL GREEN GAS WORKS, BELL GREEN, LONDON,
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/144964 — 19 UNDERCLIFF ROAD, LONDON, SE13 7TU
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/144950 — 7 ASHMEAD ROAD, LONDON, SE8 4DY
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/144911 — MAYFIELDS HOSTEL, 47 BURNT ASH HILL, LONDON, SE12 0AE
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/144901 — FLAT 2, 18 SIDDONS ROAD, LONDON, SE23 2JQ
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/144886 — 51 CRANBROOK ROAD, LONDON, SE8 4EJ
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/144860 — 29 KILGOUR ROAD, LONDON, SE23 1PG
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/144859 — 111 DALLINGER ROAD, LONDON, SE12 0TQ
+2026-09-29 13:01:24 INFO LEAD new: [Permitted] Lewisham/DC/26/144821 — 30 LIPHOOK CRESCENT, LONDON, SE23 3BW
+2026-09-29 13:01:29 INFO [lewisham/Permitted] page at offset 100: 100 records
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144844 — CROWN AND NEW BALTIC, PARK AND BRIDGE AND VICTORIA WHARVES, 
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144869 — (FORMER) LADYWELL LEISURE CENTRE, 261 LEWISHAM HIGH STREET, 
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144814 — 53 BREAKSPEARS ROAD, LONDON, SE4 1XR
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144818 — 63 ARDFILLAN ROAD, LONDON, SE6 1ST
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144819 — 63 MUIRKIRK ROAD, LONDON, SE6 1BJ
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144803 — FLAT A, 29 DUNDALK ROAD, LONDON, SE4 2JJ
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144801 — 35 FIRHILL ROAD, LONDON, SE6 3JS
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144809 — 186 SOUTHEND LANE, LONDON, SE6 3DP
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144796 — 1 DRAKE ROAD, LONDON, SE4 1QH
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144793 — 132 LADYWELL ROAD, LONDON, SE13 7HU
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144780 — 82-84 INCHMERY ROAD, LONDON, SE6 2ND
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144771 — 75 ERMINE ROAD, LONDON, SE13 7JJ
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144787 — 197 CHUDLEIGH ROAD, LONDON, SE4 1EG
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144770 — 381 BROMLEY ROAD, LONDON, SE6 2RS
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144792 — 92 CULVERLEY ROAD, LONDON, SE6 2JY
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144773 — 31 ELSIEMAUD ROAD, LONDON, SE4 1HN
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144778 — 156-158 INCHMERY ROAD, LONDON, SE6 1DF
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144766 — 7A HAVELOCK WALK, LONDON, SE23 3HG
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144761 — UNIT 1-3 NEW CROSS BUSINESS CENTRE, BLACKHORSE ROAD, LONDON,
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144763 — 21-23 DARTMOUTH ROAD, LONDON, SE23 3HN
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144760 — LAND AT THE FORMER BELL GREEN GAS WORKS, BELL GREEN, LONDON,
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144755 — 8 WALDRAM PARK ROAD, LONDON, SE23 2PN
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144758 — 179 CRANSTON ROAD, LONDON, SE23 2EZ
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144736 — 27 ACKROYD ROAD, LONDON, SE23 1DN
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144747 — 123 DOWNDERRY ROAD, BROMLEY, BR1 5QE
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144746 — 8 CLEEVE HILL, LONDON, SE23 3DD
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144722 — LAND AT THE FORMER BELL GREEN GAS WORKS, BELL GREEN, LONDON,
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144751 — 120 BROADFIELD ROAD, LONDON, SE6 1TH
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144748 — 4 GARSINGTON MEWS, LONDON, SE4 1LL
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144749 — 19 CHUDLEIGH ROAD, LONDON, SE4 1JX
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144700 — 83 ARBUTHNOT ROAD, LONDON, SE14 5NP
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144698 — 83 ARBUTHNOT ROAD, LONDON, SE14 5NP
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144732 — 21 BROCKLEY PARK, LONDON, SE23 1PT
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144740 — LAND ADJACENT TO, 3 PARK RISE ROAD, LONDON, SE23 1RU
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144690 — LAND TO EAST SIDE OF CARRIAGE HOUSE, UNIT 2, WICKHAM MEWS, L
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144712 — 111 SYDENHAM ROAD, LONDON, SE26 5UA
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144728 — 140 LONGHILL ROAD, LONDON, SE6 1UA
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144726 — 33 WATLINGTON GROVE, LONDON, SE26 5RR
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144706 — 10-14 MERCY TERRACE, LONDON, SE13 7UX
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144723 — 87 BRAMDEAN CRESCENT, LONDON, SE12 0UJ
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144687 — 9 AMYRUTH ROAD, LONDON, SE4 1HQ
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144689 — 101B HONOR OAK PARK, LONDON, SE23 3LB
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144704 — CATFORD ISLAND RETAIL PARK, Catford Island Site, PLASSY ROAD
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144668 — 106 BROOKDALE ROAD, LONDON, SE6 4JN
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144671 — 185 LALEHAM ROAD, LONDON, SE6 2AE
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144677 — 79 SYDENHAM ROAD, LONDON, SE26 5UA
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144672 — 82 ALBACORE CRESCENT, LONDON, SE13 7HP
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144673 — 153 SILVERDALE, LONDON, SE26 4SQ
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144681 — 249 MANWOOD ROAD, LONDON, SE4 1SF
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144678 — 172 SOUTHEND LANE, LONDON, SE6 3DP
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144691 — THOMAS LANE CARPARK, THOMAS' LANE, LONDON
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144703 — 100 WOODBANK ROAD, BROMLEY, BR1 5HH
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144658 — 86 NEWQUAY ROAD, LONDON, SE6 2NP
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144647 — 28 HOLDENBY ROAD, LONDON, SE4 2DA
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144629 — BROCKLEY MOT TEST CENTRE, SHARDELOES ROAD, LONDON, SE4 1DN
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144643 — 68 OAKRIDGE ROAD, BROMLEY, BR1 5QN
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144632 — 61 ARNGASK ROAD, LONDON, SE6 1XY
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144635 — 56 KEEDONWOOD ROAD, BROMLEY, BR1 4QH
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144641 — 51 MINARD ROAD, LONDON, SE6 1NP
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144686 — 164-196 TRUNDLEY'S ROAD AND 1-9 SANFORD STREET, LONDON, SE8 
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144637 — LEWISHAM OPEN MARKET, LEWISHAM HIGH STREET, LONDON
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144636 — 33 UPWOOD ROAD, LONDON, SE12 8AE
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144648 — LONDON STRATEGIC HEAT MAIN, EVELYN STREET, LONDON, SE8
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144623 — 10 BLASHFORD STREET, LONDON, SE13 6UA
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144621 — FIRST FLOOR FLAT, 53 HOMECROFT ROAD, LONDON, SE26 5QN
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144603 — 6 FRIENDLY STREET, LONDON, SE8 4DT
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144617 — 26B SYDENHAM ROAD, LONDON, SE26 5QW
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144611 — 3 SUNNINGHILL ROAD, LONDON, SE13 7SS
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144607 — 3 SUNNINGHILL ROAD, LONDON, SE13 7SS
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144619 — 62 BROADFIELD ROAD, LONDON, SE6 1NG
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144610 — 11 ARDFILLAN ROAD, LONDON, SE6 1ST
+2026-09-29 13:01:29 INFO LEAD new: [Permitted] Lewisham/DC/26/144618 — 42 SILVERMERE ROAD, LONDON, SE6 4QS
+2026-09-29 13:01:35 INFO [lewisham/Permitted] page at offset 200: 27 records
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144593 — 114 ALBYN ROAD, LONDON, SE8 4ED
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144582 — 18 ELSIEMAUD ROAD, LONDON, SE4 1HW
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144584 — 102 GLENFARG ROAD, LONDON, SE6 1XJ
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144594 — 62 JEVINGTON WAY, LONDON, SE12 9NQ
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144577 — 452-458 NEW CROSS ROAD, LONDON, SE14 6TY
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144563 — 54 CRESSINGHAM ROAD, LONDON, SE13 5AG
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144556 — LAND TO THE SIDE OF 13 SENLAC ROAD AND REAR OF 111-117 GUIBA
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144575 — 13 MANOR LANE, LONDON, SE13 5QW
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144562 — 67 CRESSINGHAM ROAD, LONDON, SE13 5AQ
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144552 — CROWN AND NEW BALTIC, PARK AND BRIDGE AND VICTORIA WHARVES, 
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144540 — 15 CELESTIAL GARDENS, LONDON, SE13 5RP
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144548 — 179 SANDHURST ROAD, LONDON, SE6 1UR
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144542 — 137 CONISBOROUGH CRESCENT, LONDON, SE6 2SQ
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144549 — BLACKHEATH JUNIOR SCHOOL, WEMYSS ROAD, LONDON, SE3 0TF
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144568 — 10 LUTWYCHE ROAD, LONDON, SE6 4EP
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144539 — 47 RIDGEWELL CLOSE, LONDON, SE26 5AP
+2026-09-29 13:01:35 INFO LEAD new: [Permitted] Lewisham/DC/26/144554 — 39 HEATHER ROAD, LONDON, SE12 0UG
+2026-09-29 13:01:40 INFO [lewisham/Conditions] page at offset 0: 0 records
+2026-09-29 13:01:46 INFO [lewisham/Undecided] page at offset 0: 100 records
+2026-09-29 13:01:52 INFO [lewisham/Undecided] page at offset 100: 100 records
+2026-09-29 13:01:58 INFO [lewisham/Undecided] page at offset 200: 100 records
+2026-09-29 13:02:03 INFO [lewisham/Undecided] page at offset 300: 92 records
+2026-09-29 13:02:09 INFO [newham/Permitted] page at offset 0: 100 records
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01961/S106 — Hopgarden House 473 Barking Road East Ham London
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01857/NONMAT — Cardamom Court 1 Grantham Road Manor Park London E12 5LU
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01841/AOD — 14 Marshgate Lane Stratford London E15 2NH
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01816/PREHH — 8 Barclay Road Plaistow London E13 8SA
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01827/PREHH — 207 Caulfield Road East Ham London E6 2DH
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01824/PREHH — 123 Kensington Avenue Manor Park London E12 6NL
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01606/FUL — 97 Harold Road Upton Park London E13 0SG
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01796/TEL — Nicholls Point Park Grove Stratford London E15 3QU
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01763/ADV — Land North Of Royal Albert Dock Keying Way Beckton London
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01760/AOD — 221 High Street Stratford London E15 2AE
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01759/PREHH — 69 Wellington Road East Ham London E6 2RQ
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01751/TEL — 38 Langdon Road East Ham London E6 2QB
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01748/AOD — Glory House 2 Tabernacle Avenue Plaistow London E13 8EG
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01738/HH — 28 Hollybush Street Plaistow London E13 9DZ
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01683/NONMAT — Stratford Waterfront Queen Elizabeth Olympic Park Stratford 
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01735/CLP — Land At Thameside West And Carlsberg Tetley Dock Road Silver
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01725/CLE — First Floor Flat 13 Herbert Road Manor Park London E12 6AY
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01079/FUL — Telephone Kiosk At Junction With Harcourt Road Plaistow Road
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01718/ADV — Outside 748 Barking Road Plaistow London E13 9PJ
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01719/FUL — Buildings Between Shirley St And St Lukes Square Canning Tow
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01699/ADV — Outside 56 High Street North East Ham London E6 2HW
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01703/ADV — Outside 6 High Street South East Ham London E6 6ES
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01620/CLE — 9B South Crescent Canning Town London E16 4TL
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01701/ADV — Outside 735 To 739 Barking Road Plaistow London E13 9PL
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01702/ADV — Opposite Dickens Road Barking Road East Ham London E6 3BD
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01698/ADV — Outside Rokeby School Barking Road Canning Town London E16 4
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01700/ADV — Outside 299 Barking Road Plaistow London E13 8EQ
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01697/ADV — Outside 72 To 76 High Street North East Ham London E6 2JN
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01680/PREHH — 75 Stevenage Road East Ham London E6 2AU
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01538/HH — 111 Geere Road Stratford London E15 3PP
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01685/AOD — Cardamom Court 1 Grantham Road Manor Park London E12 5LU
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01665/FUL — 1 - 7 Magpie Close Forest Gate London
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01654/PREHH — 2 Jedburgh Road Plaistow London E13 9LG
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01667/FUL — 56 - 61 Magpie Close Forest Gate London
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01675/AOD — Cardamom Court 1 Grantham Road Manor Park London E12 5LU
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01661/FUL — 160 Claremont Road Forest Gate London E7 0PX
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01663/FUL — 24 Braemar Road Plaistow London E13 8EH
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01656/FUL — 4 - 8 Oberon Court East Ham London E6 1BF
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01672/ADV — Thames Barrier Park North Woolwich Road Silvertown London E1
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01658/FUL — 41 - 41F Maryland Road Stratford London
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01633/AOD — 14 Marshgate Lane Stratford London E15 2NH
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01643/AOD — Land At Thameside West And Carlsberg Tetley Dock Road Silver
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01644/NONMAT — Alice Billings House 2 - 12 West Ham Lane Stratford London E
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01632/PREHH — 13 Woodhouse Grove Manor Park London E12 6SR
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01637/AOD — Hawthorne House 2 Farthingale Walk Stratford London E15 1LE
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01651/AOD — Mirror Works 12 Marshgate Lane Stratford London E15 2NH
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01636/AOD — Cardamom Court 1 Grantham Road Manor Park London E12 5LU
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01650/FUL — 515A Barking Road East Ham London E6 2LN
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01627/AOD — Cardamom Court 1 Grantham Road Manor Park London E12 5LU
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01051/S106 — Hawthorne House 2 Farthingale Walk Stratford London E15 1LE
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01612/CLP — 36 Humberstone Road Plaistow London E13 9NJ
+2026-09-29 13:02:09 INFO LEAD new: [Permitted] Newham/26/01126/S106 — Hawthorne House 2 Farthingale Walk Stratford London E15 1LE
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01447/FUL — 75A Shaftesbury Road Forest Gate London E7 8PD
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01613/PREHH — 15 Cromwell Road Forest Gate London E7 8PA
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01084/ADV — Telephone Box Outside 126 Upton Lane Forest Gate London E7 9
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01617/CLP — 25 Bective Road Forest Gate London E7 0DP
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01083/FUL — Telephone Box Outside 126 Upton Lane Forest Gate London E7 9
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01501/HH — 3 Emerald Close West Beckton London E16 3TS
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01608/CLP — 19 Victoria Avenue East Ham London E6 1EX
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01598/HH — 23 Osborne Road Forest Gate London E7 0PJ
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01597/CLP — 2 Colegrave Road Stratford London E15 1ED
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01604/CLP — Site Emily Duncan Place Forest Gate London
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01605/HH — 31 Kingfisher Street Beckton London E6 5JZ
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01599/CLP — 7 Paul Street Stratford London E15 4QB
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01577/PREHH — 51 Flanders Road East Ham London E6 6BL
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01589/AOD — Land At Thameside West And Carlsberg Tetley Dock Road Silver
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01602/CLP — 48 Belgrave Road Plaistow London E13 8RS
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01592/AOD — Land At Thameside West And Carlsberg Tetley Dock Road Silver
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01584/AOD — Land At Thameside West And Carlsberg Tetley Dock Road Silver
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01591/AOD — Land At Thameside West And Carlsberg Tetley Dock Road Silver
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01583/AOD — Land At Thameside West And Carlsberg Tetley Dock Road Silver
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01586/AOD — Land At Thameside West And Carlsberg Tetley Dock Road Silver
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01588/AOD — Land At Thameside West And Carlsberg Tetley Dock Road Silver
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01579/HH — 2 Cecil Road Plaistow London E13 0LX
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01587/AOD — Land At Thameside West And Carlsberg Tetley Dock Road Silver
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01590/AOD — Land At Thameside West And Carlsberg Tetley Dock Road Silver
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01585/AOD — Land At Thameside West And Carlsberg Tetley Dock Road Silver
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01581/NONMAT — University Of East London Stratford Campus Water Lane Stratf
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01595/AOD — Cardamom Court 1 Grantham Road Manor Park London E12 5LU
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01594/ADV — 4 Chestnut Plaza Westfield Stratford City Montfichet Road St
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01565/CLP — 66 Aldworth Road Stratford London E15 4DL
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01573/CLP — Land At 27 To 37 Lascars Avenue And 14 To 23 Royal Albert Qu
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01574/CLP — Land At 39 To 57 Lascars Avenue And 24 To 29 Royal Albert Qu
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01460/CLP — 170 Dersingham Avenue Manor Park London E12 5QH
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01569/AOD — Rear Of 355 Katherine Road Forest Gate London E7 8LT
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01437/VAR — 19A Dacre Road Plaistow London E13 0PT
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01544/NONMAT — Gallions Reach Shopping Park 3 Armada Way Beckton London E6 
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01549/CLP — 31 Third Avenue Manor Park London E12 6DX
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01562/AOD — Land Within The Development Of Pudding Mill Lane Stratford L
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01555/ADV — 4 Silvertown Square Canning Town London E16 1BX
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01543/HH — 133 Chandos Road Stratford London E15 1TU
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01548/HH — 66 Kensington Avenue Manor Park London E12 6NP
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01545/AOD — Gallions Reach Shopping Park 3 Armada Way Beckton London E6 
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01540/AOD — National Grid Gas Site Rick Roberts Way Stratford London E15
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01541/AOD — 36 New Barn Street Plaistow London E13 8JY
+2026-09-29 13:02:10 INFO LEAD new: [Permitted] Newham/26/01542/CLP — 133 Chandos Road Stratford London E15 1TU
+2026-09-29 13:02:15 INFO [newham/Permitted] page at offset 100: 67 records
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01528/HH — 5 Liverpool Road Canning Town London E16 4LU
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01533/HH — 64 Hatherley Gardens East Ham London E6 3HQ
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01535/NONMAT — 64A Knox Road Forest Gate London E7 9HP
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01526/FUL — First Floor Flat 238 Browning Road Manor Park London E12 6NU
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01534/PREHH — 35 Palmer Road Plaistow London E13 8NU
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01536/PREHH — 132 Boundary Road Plaistow London E13 9QG
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01523/CLP — 10 Millais Avenue Manor Park London E12 6JR
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01532/CLP — 32 Tinto Road Canning Town London E16 4BB
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01517/AOD — Newham Heritage Centre 105A Barking Road Canning Town London
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01522/HH — 19 Davis Street Plaistow London E13 9EE
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01521/CLP — 85 Ham Park Road Stratford London E15 4AD
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01525/AOD — Cardamom Court 1 Grantham Road Manor Park London E12 5LU
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01505/PREHH — 326 Strone Road Manor Park London E12 6TN
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01305/CLP — 22 Grosvenor Road East Ham London E6 1HE
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01500/HH — 17 Hughan Road Stratford London E15 1LS
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01508/PREHH — 65 Shaftesbury Road Forest Gate London E7 8PD
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01507/TEL — 1 Parkway Crescent Stratford London E15 1AB
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01493/ADV — 176 - 177 Forest Lane Forest Gate London E7 9BB
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01509/PREHH — 32 Tinto Road Canning Town London E16 4BB
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01482/NONMAT — Development Site 1 To 7 Garage Site Vandome Close And 24 To 
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01005/CLE — 52 Appleby Road Canning Town London E16 1LQ
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01495/LBC — Manor House 24 Gladding Road Manor Park London E12 5DD
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01175/HH — 93 Varley Road Canning Town London E16 3NR
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01479/CLP — 9 Cheshunt Road Forest Gate London E7 8JD
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01481/AOD — Development Site 1 To 7 Garage Site Vandome Close And 24 To 
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01476/HH — 48 Dunnock Road Beckton London E6 5SX
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01485/CLP — 33 Avenue Road Forest Gate London E7 0LA
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01484/CLP — 33 East Avenue Manor Park London E12 6SG
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01478/CLP — 26 Corporation Street Stratford London E15 3HD
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01473/HH — 49 Sidney Road Forest Gate London E7 0ED
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01463/FUL — 12 Columbine Avenue Beckton London E6 5UA
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01480/CLP — 1 Tyrone Road East Ham London E6 6DT
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01468/CLP — 34 Upton Park Road Forest Gate London E7 8LD
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01421/HH — 114 Osborne Road Forest Gate London E7 0PL
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01467/HH — 1 Juniper Lane Beckton London E6 5UR
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01466/FUL — 6 Stork Road Forest Gate London E7 9HR
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01469/HH — 34 Upton Park Road Forest Gate London E7 8LD
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01471/FUL — 95 - 97 Field Road Forest Gate London E7 9DN
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01453/PREHH — 23 Rixsen Road Manor Park London E12 6RN
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01455/HH — 8 Sandford Road East Ham London E6 3QJ
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01452/CLP — 23 Rixsen Road Manor Park London E12 6RN
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01451/HH — 129 Capel Road Forest Gate London E7 0JT
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01459/AOD — St Helens Roman Catholic Primary School Chargeable Lane Plai
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01436/PREHH — 9 Amy Warne Close Beckton London E6 5ZL
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01448/CLP — 97 Sherrard Road Forest Gate London E7 8DN
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01446/FUL — 75 Shaftesbury Road Forest Gate London E7 8PD
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01449/HH — 97 Sherrard Road Forest Gate London E7 8DN
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01425/AOD — 8 South Crescent Canning Town London E16 4TL
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01433/CLP — 38 Mitcham Road East Ham London E6 3LU
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01435/ADV — London Industrial Estate Eastbury Road Beckton London E6 6LP
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01422/FUL — 204A - 204B Halley Road Manor Park London E12 6UD
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01424/FUL — 11 To 16 Comet Close Manor Park London E12 5BW
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01428/FUL — 77 - 79 East Road Stratford London E15 3QS
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01420/HH — 194 Osborne Road Forest Gate London E7 0PR
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01419/HH — 12 Cheltenham Gardens East Ham London E6 3DH
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01439/PRESU — Latimer Road Railway Bridge Latimer Road Forest Gate London 
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01423/FUL — 42 - 45 Magpie Close Forest Gate London
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01414/HH — 38 Thomas Cribb Mews Beckton London E6 5PD
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01411/HH — 131 Humberstone Road Plaistow London E13 9NH
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01376/AOD — Newham Heritage Centre 105A Barking Road Canning Town London
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01410/AOD — Land At Leyes Road And Royal Road West Beckton London E16 3H
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01396/CLP — 95 Caistor Park Road Stratford London E15 3PR
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01403/HH — 140 Upton Park Road Forest Gate London E7 8LB
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01398/HH — 145 Cumberland Road Plaistow London E13 8LS
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01401/CLP — 59 Little Ilford Lane Manor Park London E12 5PW
+2026-09-29 13:02:15 INFO LEAD new: [Permitted] Newham/26/01963/S106 — Hopgarden House 473 Barking Road East Ham London
+2026-09-29 13:02:21 WARNING Rate limited (429); waiting 530s before retry 1/6
+2026-09-29 13:11:11 WARNING Request failed (403 Client Error: Forbidden for url: https://www.planit.org.uk/api/applics/json?app_state=Conditions&start_date=2026-06-27&end_date=2026-09-29&pg_sz=100&auth=Newham); retry 2/6 in 10s
+2026-09-29 13:11:22 INFO [newham/Conditions] page at offset 0: 0 records
+2026-09-29 13:11:27 INFO [newham/Undecided] page at offset 0: 0 records
+2026-09-29 13:11:33 INFO [southwark/Permitted] page at offset 0: 100 records
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2613 — 11 Trinity Church Square London Southwark SE1 4HU
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2609 — Block C Former Mulberry Business Park Quebec Way London SE16
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2611 — 11 Trinity Church Square London Southwark SE1 4HU
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2595 — Flat A 38 Whateley Road London Southwark SE22 9DD
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2562 — Flat 18 St Saviours Wharf 23 Mill Street London Southwark SE
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2571 — Unit 1 And Unit 4 Canada Water Retail Park Surrey Quays Road
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2569 — Chatelain House 182-202 Walworth Road London Southwark SE17 
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2546 — 36 Chadwick Road London Southwark SE15 4RA
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2539 — 33-38 Rushworth Street And 1-7 King Bench Street London Sout
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2516 — 9 And 11 Gowlett Road London Southwark
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2527 — 47-49 Tanner Street London Southwark SE1 3PL
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2481 — 79-161 Ilderton Road London Southwark SE16 3JZ
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2445 — Friars Close Bear Lane London Southwark SE1
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2430 — 257-283 Ilderton Road London Southwark SE15 1NS
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2422 — 5-9 Rockingham Street And 2-4 Tiverton Street London SE1 6PD
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2438 — 265 Rotherhithe Street London Southwark SE16 5EJ
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2432 — 257 - 283 Ilderton Road London Southwark SE15 1NS
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2431 — 257 - 283 Ilderton Road London Southwark SE15 1NS
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2415 — Peckham Rye Railway Station Station Way And 1-4 Holly Grove 
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2411 — Bankside Yards, Formerly Sampson House 64 Hopton Street & Lu
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2386 — 29 Abbey Gardens Southwark Park Road London Southwark SE16 3
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2380 — 47 - 49 Tanner Street London Southwark SE1 3PL
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2384 — 47 - 49 Tanner Street London Southwark SE1 3PL
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2372 — Pearl Yard Residential Development. Former Tower Bridge Busi
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2393 — Land Off Potters Fields Potters Fields Park London SE1 2SG
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2396 — Land Off Potters Fields Potters Fields Park London SE1 2SG
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2359 — Land Off Potters Fields Potters Fields Park London SE1 2SG
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2357 — 82 Melbourne Grove London Southwark SE22 8QY
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2371 — Aylesbury Estate Land Bounded By Albany Road Portland Street
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2353 — Barnwell House St Giles Road London Southwark SE5 7RP
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2364 — Friars Close Bear Lane London Southwark
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2355 — Flat 20-22 Barnwell House St Giles Road London Southwark SE5
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2322 — Unit 1 And Unit 4 Canada Water Retail Park Surrey Quays Road
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2335 — Block C Former Mulberry Business Park Quebec Way London SE16
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2336 — 257-283 Ilderton Road London Southwark SE15 1NS
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2325 — 25 Hansler Road London Southwark SE22 9DJ
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2313 — 22-24 Southwark Bridge Road London Southwark SE1 9HB
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2301 — 267A Crystal Palace Road London Southwark SE22 9JH
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2314 — 22-24 Southwark Bridge Road London Southwark SE1 9HB
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2280 — 25 Surrey Road London Southwark SE15 3AS
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2308 — Unit 1 And Unit 4 Canada Water Retail Park Surrey Quays Road
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2273 — Unit 1 And Unit 4 Canada Water Retail Park Surrey Quays Road
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2307 — 257-283 Ilderton Road London Southwark SE15 1NS
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2268 — Land Adjacent 40 Village Way London Southwark SE21 7AP
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2270 — 1 Maldon Close London Southwark SE5 8DD
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2252 — 19 Crofton Road London Southwark SE5 8LY
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2247 — 17-21 Rotherhithe Old Road London Southwark SE16 2PP
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2259 — 64 Abercorn Way London Southwark SE1 5HL
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2251 — Flat 1 162B Underhill Road London Southwark SE22 0QH
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2231 — 5 Tempus Wharf 29 Bermondsey Wall West London Southwark SE16
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2238 — 9 And 11 Gowlett Road London Southwark SE15 4HX
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2256 — 83 New Kent Road. London Southwark SE1 6RD
+2026-09-29 13:11:33 INFO LEAD new: [Permitted] Southwark/26/AP/2250 — Rich Industrial Estate Crimscott Street And Willow Walk Lond
+2026-09-29 13:11:39 INFO [southwark/Permitted] page at offset 100: 100 records
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2211 — 27 Lanbury Road London Southwark SE15 3DB
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2216 — Bellenden Primary School Bellenden Road London Southwark SE1
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2254 — 15 Sydenham Hill London Southwark SE26 6SH
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2227 — 15 Sydenham Hill London Southwark SE26 6SH
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2220 — 160 Blackfriars Road London Southwark SE1 8EZ
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2213 — 7 Eagle Wharf Court 59 Lafone Street London Southwark SE1 2L
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2189 — Surrey Square Park Surrey Square London Southwark SE17 2JX
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2188 — 124 Forest Hill Road London Southwark SE22 0RS
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2205 — Rich Industrial Estate Crimscott Street And Willow Walk Lond
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2232 — Tower Bridge Business Complex 100 Clements Road Aka Biscuit 
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2196 — City Of London Academy 240 Lynton Road London Southwark SE1 
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2186 — 169 Half Moon Lane London Southwark SE24 9JG
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2224 — 254-268 Camberwell Road London Southwark SE5 0DP
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2225 — 254-268 Camberwell Road London Southwark SE5 0DP
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2187 — City Of London Academy 240 Lynton Road London Southwark SE1 
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2199 — 2A Howden Street London Southwark SE15 4LB
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2179 — 85 Wood Vale London Southwark SE23 3DT
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2168 — 150A Lower Road London Southwark SE16 2UG
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2165 — Unit 1 And Unit 4 Canada Water Retail Park Surrey Quays Road
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2171 — 17 Court Lane Gardens London Southwark SE21 7DZ
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2172 — The Ledbury Estate Commercial Way And Old Kent Road London S
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2158 — 7 Alma Grove London Southwark SE1 5PY
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2156 — 88 Red Post Hill London Southwark SE24 9PW
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2152 — New City Court 4-26 St Thomas Street London SE1 9RS
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2153 — New City Court 4-26 St Thomas Street London SE1 9RS
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2157 — 22 -24 Southwark Bridge Road London Southwark SE1 9HB
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2149 — 188A Tooley Street London Southwark SE1 2TZ
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2138 — 123 Benhill Road London Southwark SE5 7LZ
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2148 — 188A Tooley Street London Southwark SE1 2TZ
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2124 — Gallery Court 4 - 10 Hankey Place London Southwark
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2133 — 22-24 Southwark Bridge Road London Southwark SE1 9HB
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2132 — 22-24 Southwark Bridge Road London Southwark SE1 9HB
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2143 — Advertisement On Payment Outside 147 Peckham Hill Street Lon
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2140 — Pavement Outside Elephant And Castle Underground Station Lon
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2144 — Advertisement On Payment Outside 147 Peckham Hill Street Lon
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2139 — Pavement Outside Elephant And Castle Underground Station Lon
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2120 — 68 Melbourne Grove London Southwark SE22 8QY
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2127 — Flat 16 157-163 Queens Road London Southwark SE15 2ND
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2131 — 22-24 Southwark Bridge Road London Southwark SE1 9HB
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2113 — St Johns Church Of England School Larcom Street London South
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2112 — 5-9 Rockingham Street And 2-4 Tiverton Street London SE1 6PF
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2118 — 8 Rodwell Road London Southwark SE22 9LF
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2110 — 38A De Laune Street London Southwark SE17 3UR
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2096 — 92 Acanthus Drive London Southwark SE1 5HJ
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2105 — 2 Landells Road London Southwark SE22 9PG
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2095 — 50 Abercorn Way London Southwark SE1 5HL
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2093 — 211 Ivydale Road London Southwark SE15 3DY
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2099 — 25 De Laune Street London Southwark SE17 3UU
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2108 — 9 Grummant Road London Southwark SE15 5NQ
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2070 — 22-24 Southwark Bridge Road London Southwark SE1 9HB
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2085 — Communications Hub Outside Friars Bridge Court 41-45 Blackfr
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2084 — Communications Hub Outside Friars Bridge Court 41-45 Blackfr
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2098 — Building 2, Bankside Yards Formerly Sampson House 64 Hopton 
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2092 — 2 Eleanor Close London Southwark SE16 6PA
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2077 — Tower Bridge Business Complex 100 Clements Road Aka Biscuit 
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2072 — Railway Arch 285 Jewell Street London Southwark SE5 0BU
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2091 — 80 Queens Road London Southwark SE15 2QW
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2083 — Flat 1-3 10 Bacon Grove London Southwark SE1 5SN
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2079 — 45 Dulwich Wood Avenue London Southwark SE19 1HG
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2078 — Tower Bridge Business Complex 100 Clements Road Aka Biscuit 
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2101 — 123 Grove Park London Southwark SE5 8LD
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2080 — The Park At Elephant Park Site Bounded By Phase MP3 To The N
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2058 — 4 Baldwin Crescent London Southwark SE5 9LQ
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2067 — 11A Chadwick Road London Southwark SE15 4RA
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2097 — 221 New Kent Road London Southwark SE1 4AD
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2056 — 107 Choumert Road London Southwark SE15 4AP
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2065 — 192-194 Grange Road London Southwark SE1 3AA
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2061 — 190 Grange Road London Southwark SE1 3AA
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2074 — 15 Sydenham Hill London Southwark SE26 6SH
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2043 — 40-44 Bermondsey Street Vinegar Yard Warehouse 9-17 Vinegar 
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2031 — Flat B11, Lloyds Wharf Mill Street London SE1 2BD
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2027 — 2 Green Walk London Southwark SE1 4TU
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2048 — Heygate Estate And Surrounding Land Bound By New Kent Road T
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2049 — The Park At Elephant Park Site Bounded By Phase MP3 To The N
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2026 — 5A Underhill Road London Southwark SE22 0BT
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2028 — 9 And 11 Gowlett Road London Southwark
+2026-09-29 13:11:39 INFO LEAD new: [Permitted] Southwark/26/AP/2045 — 89 Cobourg Road London Southwark SE5 0HU
+2026-09-29 13:11:44 INFO [southwark/Permitted] page at offset 200: 98 records
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2046 — 81 Cobourg Road London Southwark SE5 0HU
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2073 — 15 Sydenham Hill London Southwark SE26 6SH
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2075 — 15 Sydenham Hill London Southwark SE26 6SH
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2044 — 15 Sydenham Hill London Southwark SE26 6SH
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2037 — Elephant And Castle Shopping Centre, 26, 28, 30 And 32 New K
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2020 — Gallery Court 4 - 10 Hankey Place London Southwark
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2021 — Unit 1A Vanguard Court Rear Of 36 To 38 Peckham Road London 
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2019 — Southwark Resource Centre 10 Bradenham Close London Southwar
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2025 — Block A 27 Green Walk London Southwark SE1 4TT
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2036 — Chatelain House 182-202 Walworth Road London Southwark SE17 
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2006 — Progress House 5 Mandela Way London Southwark SE1 5SS
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2004 — 33 Urlwin Street London Southwark SE5 0NF
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2010 — Marks Court 5 Griggs Place London Southwark SE1 3AT
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2012 — 3 Grange Yard London Southwark SE1 3AE
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2005 — 4 More London Riverside London Southwark SE1 2AU
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2011 — 49-53 Glengall Road London SE15 6NF
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2007 — Progress House 5 Mandela Way London Southwark SE1 5SS
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2014 — 11 Calton Avenue London Southwark SE21 7DE
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/2009 — Surrey Quays Railway Station Lower Road London Southwark SE1
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1999 — 120A Lower Road London Southwark SE16 2UB
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1986 — 16-18 Peckham High Street London Southwark SE15 5DT
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1984 — Surrey Quays Railway Station Lower Road London Southwark SE1
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1992 — 2 Carver Road London Southwark SE24 9LT
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1979 — 19 Casino Avenue London Southwark SE24 9PQ
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1989 — 261 - 265 Southwark Park Road London Southwark SE16 3TP
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1996 — 16-18 Peckham High Street London Southwark SE15 5DT
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1969 — 11 Trinity Church Square London Southwark SE1 4HU
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1978 — 47 Lyndhurst Way London Southwark SE15 5AG
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1972 — 21 Barforth Road London Southwark SE15 3PS
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1971 — 22-24 Southwark Bridge Road London Southwark SE1 9HB
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1973 — 28A Tresco Road London Southwark SE15 3PX
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1958 — 38 Winterbrook Road London Southwark SE24 9JA
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1951 — Canada Water Masterplan Printworks Street And Land Adjacent 
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1950 — Canada Water Masterplan Printworks Street And Land Adjacent 
+2026-09-29 13:11:44 INFO LEAD new: [Permitted] Southwark/26/AP/1938 — Tayo Situ House 73 Commercial Way London Southwark
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1943 — 35 Carver Road London Southwark SE24 9LS
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1944 — The Clock Tower 1 Rye Lane And 68-72 Peckham High Street Lon
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1941 — 5 Brunswick Park London Southwark SE5 7RH
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1942 — Peckham Rye Railway Station Station Way London Southwark SE1
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1937 — The Ledbury Estate Commercial Way And Old Kent Road London S
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1931 — Chatelain House 182 - 202 Walworth Road London Southwark SE1
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1913 — Marks Court 5 Griggs Place London Southwark SE1 3AT
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1924 — Railway Arches 1 To 2 Crucifix Lane London Southwark SE1 3JW
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1919 — Lower Ground Floor Flat 87 Camberwell Grove London Southwark
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1921 — Lower Ground Floor Flat 87 Camberwell Grove London Southwark
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1920 — Lower Ground Floor Flat 87 Camberwell Grove London Southwark
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1910 — 24A Tarbert Road London Southwark SE22 8QB
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1907 — 9 And 11 Gowlett Road London Southwark SE15 4HX
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1905 — 30 Elsie Road London Southwark SE22 8DX
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1936 — New City Court 4-26 St Thomas Street London SE1 9RS
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1904 — Chatelain House 182 - 202 Walworth Road London Southwark SE1
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1898 — 257-283 Ilderton Road London Southwark SE15 1NS
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1892 — 26 Limesford Road London Southwark SE15 3BX
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1909 — 6 Ethnard Road London Southwark SE15 1RU
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1894 — 10 - 18 Union Street London Southwark SE1 1SZ
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1881 — Tower Bridge Business Complex 100 Clements Road Aka Biscuit 
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1878 — Flat 3 170 - 172 Tower Bridge Road London Southwark SE1 3LS
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1877 — 22-24 Southwark Bridge Road London Southwark SE1 9HB
+2026-09-29 13:11:45 INFO LEAD new: [Permitted] Southwark/26/AP/1876 — 57 - 61 Union Street London Southwark SE1 1SG
+2026-09-29 13:11:50 INFO [southwark/Conditions] page at offset 0: 0 records
+2026-09-29 13:11:56 INFO [southwark/Undecided] page at offset 0: 100 records
+2026-09-29 13:12:02 INFO [southwark/Undecided] page at offset 100: 100 records
+2026-09-29 13:12:07 INFO [southwark/Undecided] page at offset 200: 100 records
+2026-09-29 13:12:13 INFO [southwark/Undecided] page at offset 300: 100 records
+2026-09-29 13:12:19 INFO [southwark/Undecided] page at offset 400: 100 records
+2026-09-29 13:12:25 INFO [southwark/Undecided] page at offset 500: 100 records
+2026-09-29 13:12:30 WARNING Rate limited (429); waiting 521s before retry 1/6
+2026-09-29 14:52:44 INFO [southwark/Undecided] page at offset 600: 0 records
+2026-09-29 14:52:50 INFO [sutton/Permitted] page at offset 0: 100 records
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/01106 — 64 Highfield Road Purley CR8 2JG
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/01009 — 3 Lymbourne Close Belmont SM2 6DX
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/CLC2026/00152 — Elm Grove Estate 216 - 220 High Street Sutton SM1 1NU
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/CLC2026/00148 — Elm Grove Estate 216 - 220 High Street Sutton SM1 1NU
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/CLC2026/00147 — Sutton High School For Girls 55 Cheam Road Sutton SM1 2AX
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00956 — 100 Park Lane Carshalton SM6 0TL
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00955 — The Pastures 80 Carshalton Road Banstead SM7 3DX
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00946 — 18 Watson Avenue North Cheam SM3 9RE
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00947 — 139 Westminster Road Sutton SM1 3NQ
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00951 — 20 Shirley Avenue Sutton SM1 3QT
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/CLC2026/00145 — 138 - 140 London Road Hackbridge SM6 7HF
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00938 — 32 Golf Side Cheam SM2 7EZ
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00935 — 15 Gillian Park Road Sutton SM3 9JT
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00933 — 14 Hayes Crescent North Cheam SM3 9TL
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00932 — 14 Hayes Crescent North Cheam SM3 9TL
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00936 — The Grove House Grove Park High Street Carshalton SM5 3AL
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00930 — 15 High View Cheam SM2 7DZ
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00928 — 32 Buckhurst Avenue Carshalton SM5 1PF
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00919 — 43 Culvers Way Carshalton SM5 2LL
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00916 — 29 Stoughton Avenue Cheam SM3 8PH
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/CLC2026/00141 — R/O 83 St James' Road Sutton SM1 2TJ
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00914 — Beddington Farmlands Waste Management Facility Beddington La
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/CLC2026/00142 — 8-25 Beech Tree Place And 29-35 West Street Sutton
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00901 — Trickett House 125 Brighton Road Sutton SM2 5SN
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00900 — 55 The Highway Sutton SM2 5QS
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/CLC2026/00139 — Helena House 348 - 352 High Street Sutton SM1 1PX
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00895 — 25 Oliver Road Sutton SM1 4QF
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/CLC2026/00138 — 27 Hazlemere Gardens Worcester Park KT4 8AH
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00894 — 71 Angel Hill Sutton SM1 3EH
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00892 — 14 Hadleigh Drive Sutton SM2 5BF
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/CLC2026/00134 — 6 Woodcote Road Wallington Sutton SM6 0NN
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00889 — 284 Sutton Common Road Sutton SM3 9PW
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/CLC2026/00135 — Robertson House 1 Christchurch Park Sutton SM2 5TS
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00886 — 46A Langley Park Road Sutton SM2 5HG
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00890 — 22 Derby Road Cheam SM1 2BL
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00891 — 22 Derby Road Cheam SM1 2BL
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00885 — 25 Strathearn Road Sutton SM1 2RS
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/CLC2026/00133 — 38 Langley Park Road Sutton Sutton SM2 5HF
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00884 — 25 Strathearn Road Sutton SM1 2RS
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/CLC2026/00132 — 5 Gainsborough Terrace Manor Road Cheam SM2 7AE
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/CLC2026/00131 — 97 Worcester Road Sutton SM2 6QL
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00877 — 338 Middleton Road Carshalton SM5 1HA
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00879 — 158 Brocks Drive North Cheam SM3 9UT
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00880 — 33 Clarendon Road And 26 Elgin Road Wallington SM6 8QX
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00878 — 107B Grosvenor Avenue Carshalton SM5 3EN
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00871 — 79A Ash Road Sutton SM3 9LA
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/CLC2026/00129 — 20 Wilbury Avenue Cheam SM2 7DU
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00868 — 91 Brinkley Road Worcester Park KT4 8JE
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00875 — Wallington Fire Station 19 Belmont Road Wallington SM6 8TE
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00864 — 13 The Broadway Cheam SM3 8BH
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00865 — 11 Romany Gardens Sutton SM3 9NX
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00867 — 391 London Road North Cheam KT17 2DF
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00862 — 110 Shrewsbury Road Carshalton SM5 1LX
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/CLC2026/00126 — R/O 83 St James' Road Sutton SM1 2TJ
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00861 — 3 Guildford Way Wallington SM6 8NS
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00855 — 110 - 112 Woodcote Road Wallington Sutton SM6 0LY
+2026-09-29 14:52:50 INFO LEAD new: [Permitted] Sutton/DM2026/00848 — 27 Whitby Gardens Sutton SM1 3NA
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00849 — 43 Montagu Gardens Wallington SM6 8EP
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00839 — 1C Kingsley Avenue Sutton SM1 3RE
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/CLC2026/00124 — 38 Langley Park Road Sutton Sutton SM2 5HF
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00841 — 509 Gander Green Lane North Cheam SM3 9RF
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00838 — MOTSPUR PARK GASHOLDERS NEW MALDEN KT3 6NG
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/CLC2026/00123 — 83 Sutton Common Road Sutton SM1 3HN
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00837 — 35 South Drive Cheam SM2 7PH
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00829 — 164 Croydon Road Beddington CR0 4PG
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00833 — 219 - 227 High Street Sutton SM1 1LB
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00830 — 30 St Dunstans Hill Cheam SM1 2UD
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00832 — 14 Clyde Road Wallington SM6 8PZ
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00826 — 89 - 91 Banstead Road Carshalton SM5 3NP
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/CLC2026/00122 — 8-25 Beech Tree Place And 29-35 West Street Sutton
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00831 — 68 Broomloan Lane Sutton SM1 2PW
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00834 — 745 London Road North Cheam SM3 9DL
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00819 — 81 Onslow Gardens Wallington SM6 9PX
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00824 — 23 Ebbisham Road Worcester Park KT4 8ND
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00822 — 80 Manor Road Wallington SM6 0AB
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/CLC2026/00120 — 38 Langley Park Road Sutton Sutton SM2 5HF
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00817 — 1 Stoneleigh Avenue Worcester Park KT4 8XX
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/CLC2026/00118 — 25 Carshalton Road Sutton SM1 4LF
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00815 — 4 Staplehurst Road Carshalton SM5 3JU
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/CLC2026/00119 — The Orangery The Square Carshalton SM5 3BN
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/PRE2026/00092 — 58 High Street Cheam SM3 8RW
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00814 — 70 Harbury Road Carshalton SM5 4LA
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00812 — 1B Lavington Road Beddington CR0 4PQ
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/CLC2026/00116 — Harrow Lodge 28 Eaton Road Sutton SM2 5EE
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00813 — 97 Shaftesbury Road Carshalton SM5 1HJ
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00806 — Grantley Court Nursing Home 22 York Road Cheam SM2 6HH
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/CLC2026/00115 — 38 Langley Park Road Sutton Sutton SM2 5HF
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00804 — 74 Lynwood Drive Worcester Park KT4 7AE
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/CLC2026/00114 — 26 High Street, The Flat Above 26 High Street And Flats 1 An
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/CLC2026/00113 — Grantley Court Nursing Home 22 York Road Cheam SM2 6HH
+2026-09-29 14:52:51 INFO LEAD new: [Permitted] Sutton/DM2026/00803 — 88 St Philips Avenue Worcester Park KT4 8LA
+2026-09-29 14:52:56 INFO [sutton/Permitted] page at offset 100: 25 records
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00802 — The Royal Marsden Hospital Downs Road Sutton SM2 5PT
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00801 — 82 Cowper Gardens Wallington SM6 9RL
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00798 — 5 Derby Road Cheam SM1 2BL
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00800 — 54 Egham Crescent North Cheam SM3 9AW
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00793 — 26 Lloyd Road Worcester Park KT4 8SA
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00797 — 56 Montagu Gardens Wallington SM6 8ER
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00795 — 81 Beddington Gardens Carshalton SM5 3HL
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00796 — 97 Browning Avenue Worcester Park KT4 8LD
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00790 — 41 The Crescent Belmont SM2 6BP
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00783 — 122 - 124 Beddington Lane Beddington CR0 4YZ
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00787 — 53 Forest Road Sutton SM3 9PA
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00791 — 3 Sevenoaks Close Sutton SM2 6NL
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00785 — 72 Braemar Road Worcester Park KT4 8SW
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00786 — 53 Forest Road Sutton SM3 9PA
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00781 — 146 Banstead Road South Sutton SM2 5LL
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00775 — 29 Blenheim Gardens Wallington SM6 9PJ
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00779 — 150 Henley Avenue North Cheam SM3 9SA
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00778 — 20 The Dene Cheam SM2 7EG
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00780 — 163 Woodcote Road Wallington Sutton SM6 0QG
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00776 — 36 Ringstead Road Sutton SM1 4SJ
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00784 — Ground Floor 6 Sutton Park Road Sutton SM1 2GD
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00782 — 20 Huntingdon Gardens Worcester Park KT4 8TF
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00777 — 36 Ringstead Road Sutton SM1 4SJ
+2026-09-29 14:52:56 INFO LEAD new: [Permitted] Sutton/DM2026/00788 — 59 Camborne Road Sutton SM2 6RF
+2026-09-29 14:53:02 INFO [sutton/Conditions] page at offset 0: 0 records
+2026-09-29 14:53:08 INFO [sutton/Undecided] page at offset 0: 100 records
+2026-09-29 14:53:14 INFO [sutton/Undecided] page at offset 100: 100 records
+2026-09-29 14:53:20 INFO [sutton/Undecided] page at offset 200: 12 records
+2026-09-29 14:53:26 INFO [tower-hamlets/Permitted] page at offset 0: 100 records
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01585/NC — Land Corner Of International Way And, Montfichet Road, Strat
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01509/S — Belvedere and Mandeville Place, Queen Elizabeth Olympic Park
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01509 — Belvedere and Mandeville Place, Queen Elizabeth Olympic Park
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01496/NC — Aldgate House 33 Aldgate High Street London EC3N 1AH
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01496 — Aldgate House 33 Aldgate High Street London EC3N 1AH
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01494/NC — London Stadium, Queen Elizabeth Olympic Park, Stratford, Lon
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01469 — Site at London Fruit and Wool Exchange, 1-10 Brushfield Stre
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01469/S — Site at London Fruit and Wool Exchange, 1-10 Brushfield Stre
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01464/S — Land Bounded By Watts Grove And Gale Street, London, E3
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01467/NC — Plots S2 S3 S10, The International Quarter South, Westfield 
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01423/S — Former London Chest Hospital, Bonner Road, London, E2 9JX
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01401/S — 53 Grove Road, London, E3 4PE
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01393/S — Former News International Site, 1 Virginia Street, London, E
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01383/S — Land bounded by Hepscott Road and Rothbury Road, TSVC Buildi
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01386/NC — 141 Chrisp Street, London, E14 6NH
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01384/S — 12 Bank Street, London, E14 4DD
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01379/S — Marian Place Gasholder Site, Bethnal Green, London, E2 9AP
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01366/S — 39 Bell Lane, London, E1 7LA
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01317/S — 53 Grove Road, London, E3 4PE
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01235/NC — Flat 9 to 24, 1 Hutchings Street, London E14 8JY
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01312/NC — Hackney Wick Masterplan Plot E/F, Plot J EAst and Plot K2 No
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01350/S — Former News International Site, Buildings H & J, London Dock
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01294/NC — 47 Walden Street, London, E1 2AL
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01293/NC — 47 Walden Street, London, E1 2AL
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01347/NC — Stifford Community Centre 2-6 Cressy Place & Adjoining land 
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01356/NC — 11 Booker Close, London, E14 7DP
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01330/NC — 107A & 107B Commercial Street, London, E1 6BG
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01335/NC — 71A Coborn Road, London, E3 2DB
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01221/NC — Poplar Business Park, 10 Prestons Road, London E14
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01331/NC — 107A & 107B Commercial Street, London, E1 6BG
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01318/S — 53 Grove Road, London, E3 4PE
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01311/S — Land bounded by Hepscott Road and Rothbury Road, TSVC Buildi
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01324/NC — Unit 4, Black Lion House, 45 Whitechapel Road, London, E1 1D
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01322/NC — Tower Hamlets Town Hall, 160 Whitechapel Road, London, E1 1B
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01321/NC — Tower Hamlets Town Hall, 160 Whitechapel Road, London, E1 1B
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01266/NC — Hong Kong And Shanghai Bank, 8-14 Canada Square, London, E14
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01257/NC — 20 Vivian Road, London, E3 5RF
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01303/S — 21 Baldock Street, London, E3 2TP
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01306/S — St Georges Leisure Centre, 221 The Highway, London, E1W 3BP
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01305/NC — Ada Lewis & Bearstead Court, 28 Underwood Road, London E1 5A
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01304/S — McGrath Works Depot Waste Recycling Station, 3-13 Hepscott R
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01307/S — Flat 20, Ion Court, 280 Columbia Road, London, E2 7RW
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01290/NC — 5 Water Street, LONDON, E14 5GX
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01300/S — Former London Chest Hospital, Bonner Road, London, E2
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01295/S — Mulberry Place Town Hall, 5 Clove Crescent, And Lighterman H
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01289/NC — 5 Water Street, LONDON, E14 5GX
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01296/S — Empson Street Industrial Estate, Empson Street, E3
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01277/NC — Asda, 151 East Ferry Road, London, E14 3BT
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00975/NC — Leaside Lock Phase 3 (Formerly: Land at Imperial Street and 
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01217/NC — 400 Bethnal Green Road, London, E2 0AH
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01261/S — Flat 3, 3 Finch's Court Mews, LONDON, E14 0FY
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01194/NC — 350 The Highway, London E1W 3HU
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01263/S — 1 Park Place, London, E14 4QD
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01265/S — Mulberry Place Town Hall, 5 Clove Crescent, And Lighterman H
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01126/NC — 12 Park Drive, LONDON, E14 9ZW
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00988/NC — 350 The Highway, London, E1W 3HU
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01152/NC — 25 Tomlins Grove, London, E3 4NX
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01208/NC — Natwest Bank, 250 Bishopsgate, London, EC2M 4AA
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01138/NC — Warwick Apartments, 132 Cable Street, London, E1 8NU
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01264/NC — Tower Thistle Hotel, 10 St Katharines Way, London, E1W 1LD
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01260/S — Mulberry Place Town Hall, 5 Clove Crescent, London, E14 2BG
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01258/S — Mulberry Place Town Hall, 5 Clove Crescent, And Lighterman H
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01195/NC — 350 The Highway, London E1W 3HU
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01256/NC — Peninsular House 30 - 36 Monument Street London EC3R 8LJ
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01255/NC — FORMER NATIONAL GRID SITE, MILLENNIUM WAY, GREENWICH, SE10 0
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01219/S — Garages to the West of Donegal House, Buckhurst Street, Lond
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01256 — Peninsular House 30 - 36 Monument Street London EC3R 8LJ
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01254/S — 30 Marsh Wall, London, E14 9TP
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01247/S — Mulberry Place Town Hall, 5 Clove Crescent, And Lighterman H
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01227/NC — 73 Whitethorn Street, London, E3 4DA
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01244/S — 1 Commercial Street, London, E1
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00929/NC — Cascades Tower, 4 Westferry Road, London, E14
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00928/NC — Cascades Tower, 4 Westferry Road, London E14
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01243/S — 60 Dace Road, London, E3 2NG
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01160/NC — 16, 17 & 18 Flamborough Street, London, E14 7LS
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01183/NC — 16, 17 & 18 Flamborough Street, London, E14 7LS
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01225/S — Adjacent to Wilmer House, Daling Way, London E3 5JR
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01231/NC — London Docks G, H & J, Wapping, London, E1W
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01212/NC — 55 Manchester Grove, London, E14 3BG
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01125/NC — 3, 4 & 5 Flamborough Street, London, E14 7LS
+2026-09-29 14:53:26 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01153/NC — 3, 4 & 5 Flamborough Street, London, E14 7LS
+2026-09-29 14:53:32 INFO [tower-hamlets/Permitted] page at offset 100: 78 records
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01136/NC — Chi Building, 54 Crowder Street, London, E1 0EZ
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01211/S — TSVC Building, Land bounded by Hepscott Road and Rothbury Ro
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01137/NC — Blenheim Apartments, 112 Cable Street, London, E1 8NS
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01200/NC — 23 Louisa Street, London, E1 4NF
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01164/NC — 11 Flamborough Street, London, E14 7LS
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01165/NC — 11 Flamborough Street, London, E14 7LS
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01166/NC — 14 Flamborough Street, London, E14 7LS
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01167/NC — 14 Flamborough Street, London, E14 7LS
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00939/NC — 140 Mile End Road, London E1 4GL
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01197/NC — Create Day Centre, 35 Ronald Street, London, E1 0DT
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01199/NC — 23 Louisa Street, London, E1 4NF
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01201/S — Flat 1, Constantine Court, 6 Fairclough Street, London, E1 1
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01141/NC — 37 Walden Street, London, E1 2AL
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01198/NC — Ground Floor North, 11 Westferry Circus, London, E14 4HD
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01185/NC — 9 Tait Street, London, E1 2NR
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01192/S — 41-71 Commercial Road, London, E1 1LA
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01158/NC — 20 Water Street, London, E14 5GX
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01189/S — Teviot Estate, London, E14 6QU
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01133/NC — 34 Westferry Circus, London, E14 8RR
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01184/S — Wood Wharf, Prestons Road, London E14 9SF
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01134/NC — 34 Westferry Circus, London, E14 8RR
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01068/NC — 17-21 Reeves Road, London, E3 3PL
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01204/NC — Our Lady Of The Assumption R C Church and Assumption Priory,
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01176/S — Former Piano Factory, Stour Road, London E3 2NT
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01180/NC — 137 Wapping High Street, London, E1W 3NG
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01206 — Our Lady Of The Assumption R C Church and Assumption Priory,
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01204 — Our Lady Of The Assumption R C Church and Assumption Priory,
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01205/NC — Guardian Angels Church, Mile End Road, London, E3 4QS
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01169/NC — Anchorage Point, 42 Cuba Street, London, E14
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01178/NC — Flat 2, 15-19 Cleveland Way, London, E1 4TZ
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01077/NC — 43-53 Reeves Road, London, E3 3PP
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01177/NC — 111 White Horse Road, London, E1 0NL
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01172/NC — Flat 26, Oast Court, 10 Three Colt Street, London, E14 8HZ
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01206/NC — Our Lady Of The Assumption R C Church and Assumption Priory,
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01122/NC — 9 Flamborough Street, London, E14 7LS
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01162/NC — Phoenix School, 49 Bow Road, London, E3 2AD
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00854/NC — 45 Westferry Road, London, E14 8JH
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01163/NC — Phoenix School, 49 Bow Road, London, E3 2AD
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01123/NC — 9 Flamborough Street, London, E14 7LS
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01156/NC — Dellow Centre, 82 Wentworth Street, London, E1 7SA
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01114/NC — 2 Jebb Street, London, E3 2TL
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01069/NC — Roger Dowley Court, Parmiter Street, London E2
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01144/S — 5 Peachwalk Mews, London, E3 5SL
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01024/NC — 3 West Lane (Building G1), LONDON, E22 3AA
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01095/NC — Flats 1 - 164, 3 Limeharbour, London E14 9LU and Flats 1 - 2
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01092/NC — 72 Medway Road, London, E3 5BY
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01150/S — Land bounded by Hepscott Road and Rothbury Road, TSVC Buildi
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01043/NC — Ilsley Court, Tynne Court, Yeoman Court. London, E14
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01057/NC — 92 Commercial Street, London, E1 6LZ
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01054/NC — 92 Commercial Street, London, E1 6LZ
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00977/NC — Finetouch Apartments, 3A Toynbee Street, London, E1 7NE
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01011/NC — Flat 223 Lexington Building, Bow Quarter, 60 Fairfield Road,
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01129/S — East India Dock House, 240 East India Dock Road, London, E14
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01128/S — Former News International Site, Buildings H & J, London Dock
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01093/NC — 39-53 Pedley Street, 5-9 Weaver Street, (Shah Paran House, H
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01139/S — St Georges Leisure Centre, 221 The Highway, London, E1W 3BP
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01131/S — Site at Stroudley Walk, London, E3 3EW
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01099/NC — 2 Royal Victor Place, London, E3 5SS
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01127/S — Former News International Site, 1 Virginia Street, London, E
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01132/NC — 19 Turner Street, London, E1 2AU
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01098/NC — 18 Old Bellgate Place, London, E14 3SW
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00994/NC — 12 Princelet Street, London, E1 6QH
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00995/NC — 12 Princelet Street, London, E1 6QH
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01032/NC — Lucienne Court, 72 Lindfield Street, London, E14 6GT
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01073/NC — Flat A & B, 8 Portree Street, London, E14 0HT
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01113/NC — 36 Vivian Road, London, E3 5RF
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01031/NC — Moro Apartments, 22 New Festival Avenue, LONDON, E14 6FT
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01117/S — London Docklands Travelodge Hotel, Coriander Avenue, London,
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01074/NC — 1-11 (Odds) Britannia Road, London, E14 3RG
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01104/S — Wapping Police Station, 98-102 Wapping High Street, London, 
+2026-09-29 14:53:32 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01109/S — Queens Building and Octagon, Queen Mary And Westfield Colleg
+2026-09-29 14:53:37 INFO [tower-hamlets/Conditions] page at offset 0: 4 records
+2026-09-29 14:53:37 INFO LEAD new: [Conditions] TowerHamlets/PA/26/01430 — BAVARIA HOUSE, 13-14 Appold Street, Hackney, London, EC2A 2N
+2026-09-29 14:53:37 INFO LEAD new: [Conditions] TowerHamlets/PA/26/01430/NC — BAVARIA HOUSE, 13-14 Appold Street, Hackney, London, EC2A 2N
+2026-09-29 14:53:38 INFO LEAD new: [Conditions] TowerHamlets/PA/26/01161 — London Strategic Heat Main Project
+2026-09-29 14:53:38 INFO LEAD new: [Conditions] TowerHamlets/PA/26/01161/NC — London Strategic Heat Main Project
+2026-09-29 14:53:43 INFO [tower-hamlets/Undecided] page at offset 0: 100 records
+2026-09-29 14:53:49 INFO [tower-hamlets/Undecided] page at offset 100: 100 records
+2026-09-29 14:53:55 WARNING Rate limited (429); waiting 436s before retry 1/6
+2026-09-29 15:01:11 WARNING Request failed (403 Client Error: Forbidden for url: https://www.planit.org.uk/api/applics/json?app_state=Undecided&start_date=2026-06-27&end_date=2026-09-29&pg_sz=100&auth=Tower+Hamlets&offset=200); retry 2/6 in 10s
+2026-09-29 15:01:22 INFO [tower-hamlets/Undecided] page at offset 200: 100 records
+2026-09-29 15:01:28 INFO [tower-hamlets/Undecided] page at offset 300: 17 records
+2026-09-29 15:01:33 INFO Done. fetched=3926 newly_tracked=1726 leads_added=868 leads_updated=0

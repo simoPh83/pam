@@ -81,6 +81,43 @@ sutton, tower-hamlets.
 
 ---
 
+## Status: 2026-09-29 (session 4) — ALL 8 AGENT BOROUGHS BACKFILLED
+
+Six-borough run (lambeth, lewisham, newham, southwark, sutton, tower-hamlets)
+completed with zero rate-limit waits. Note: the window rolled to
+2026-06-28→2026-09-29, so Enfield/Greenwich also got incremental passes —
+the system caught its first real **state transition** (Enfield/26/03027/CND
+flipped to Permitted → `LEAD CHANGED`), validating the watch mechanism.
+
+**Totals: 1,233 leads (974 with agent = 79%), 2,684 Undecided tracked.**
+Log: logs/2026-09-29-backfill-agent-boroughs.log.
+
+| Borough | Leads | Agent % |
+|---|---|---|
+| Southwark | 189 | 85% |
+| Newham | 162 | 64% (weakest of the eight) |
+| Tower Hamlets | 156 | 78% |
+| Lambeth | 127 | 87% (best) |
+| Sutton | 115 | 77% |
+| Lewisham | 109 | 79% |
+
+**New finding:** only Enfield uses `app_state='Conditions'`; the other seven
+fold conditional approvals into `Permitted`. Keep both in `lead_states`.
+
+**Related work this session:** completion-timing framework drafted in
+[completion-estimation-framework.md](completion-estimation-framework.md) —
+category table C0–C7, the discharge-of-conditions fast lane, and the
+discovery that `other_fields.agent_company` / `agent_address` exist on
+600+ rows but aren't extracted yet (transform.py gap — could lift agent
+coverage further, incl. possibly some "0-agent" boroughs).
+
+**Next candidates:** (1) wire estimator columns into the sheet;
+(2) extract agent_company/agent_address in transform.py; (3) daily
+scheduled run (Task Scheduler) for transition detection; (4) calibrate
+category durations against 30 council portals.
+
+---
+
 ## Status: 2026-09-28 (session 3) — AUDIT COMPLETE 33/33
 
 Name mismatches resolved from the areas cache ([docs/planit-areas.json](planit-areas.json),
