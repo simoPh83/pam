@@ -1,0 +1,32 @@
+I dug through all 3,919 rows and pressure-tested your framework against them. Short version: **the project makes sense, and the framework mostly holds** — but the data surfaces six refinements, a couple of which are important for *your* use case specifically.
+
+## On the business idea
+
+Yes, it works. The one strategic risk to design around: a permission being granted doesn't mean the architect is still engaged — for small jobs the architect often exits at planning grant, and discharges are frequently handled by planning consultants or the contractor. Your instinct to target ~2 months *before* completion is right, but I'd argue the **C0b (variation/s73) lane is your golden segment**: the client is still actively spending on design, the architect is definitively still in the room, and the scheme is real. Those are your warmest conversations. C0a rows are great for timing but you'll often need to trace the architect via the parent application or the Design & Access Statement rather than the discharge's named agent.
+
+## What the data confirms
+
+- **The C0 lane is real and detectable**: `app_type='Conditions'` = 341 rows (28%), and my regex for `pursuant|discharge` catches 228 — matching your phrasing analysis. The `Outline` trap is also visible here: hundreds of "Outline" rows are dormers and rear extensions.
+- **`app_size` discrimination is indeed useless** (1,203 Small / 15 Medium / 13 Large), so keyword order doing the heavy lifting is the right call.
+- **Median decision duration is 50 days** (p25=37, p75=56) across boroughs — useful in two ways below.
+
+## Six refinements I'd make
+
+1. **C0b is bigger than "variation of condition" phrasing suggests.** That phrase only catches 30 rows; many variations hide in `app_type='Amendment'` ("Non material amendment to ref: 25/01002/HOU…"). I'd split into two lanes: s73 *variations* (mid-design, high value) vs *non-material amendments* (minor post-grant tweaks, usually already building). Different outreach moments.
+
+2. **`permission_expires` only exists for Enfield and Southwark** — and even there the gap is 5 years for genuine permissions but **0 years for CEA/CEU certificates** (a certificate of lawfulness grants nothing to expire). Your "decided + 5yr cap" silently misapplies to certificates, and Southwark has plenty of 3-year permissions too. Make the cap conditional on the application actually granting permission.
+
+3. **Sanity-filter `decided_date`.** Two Southwark rows have decided dates of 1989 and 1992 (legacy records). Add `decided_date >= backfill_start` as a data-quality gate, or your outreach dates go nonsense.
+
+4. **Build a "project spine" by address.** 143 addresses have 2+ rows (352 rows total); one Silvertown site has 12. Repeated discharges at the same site are your best live construction-progress signal — cluster on normalised address (or easting/northing), and treat the *latest* C0 event as the current phase marker. This also dedupes your outreach list so you don't email the same studio about the same project three times.
+
+5. **The Undecided rows are a pipeline, not noise.** 2,684 of them, median age 45.5 days — meaning a large tranche is decision-imminent. Combined with the 50-day median decision time you can *forecast* when each undecided row flips to Permitted and enters the completion clock. Keep them in the ledger with a predicted decision date; your lead flow becomes continuous instead of batch-y.
+
+6. **Named-agent caveat specific to you.** In the 383 portfolio-worthy rows, only 287 have a named agent, and the top names are planning consultancies (DP9 ×18, Savills, Turley, Quod), not architecture studios — a few are (PRP, Redwoods). So for C0 rows, treat the agent as a *timing* signal and plan a second step to resolve the actual architect from the parent record or documents.
+
+## Smaller notes
+
+- Your untested `n_documents` hypothesis: mildly confirmed — Full apps median 13 docs vs 6 for Conditions — good enough for a small scoring bump, useless as a classifier. Keep it in the score, out of the category logic.
+- Your §5 calibration plan is exactly right, and honestly the fastest high-value step: manually open ~20 council URLs, find commencement notices or site photos with dates, and tighten the §2 ranges. Everything else is secondary to that.
+
+Happy to build the classifier + scoring script that adds `est_category`, `project_key`, and the outreach windows as new columns, or prototype the C0 parent-join — just say which.

@@ -1,0 +1,52 @@
+Short answer: yes, the idea makes sense, and your framework is a sound start. I think there's one structural problem with the extraction window, and one with who you're targeting. I ran a few checks on the CSV to back this up.
+
+## Does the project make sense?
+
+Yes. It's a good fit for how architectural photography gets sold. Architects commission shoots at practical completion, and the window before scaffolding comes down is when they start thinking about award entries and press. Timing outreach to that window is smart, and a planning-data pipeline is a cheap way to build a warm list. Expect it to give you a ranked shortlist rather than precise dates. That's fine, because the outreach only has to be roughly right.
+
+## Where I agree with your framework
+
+- **The `Conditions` trap** is a good catch. In your CSV, 341 of the 1,233 permitted leads are `app_type='Conditions'`. These are discharge and variation submissions, not "permitted with conditions".
+- **Parent-join** is the right idea. A discharge means the project is real, financed and moving.
+- **Classifying by description keywords**, with the most specific match first, is correct. `app_type` and `app_size` are too coarse (3,776 of 3,917 rows are "Small").
+- **Wide ranges, with the outreach date at the start of the range.** It's better to be early than late.
+- **Calibrating against the ledger over time**, and being honest that the durations are priors.
+
+## What I'd change or add
+
+**1. The 3-month window is the biggest issue.** You're capturing permissions *granted* in the last 3 months. But a project that finishes in the next 2–3 months was almost certainly permitted 1–3 years ago. So for your target (projects nearing completion), the main dataset is mostly permissions that won't complete for another 6–36 months, by your own §2 table. Two ways to fix that:
+- **Backfill 2–3 years for larger schemes**, filtered by keywords. You don't need it for householders.
+- **Use the recent discharge-of-condition applications as the main signal.** You already have this in C0a, and I'd promote it from a sub-lane to the core of the tool. Late-stage discharges are the best "finishing soon" signal in planning data. Examples are landscaping, external materials, "verification" conditions, and refuse and cycle storage. I'd score discharges by *which condition* is being discharged, not just that one was submitted.
+
+**2. The `agent_name` on the form is often not the architect.** This matters because it's the whole point of the tool. In your leads:
+- Roughly a quarter of the agents look like planning consultants or surveyors (DP9, Savills, Quod, Potter Raper, Archway Building Consultancy). Those firms won't commission photography.
+- Only about 37% look like design practices on a name check.
+- **One agent, Redwoods Projects, has 268 rows in the full ledger (73 in leads), almost all Enfield rear extensions.** That's a builder/design-and-build volume shop. It will dominate any ranking unless you cap it.
+
+I'd add an agent-type field (architect, planner, builder or volume, unknown). You could do this with a keyword list plus a manual pass over the top 100 agents, which is a one-off job. Then weight or filter on it. To find the actual architect on planners' schemes, the documents link (`docs_url`) often has the Design & Access Statement, which names them.
+
+**3. Score by photographability, not just timing.** You already hint at this in §6. A rear extension in Enfield won't make a portfolio. I'd add a value filter using `n_dwellings`, GIA or unit counts in the description, demolition plus erection, cultural, education and mixed-use keywords, and listed or heritage settings. Only 15 leads in your data state a unit count in the description, so a lot of the signal will need to come from `other_fields`.
+
+**4. A few data points to check:**
+- **Two 1989 and 1992 Southwark decided dates.** These are outliers that will distort any lag analysis.
+- **`permission_expires` only exists for Enfield and Southwark** (about 27%), so it can't be a general cap.
+- **Decision lag is stable across boroughs** (about 45–55 days from start to decision), so `start_date` adds little as a feature.
+- **The 2,684 Undecided rows** are an untapped pipeline. Their `target_decision_date` gives an early view of schemes, but they're 2–3 years from completion for anything big. I'd store them, not act on them yet.
+
+**5. Other completion signals, if you want to go beyond planning:**
+- **Building control and completion certificates**, if any borough publishes them.
+- **Street naming and numbering notices**, which councils publish and which appear close to completion for new-build residential.
+- **RIBA and award longlists**, and architects' own "recently completed" posts, to see who is already publishing work.
+- **Your own past clients.** Repeat commissions are usually the highest-converting lead, so a "watch my past clients' live projects" tab would be cheap to add.
+
+**6. Outreach mechanics.** Reaching out 2 months before completion is a good default for planned shoots. Since one practice often has several live schemes, I'd group leads by practice and email once about their upcoming completions, not once per application. That also lets you rank practices by the number of live schemes, which is a better lead unit than individual applications.
+
+## What I'd do next
+
+1. Extend the window on the six or so boroughs you care most about to about 3 years, for non-householder applications only.
+2. Build the parent-join for C0 and split the discharges by condition type.
+3. Classify agents (architect / planner / builder / unknown) and cap volume shops.
+4. Add a photographability score and rank by practice.
+5. Do the manual calibration in your §5.1 on about 30 rows before trusting any dates.
+
+If you'd like, I can start with the parent-join and the agent classification on this CSV. Those two would show quickly how many real leads you end up with.

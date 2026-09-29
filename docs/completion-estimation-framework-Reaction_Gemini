@@ -1,0 +1,415 @@
+```python
+import pandas as pd
+
+df = pd.read_csv('ledger_csv.csv')
+print("Shape:", df.shape)
+print("Columns:", df.columns.tolist())
+print("\nHead:")
+print(df.head(3))
+
+
+```
+
+```text
+Shape: (3919, 23)
+Columns: ['uid', 'reference', 'authority', 'app_state', 'app_size', 'start_date', 'decided_date', 'first_seen', 'last_updated', 'in_leads_sheet', 'address', 'postcode', 'description', 'app_type', 'agent_name', 'applicant_name', 'permission_expires', 'distance_km', 'lat', 'lng', 'council_url', 'docs_url', 'other_fields_json']
+
+Head:
+                    uid     reference authority  app_state app_size  start_date decided_date  first_seen last_updated  in_leads_sheet                                                                     address postcode                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 description    app_type                  agent_name  applicant_name permission_expires  distance_km        lat       lng                                                                                                                         council_url                                                                                                                              docs_url                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           other_fields_json
+0   Enfield/26/03764/OA   26/03764/OA   Enfield  Permitted    Small  2026-09-01   2026-09-22  2026-09-28   2026-09-29               1  Land East Of South Mimms Services St Albans Road South Mimms Hertfordshire      NaN  Application for the approval of reserved matters relating to site-wide advanced infrastructure and enabling works (Phase 1a), including a permanent vehicular access off Swanland Road which will facilitate a temporary access during construction, a permanent emergency vehicle access off Bridgefoot Lane, pedestrian and cycle routes, internal roads, car and cycle parking, hard and soft landscaping, on-site water attenuation, temporary and permanent campus bridges, utilities and services, a security gatehouse, substations, ancillary buildings and service yards, the creation of development platforms to support the phased data centre development, and all associated infrastructure pursuant to outline planning permission reference 24/1152/OUTEI.         NaN  Hertsmrere Borough Council             NaN         2031-09-22          NaN        NaN       NaN  https://planningandbuildingcontrol.enfield.gov.uk/online-applications/applicationDetails.do?keyVal=TKSE8IJN05500&activeTab=summary  https://planningandbuildingcontrol.enfield.gov.uk/online-applications/applicationDetails.do?activeTab=documents&keyVal=TKSE8IJN05500                                                                                                                                                                                                                                                                                                                    {"agent_company": "Hertsmrere Borough Council", "agent_name": "See source", "applicant_name": "See source", "application_type": "Other Authority", "case_officer": "See source", "comment_url": "https://planningandbuildingcontrol.enfield.gov.uk/online-applications/applicationDetails.do?activeTab=neighbourComments&keyVal=TKSE8IJN05500", "date_received": "2026-09-01", "date_validated": "2026-09-01", "decided_by": "Delegated Decision", "decision": "No objection Raised - OA", "decision_date": "2026-09-22", "decision_issued_date": "2026-09-22", "decision_published_date": "2026-09-22", "docs_url": "https://planningandbuildingcontrol.enfield.gov.uk/online-applications/applicationDetails.do?activeTab=documents&keyVal=TKSE8IJN05500", "map_url": "https://planningandbuildingcontrol.enfield.gov.uk/online-applications/applicationDetails.do?activeTab=map&keyVal=TKSE8IJN05500", "n_comments": 0, "n_documents": 1, "n_statutory_days": 12, "permission_expires_date": "2031-09-22", "source_url": "https://planningandbuildingcontrol.enfield.gov.uk/online-applications/search.do?action=advanced", "status": "Application in Progress", "target_decision_date": "2026-09-13", "ward_name": "Not In Borough"}
+1  Enfield/26/03648/CND  26/03648/CND   Enfield  Permitted    Small  2026-08-28   2026-09-23  2026-09-28   2026-09-29               1                      Chace Community School Churchbury Lane Enfield EN1 3HQ  EN1 3HQ                                                                                                                                                                                                                                                                                                                                                                   Details submitted pursuant to reference 24/00621/FUL: Secure By Design (20) in respect of demolition of 5 no. blocks (EFAA, EFAB, EFAD, EFAE and EFAF), consequential works to retained building EFAC, construction of a three-storey replacement school building and separate sports block, relocation of playing fields and parking area along with access, landscaping, and associated infrastructure.  Conditions                DPP Planning             NaN         2031-09-24         11.1  51.661361 -0.076764  https://planningandbuildingcontrol.enfield.gov.uk/online-applications/applicationDetails.do?keyVal=TKH5VUJNJ2W00&activeTab=summary  https://planningandbuildingcontrol.enfield.gov.uk/online-applications/applicationDetails.do?activeTab=documents&keyVal=TKH5VUJNJ2W00  {"agent_address": "DPP Planning Studio 014, Haylofts St Thomas' St Newcastle upon Tyne Tyne and Wear NE1 4LE United Kingdom", "agent_company": "DPP Planning", "agent_name": "See source", "application_type": "Discharge Condition", "case_officer": "See source", "comment_date": "2026-09-25", "comment_url": "https://planningandbuildingcontrol.enfield.gov.uk/online-applications/applicationDetails.do?activeTab=neighbourComments&keyVal=TKH5VUJNJ2W00", "consultation_end_date": "2026-09-25", "consultation_start_date": "2026-09-04", "date_received": "2026-08-28", "date_validated": "2026-08-28", "decided_by": "Delegated Decision", "decision": "Granted", "decision_date": "2026-09-23", "decision_issued_date": "2026-09-24", "decision_published_date": "2026-09-24", "docs_url": "https://planningandbuildingcontrol.enfield.gov.uk/online-applications/applicationDetails.do?activeTab=documents&keyVal=TKH5VUJNJ2W00", "easting": 533120.0, "lat": 51.661360957769425, "lng": -0.0767639128582314, "map_url": "https://planningandbuildingcontrol.enfield.gov.uk/online-applications/applicationDetails.do?activeTab=map&keyVal=TKH5VUJNJ2W00", "n_comments": 1, "n_constraints": 12, "n_documents": 4, "n_statutory_days": 54, "northing": 197593.0, "permission_expires_date": "2031-09-24", "planning_portal_id": "PP-15156417", "source_url": "https://planningandbuildingcontrol.enfield.gov.uk/online-applications/search.do?action=advanced", "status": "Decided", "target_decision_date": "2026-10-21", "ward_name": "Town"}
+2  Enfield/26/03645/CEA  26/03645/CEA   Enfield  Permitted    Small  2026-08-28   2026-09-24  2026-09-28   2026-09-29               1                                              36 Willow Road Enfield EN1 3ND  EN1 3ND                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         Rear dormer and front rooflights, with front porch.     Outline              NIE ASSOCIATES             NaN         2026-09-24         11.4  51.662229 -0.069931  https://planningandbuildingcontrol.enfield.gov.uk/online-applications/applicationDetails.do?keyVal=TKGZPJJNJ2G00&activeTab=summary  https://planningandbuildingcontrol.enfield.gov.uk/online-applications/applicationDetails.do?activeTab=documents&keyVal=TKGZPJJNJ2G00                                                                                                                                        {"agent_address": "Latymer Road London N9 9PN", "agent_company": "NIE ASSOCIATES", "agent_name": "See source", "applicant_name": "See source", "application_type": "Cert of Lawful Use/Operation - Proposed", "case_officer": "See source", "comment_url": "https://planningandbuildingcontrol.enfield.gov.uk/online-applications/applicationDetails.do?activeTab=neighbourComments&keyVal=TKGZPJJNJ2G00", "date_received": "2026-08-28", "date_validated": "2026-09-04", "decided_by": "Delegated Decision", "decision": "Granted", "decision_date": "2026-09-24", "decision_issued_date": "2026-09-24", "decision_published_date": "2026-09-24", "docs_url": "https://planningandbuildingcontrol.enfield.gov.uk/online-applications/applicationDetails.do?activeTab=documents&keyVal=TKGZPJJNJ2G00", "easting": 533590.0, "lat": 51.662229024023574, "lng": -0.0699312277964163, "map_url": "https://planningandbuildingcontrol.enfield.gov.uk/online-applications/applicationDetails.do?activeTab=map&keyVal=TKGZPJJNJ2G00", "n_comments": 0, "n_constraints": 6, "n_documents": 11, "n_statutory_days": 54, "northing": 197702.0, "permission_expires_date": "2026-09-24", "planning_portal_id": "PP-15190658", "source_url": "https://planningandbuildingcontrol.enfield.gov.uk/online-applications/search.do?action=advanced", "status": "Decided", "target_decision_date": "2026-10-28", "ward_name": "Town"}
+
+
+```
+
+```python
+import pandas as pd
+import json
+
+df = pd.read_csv('ledger_csv.csv')
+
+print("Total rows in CSV:", len(df))
+print("Boroughs (authority count):")
+print(df['authority'].value_counts())
+
+print("\nApp State:")
+print(df['app_state'].value_counts(dropna=False))
+
+print("\nIn Leads Sheet count:")
+print(df['in_leads_sheet'].value_counts(dropna=False))
+
+print("\nApp Type breakdown:")
+print(df['app_type'].value_counts(dropna=False))
+
+print("\nApp Size breakdown:")
+print(df['app_size'].value_counts(dropna=False))
+
+# Filter to in_leads_sheet == 1 if needed, or see total
+leads_df = df[df['in_leads_sheet'] == 1]
+print("\n--- Leads Sheet Subset (len:", len(leads_df), ") ---")
+print("Leads Borough distribution:")
+print(leads_df['authority'].value_counts())
+print("Leads App Type distribution:")
+print(leads_df['app_type'].value_counts(dropna=False))
+
+
+```
+
+```text
+Total rows in CSV: 3919
+Boroughs (authority count):
+authority
+Enfield          833
+Southwark        716
+Greenwich        519
+Lewisham         471
+Tower Hamlets    451
+Lambeth          450
+Sutton           317
+Newham           162
+Name: count, dtype: int64
+
+App State:
+app_state
+Undecided     2684
+Permitted     1173
+Conditions      62
+Name: count, dtype: int64
+
+In Leads Sheet count:
+in_leads_sheet
+0    2686
+1    1233
+Name: count, dtype: int64
+
+App Type breakdown:
+app_type
+Full           1549
+Conditions     1082
+Outline         705
+Amendment       255
+Heritage        132
+Advertising     102
+NaN              75
+Other            10
+Telecoms          9
+Name: count, dtype: int64
+
+App Size breakdown:
+app_size
+Small     3776
+Large       83
+Medium      58
+NaN          2
+Name: count, dtype: int64
+
+--- Leads Sheet Subset (len: 1233 ) ---
+Leads Borough distribution:
+authority
+Enfield          241
+Southwark        189
+Newham           162
+Tower Hamlets    156
+Greenwich        134
+Lambeth          127
+Sutton           115
+Lewisham         109
+Name: count, dtype: int64
+Leads App Type distribution:
+app_type
+Full           355
+Conditions     341
+Outline        329
+Amendment      111
+Advertising     36
+Heritage        30
+NaN             27
+Telecoms         4
+Name: count, dtype: int64
+
+
+```
+
+```python
+import re
+
+leads = df[df['in_leads_sheet'] == 1].copy()
+
+def classify_lead(row):
+    desc = str(row['description']).lower()
+    app_type = str(row['app_type'])
+    app_size = str(row['app_size'])
+    
+    # C0a & C0b
+    if app_type == 'Conditions' or 'discharge' in desc or 'pursuant' in desc or 'condition' in desc:
+        if desc.startswith('variation of condition') or 'variation of condition' in desc or 'section 73' in desc or 's73' in desc:
+            return 'C0b_Variation'
+        if 'pursuant' in desc or 'discharge' in desc or 'details submitted' in desc or app_type == 'Conditions':
+            return 'C0a_Discharge'
+            
+    # C5: Demolition + redevelopment
+    if 'demolition' in desc and ('erection' in desc or 'construction' in desc or 'redevelopment' in desc or 'dwelling' in desc):
+        return 'C5_Demolition_Redev'
+        
+    # C6: Commercial / institutional
+    comm_keywords = ['office', 'school', 'hotel', 'care home', 'commercial', 'retail', 'restaurant', 'pub', 'nursery', 'community centre']
+    if any(k in desc for k in comm_keywords):
+        return 'C6_Commercial'
+        
+    # C7: Medium / Large app_size
+    if app_size in ['Medium', 'Large']:
+        return 'C7_Med_Large'
+        
+    # C4: Small new-build
+    if ('erection of' in desc or 'construction of' in desc or 'new dwelling' in desc or 'new house' in desc or 'new building' in desc) and 'extension' not in desc:
+        return 'C4_New_Build'
+        
+    # C3: Conversion / change of use
+    if 'conversion' in desc or 'change of use' in desc:
+        return 'C3_Conversion'
+        
+    # C2: Larger householder
+    c2_keywords = ['two storey', 'two-storey', '2 storey', '2-storey', 'basement', 'multi-storey', 'part two']
+    if any(k in desc for k in c2_keywords):
+        return 'C2_Large_Householder'
+        
+    # C1: Small householder
+    c1_keywords = ['extension', 'dormer', 'loft', 'roof', 'outbuilding', 'porch', 'single storey', 'single-storey']
+    if any(k in desc for k in c1_keywords):
+        return 'C1_Small_Householder'
+        
+    return 'C_Other_Fallback'
+
+leads['category'] = leads.apply(classify_lead, axis=1)
+print(leads['category'].value_counts())
+
+
+```
+
+```text
+category
+C1_Small_Householder    399
+C0a_Discharge           325
+C_Other_Fallback        247
+C3_Conversion            93
+C6_Commercial            42
+C5_Demolition_Redev      41
+C4_New_Build             38
+C0b_Variation            35
+C2_Large_Householder      8
+C7_Med_Large              5
+Name: count, dtype: int64
+
+
+```
+
+```python
+fallback = leads[leads['category'] == 'C_Other_Fallback']
+print("Fallback descriptions sample (first 10):")
+for desc in fallback['description'].head(10):
+    print("- ", desc[:120])
+
+print("\nFallback app_types:")
+print(fallback['app_type'].value_counts(dropna=False))
+
+print("\nAgent info coverage in leads:")
+print("agent_name non-null:", leads['agent_name'].notnull().sum(), "/", len(leads))
+print("agent_name value counts top 10:")
+print(leads['agent_name'].value_counts().head(10))
+
+
+```
+
+```text
+Fallback descriptions sample (first 10):
+-  Improve structural diversity and increase the mosaic of open space and woodland edge lost through encroachment of vegeta
+-  Detached garden room at rear.
+-  Non material amendment to Ref: 22/02098/RM (Plot Z02-01/ Phase 1 only), to allow minor amendments in relation to doors, 
+-  Non-material amendment to Ref: 22/01181/FUL to allow alterations to fenestration, external materials, eaves height toget
+-  Certificate of lawful development seeking confirmation of lawful material commencement of planning reference 21/04742/FU
+-  Use of property as a separate self contained residential flat.
+-  Non-material amendment to ref. 24/01083/FUL to allow a larger living room, larger rear terrace, changes to fenestration,
+-  Part use of premises for minicab business.
+-  Use of premises as 5 self-contained flats.
+-  Existing use of the garages and forecourt as a car sales showroom (Sui Generis).
+
+Fallback app_types:
+app_type
+Full           104
+Amendment       47
+Advertising     35
+Outline         27
+Heritage        19
+NaN             11
+Telecoms         4
+Name: count, dtype: int64
+
+Agent info coverage in leads:
+agent_name non-null: 974 / 1233
+agent_name value counts top 10:
+agent_name
+Redwoods Projects                   73
+DP9 Ltd                             13
+Faithorn Farrell Timms LLP          12
+Savills                             12
+Potter Raper                        11
+Archway Building Consultancy Ltd    11
+SAM Planning services               10
+Resi Design Ltd                      9
+ARJ Surveying & Design               9
+DP9 Limited                          9
+Name: count, dtype: int64
+
+
+```
+
+```python
+import json
+
+def extract_agent_co(row):
+    try:
+        if pd.notnull(row['other_fields_json']):
+            obj = json.loads(row['other_fields_json'])
+            return obj.get('agent_company', None)
+    except:
+        pass
+    return None
+
+leads['agent_co_extracted'] = leads.apply(extract_agent_co, axis=1)
+
+print("Agent Name non-null & not 'See source':", ((leads['agent_name'].notnull()) & (leads['agent_name'] != 'See source')).sum())
+print("Agent Company extracted non-null:", leads['agent_co_extracted'].notnull().sum())
+
+# Check how many distinct practices are in leads
+agents = leads['agent_name'].dropna()
+agents_clean = agents[agents != 'See source']
+print("Unique agent names:", agents_clean.nunique())
+
+print("\nTop 15 Agents in Leads:")
+print(agents_clean.value_counts().head(15))
+
+
+```
+
+```text
+Agent Name non-null & not 'See source': 974
+Agent Company extracted non-null: 974
+Unique agent names: 545
+
+Top 15 Agents in Leads:
+agent_name
+Redwoods Projects                   73
+DP9 Ltd                             13
+Faithorn Farrell Timms LLP          12
+Savills                             12
+Potter Raper                        11
+Archway Building Consultancy Ltd    11
+SAM Planning services               10
+Resi Design Ltd                      9
+ARJ Surveying & Design               9
+DP9 Limited                          9
+Q Square Group Ltd                   9
+PRP                                  9
+Quod                                 9
+Turley                               8
+Rolfe Judd Planning Ltd              8
+Name: count, dtype: int64
+
+
+```
+
+```python
+# Summarize the breakdown of leads in a neat table format for the response
+cat_counts = leads['category'].value_counts()
+cat_pct = (cat_counts / len(leads) * 100).round(1)
+summary_df = pd.DataFrame({'Count': cat_counts, 'Percentage (%)': cat_pct})
+print(summary_df)
+
+
+```
+
+```text
+                      Count  Percentage (%)
+category                                   
+C1_Small_Householder    399            32.4
+C0a_Discharge           325            26.4
+C_Other_Fallback        247            20.0
+C3_Conversion            93             7.5
+C6_Commercial            42             3.4
+C5_Demolition_Redev      41             3.3
+C4_New_Build             38             3.1
+C0b_Variation            35             2.8
+C2_Large_Householder      8             0.6
+C7_Med_Large              5             0.4
+
+
+```
+
+Your core strategy is spot-on. Using public planning data to time commercial B2B outreach ~2 months before practical completion (PC) gives you a huge advantage over photographers who cold-pitch blindly or wait for completed projects to hit social media when it is already too late.
+
+Your **Completion Estimation Framework** is logically sound and remarkably well-thought-out. Here is a candid breakdown of what works brilliantly in your draft, along with critical additions and refinements to make this pipeline produce actual high-value photography clients.
+
+---
+
+### What Works Brilliantly
+
+* **The C0 Fast-Lane Discovery (Discharges & Variations):** Realising that `app_type='Conditions'` represents discharge-of-conditions (C0a) and s73 variations (C0b) rather than initial planning grants is a massive breakthrough. Discharges confirm that funding is secured, contractors are appointed, and ground has been broken. This drastically cuts down on "phantom permissions" (projects that get approved but never built).
+* **Realistic Mobilisation Lags:** Modeling mobilisation time separately from construction time is accurate for UK planning. Pre-commencement conditions, tender periods, and structural sign-offs routinely add 3–9 months before a shovel hits the dirt.
+* **Keyword Hierarchy over `app_size`:** Standard planning classification (`app_size`) is notoriously crude—almost everything in London ends up labeled "Small". Relying on specific description strings (e.g., matching "demolition" before "erection") is the right move.
+
+---
+
+### 4 Key Refinements & Missing Angles
+
+#### 1. Filter for Design Quality (Architect vs. Plan-Drawer)
+
+As a freelance architectural photographer targeting portfolios, press, and RIBA/NLA awards, **80–90% of the dataset will be noise you want to ignore.**
+
+* A loft conversion or rear extension designed by a generic draftsperson or design-and-build contractor won't have a photography budget (or photogenic merit).
+* **The Fix:** Add an **Agent Tier Filter**. Cross-reference `agent_name` or `agent_company` against a lookup list of accredited architectural practices (e.g., registered RIBA/ARB practices, or companies containing words like *Architects*, *Architecture*, *Design Studio*, *Atelier*). Exclude rows where the agent is a private individual, structural engineer, or planning consultancy with no design focus.
+
+#### 2. Introduce "Photogenic Keyword" Lead Scoring
+
+Instead of scoring purely on project scale (C1–C7), score on **architectural distinction**. A £200k bespoke rear extension by a design-led micro-practice is worth far more to your photography business than a £2m commercial fit-out of an industrial unit.
+
+* **High-Value Design Keywords:** Add positive scoring for descriptive terms like *listed building*, *conservation area*, *facade*, *glazing*, *passivhaus*, *timber clad*, *zinc*, *cantilever*, *courtyard*, *basement lightwell*, or *reconfiguration*.
+* **Low-Value Keywords:** Deduct points for *crossover*, *drop kerb*, *outbuilding*, *boundary wall*, *plant room*, *substation*, or *flat conversion* (unless major redevelopment).
+
+#### 3. Account for the "Planning Drop-Off" Rate
+
+Roughly 20–30% of standard planning permissions (C1–C7) in London are either never implemented, delayed indefinitely, or re-submitted under new references.
+
+* **Strategy:** Give **C0 (Discharges/Variations)** top priority—they represent *confirmed active construction*.
+* For standard approvals (C1–C7), treat your calculated outreach date as a **"first soft touchpoint"** (e.g., a short email asking if the build is underway or if they have a target completion date) rather than a hard pitch for a shoot date.
+
+#### 4. Align Outreach with Industry Triggers
+
+Architects rarely commission photography just to clear hard drive space; they do it for specific milestones. Incorporating these triggers into your outreach messaging will increase conversion:
+
+* **Award Deadlines:** The RIBA Regional Awards open for submissions in late autumn and close around January/February. Reaching out to practices in Q3/Q4 with "Getting your portfolio ready for the RIBA London Awards submission?" is a proven hook.
+* **Editorial Seasons:** Architecture outlets (*Architects' Journal*, *Dezeen*, *ArchDaily*, *Elle Decoration*) plan editorial calendars ahead. Framing your pitch around PR readiness adds immediate tangible value.
+
+---
+
+### Refined Outreach Timeline Summary
+
+| Category Code | Description Type | True Build Signal | Target Outreach Window | Outreach Pitch / Angle |
+| --- | --- | --- | --- | --- |
+| **C0a** | Discharge of Conditions | **High** (Active site) | +4–10 months from discharge | Direct shoot proposal ("As site work nears completion...") |
+| **C0b** | s73 Variations | **Medium-High** (Live design) | Parent estimate + delay | Soft check-in ("Tracking the variation for [Address]...") |
+| **C1–C2** | Bespoke Residential (Named Architect) | **Medium** | +6–12 months from decision | Portfolio / Residential Awards focus |
+| **C3–C5** | Medium New-Build / Redevelopment | **Medium** | +12–20 months from decision | PR, Press Release & Industry Award focus |
+| **C6–C7** | Commercial / Institutional | **Variable** | +18–36 months from decision | Practice portfolio & corporate submission focus |
+
+---
+
+### Verdict & Next Steps
+
+Your project makes complete commercial sense. Since you only need a handful of new studio clients a year to make a freelance photography practice thrive, this data-driven approach will give you a repeatable, low-friction pipeline.
+
+1. **Test the Parent-Join for C0:** Run a script linking C0 rows back to their parent application numbers to automatically extract the original project scope and original architect name.
+2. **Build an "Architect Studio" Filter:** Filter the 1,233 rows down to only those with recognized architectural practices in the `agent_name` / `agent_company` field.
+3. **Run a 20-Lead Pilot:** Select 20 high-scoring leads due for completion in the next 1–3 months, find the director/marketing contact on LinkedIn or their studio website, and test a tailored pitch.
+
+Would you like to build the Python parsing script to join the C0 discharge rows to their parent application records in the dataset next?
