@@ -29,8 +29,10 @@ areas:
     authority: Sutton
   - name: tower-hamlets
     authority: Tower Hamlets
-  # - name: islington
-  #   authority: Islington
+  # Islington enabled 2026-09-30 for 3-year backfill attempt (crawl fresh per audit,
+  # agent names unusable — "See source" junk — so no agent-based filtering here).
+  - name: islington
+    authority: Islington
   # - name: camden
   #   authority: Camden
   # - name: westminster
