@@ -24,8 +24,11 @@ COLUMNS = [
     ("app_type", "Type", 12),
     ("app_size", "Size", 8),
     ("app_state", "State", 11),
+    ("decision", "Decision", 24),
+    ("decided_by", "Decided by", 16),
     ("start_date", "Applied", 11),
     ("decided_date", "Decided", 11),
+    ("target_decision_date", "Target date", 11),
     ("permission_expires", "Perm. expires", 12),
     ("agent_name", "Agent / practice", 24),
     ("applicant_name", "Applicant", 20),
@@ -77,7 +80,8 @@ class LeadsSheet:
         uid = row["uid"]
         if uid in self._index:
             row_num = self._index[uid]
-            existing_changed = self.ws.cell(row=row_num, column=17).value
+            changed_col = _col_index("state_changed")
+            existing_changed = self.ws.cell(row=row_num, column=changed_col).value
             for col, value in enumerate(values, start=1):
                 if key_is_preserved_on_update(COLUMNS[col - 1][0]) and existing_changed:
                     continue
@@ -90,9 +94,9 @@ class LeadsSheet:
 
         # hyperlinks
         row_num = self._index[uid]
-        for key, col in (("council_url", 18), ("docs_url", 19), ("planit_url", 20)):
+        for key in ("council_url", "docs_url", "planit_url"):
             if row.get(key):
-                cell = self.ws.cell(row=row_num, column=col)
+                cell = self.ws.cell(row=row_num, column=_col_index(key))
                 cell.hyperlink = row[key]
                 cell.style = "Hyperlink"
         return action
@@ -101,6 +105,11 @@ class LeadsSheet:
         for i, (_, _, width) in enumerate(COLUMNS, start=1):
             self.ws.column_dimensions[get_column_letter(i)].width = width
         self.wb.save(self.path)
+
+
+def _col_index(key: str) -> int:
+    """1-based worksheet column index for a COLUMNS key."""
+    return next(i for i, (k, _, _) in enumerate(COLUMNS, start=1) if k == key)
 
 
 def key_is_preserved_on_update(key: str) -> bool:

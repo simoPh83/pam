@@ -50,6 +50,32 @@ EXTRA_COLUMNS = {
     "council_url": "TEXT",
     "docs_url": "TEXT",
     "other_fields_json": "TEXT",
+    # Promoted from other_fields (schema review 2026-10-01)
+    "decision": "TEXT",
+    "decided_by": "TEXT",
+    "source_status": "TEXT",
+    "ward": "TEXT",
+    "parish": "TEXT",
+    "development_type": "TEXT",
+    "source_url": "TEXT",
+    "comment_url": "TEXT",
+    "map_url": "TEXT",
+    "planning_portal_id": "TEXT",
+    "uprn": "TEXT",
+    "appeal_reference": "TEXT",
+    "appeal_result": "TEXT",
+    "date_received": "TEXT",
+    "date_validated": "TEXT",
+    "target_decision_date": "TEXT",
+    "consultation_end_date": "TEXT",
+    "application_expires_date": "TEXT",
+    "decision_issued_date": "TEXT",
+    "appeal_date": "TEXT",
+    "appeal_decision_date": "TEXT",
+    "n_documents": "INTEGER",
+    "n_comments": "INTEGER",
+    "n_constraints": "INTEGER",
+    "n_dwellings": "INTEGER",
 }
 
 
@@ -99,38 +125,50 @@ class Ledger:
 
     def upsert(self, row: dict, *, in_leads: bool, raw: dict | None = None) -> None:
         today = date.today().isoformat()
+
+        def d(key):
+            value = row.get(key)
+            return value.isoformat() if isinstance(value, date) else value
+
+        columns = (
+            "uid", "reference", "authority", "app_state", "app_size", "app_type",
+            "address", "postcode", "description",
+            "agent_name", "applicant_name",
+            "start_date", "decided_date", "permission_expires",
+            "distance_km", "lat", "lng", "council_url", "docs_url",
+            "other_fields_json",
+            # promoted from other_fields
+            "decision", "decided_by", "source_status", "ward", "parish",
+            "development_type", "source_url", "comment_url", "map_url",
+            "planning_portal_id", "uprn", "appeal_reference", "appeal_result",
+            "date_received", "date_validated", "target_decision_date",
+            "consultation_end_date", "application_expires_date",
+            "decision_issued_date", "appeal_date", "appeal_decision_date",
+            "n_documents", "n_comments", "n_constraints", "n_dwellings",
+        )
+        values = [d(key) for key in columns if key != "other_fields_json"]
+        values.insert(columns.index("other_fields_json"),
+                      json.dumps(raw.get("other_fields") or {}, ensure_ascii=False)
+                      if raw else None)
+
+        mutable = [c for c in columns
+                   if c not in ("uid", "agent_name", "applicant_name")]
+        update_sql = ",\n                ".join(
+            f"{c} = COALESCE(excluded.{c}, applications.{c})" for c in mutable
+        )
         self.conn.execute(
-            """
+            f"""
             INSERT INTO applications
-                (uid, reference, authority, app_state, app_size, app_type,
-                 address, postcode, description,
-                 agent_name, applicant_name,
-                 start_date, decided_date, permission_expires,
-                 distance_km, lat, lng, council_url, docs_url,
-                 other_fields_json,
-                 first_seen, last_updated, in_leads_sheet)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ({", ".join(columns)}, first_seen, last_updated, in_leads_sheet)
+            VALUES ({", ".join("?" * (len(columns) + 3))})
             ON CONFLICT(uid) DO UPDATE SET
-                app_state      = excluded.app_state,
-                decided_date   = excluded.decided_date,
+                {update_sql},
                 agent_name     = COALESCE(excluded.agent_name, agent_name),
                 applicant_name = COALESCE(excluded.applicant_name, applicant_name),
                 last_updated   = excluded.last_updated,
                 in_leads_sheet = MAX(in_leads_sheet, excluded.in_leads_sheet)
             """,
-            (
-                row["uid"], row["reference"], row["authority"], row["app_state"],
-                row["app_size"], row["app_type"],
-                row["address"], row["postcode"], row["description"],
-                row["agent_name"], row["applicant_name"],
-                row["start_date"].isoformat() if row["start_date"] else None,
-                row["decided_date"].isoformat() if row["decided_date"] else None,
-                row["permission_expires"].isoformat() if row["permission_expires"] else None,
-                row["distance_km"], row["lat"], row["lng"],
-                row["council_url"], row["docs_url"],
-                json.dumps(raw.get("other_fields") or {}, ensure_ascii=False) if raw else None,
-                today, today, int(in_leads),
-            ),
+            (*values, today, today, int(in_leads)),
         )
         self.conn.commit()
 

@@ -33,10 +33,12 @@ areas:
   # agent names unusable — "See source" junk — so no agent-based filtering here).
   - name: islington
     authority: Islington
-  # - name: camden
-  #   authority: Camden
-  # - name: westminster
-  #   authority: Westminster
+  - name: camden
+    authority: Camden
+  # Westminster enabled 2026-10-01 for 3y backfill (feed name is 'Westminster'
+  # per audit alias; covers south Fitzrovia, Soho, Mayfair, Marylebone).
+  - name: westminster
+    authority: Westminster
   # - name: barnet
   #   authority: Barnet
   # - name: brent

@@ -1,0 +1,4 @@
+# Large binaries via Git LFS (GitHub rejects files >100MB; the ledger passed
+# that limit on 2026-10-01 at ~110MB and will keep growing with each borough)
+*.sqlite filter=lfs diff=lfs merge=lfs -text
+*.xlsx filter=lfs diff=lfs merge=lfs -text

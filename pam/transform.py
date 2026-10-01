@@ -12,7 +12,15 @@ from datetime import date
 # other_fields keys seen holding agent info across councils (mostly junk —
 # "See source" — but cheap to check; real values appear in some councils)
 _AGENT_KEYS = ("agent_name", "agent", "agent_company", "agent_organisation")
-_JUNK_VALUES = {"see source", "n/a", "na", "not supplied", "unknown", "-"}
+_JUNK_VALUES = {"see source", "n/a", "na", "not supplied", "unknown", "-",
+                "not in borough"}
+
+# other_fields keys promoted to dedicated ledger columns (schema review
+# 2026-10-01). Dates go through _date_or_none; counts through _int_or_none.
+_OTHER_DATE_KEYS = ("date_received", "date_validated", "target_decision_date",
+                    "consultation_end_date", "application_expires_date",
+                    "decision_issued_date", "appeal_date", "appeal_decision_date")
+_OTHER_INT_KEYS = ("n_documents", "n_comments", "n_constraints", "n_dwellings")
 
 
 def uid_of(raw: dict) -> str:
@@ -31,11 +39,15 @@ def _agent_name(raw: dict) -> str | None:
     return None
 
 
+def _clean(value) -> str | None:
+    if value is None:
+        return None
+    value = str(value).strip()
+    return None if not value or value.lower() in _JUNK_VALUES else value
+
+
 def _applicant_name(raw: dict) -> str | None:
-    value = (raw.get("other_fields") or {}).get("applicant_name")
-    if value and str(value).strip().lower() not in _JUNK_VALUES:
-        return str(value).strip()
-    return None
+    return _clean((raw.get("other_fields") or {}).get("applicant_name"))
 
 
 def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -55,7 +67,7 @@ def normalize(raw: dict, area_name: str, home: tuple[float, float] | None) -> di
     if home and lat is not None and lon is not None:
         distance = round(haversine_km(home[0], home[1], float(lat), float(lon)), 1)
 
-    return {
+    row = {
         "uid": uid_of(raw),
         "reference": raw.get("reference") or raw.get("uid"),
         "authority": raw.get("area_name"),
@@ -77,7 +89,33 @@ def normalize(raw: dict, area_name: str, home: tuple[float, float] | None) -> di
         "council_url": raw.get("url"),
         "docs_url": other.get("docs_url"),
         "planit_url": raw.get("link"),
+        # --- promoted from other_fields ---
+        "decision": _clean(other.get("decision")),
+        "decided_by": _clean(other.get("decided_by")),
+        "source_status": _clean(other.get("status")),
+        "ward": _clean(other.get("ward_name")),
+        "parish": _clean(other.get("parish")),
+        "development_type": _clean(other.get("development_type")),
+        "source_url": other.get("source_url"),
+        "comment_url": other.get("comment_url"),
+        "map_url": other.get("map_url"),
+        "planning_portal_id": _clean(other.get("planning_portal_id")),
+        "uprn": _clean(other.get("uprn")),
+        "appeal_reference": _clean(other.get("appeal_reference")),
+        "appeal_result": _clean(other.get("appeal_result")),
     }
+    for key in _OTHER_DATE_KEYS:
+        row[key] = _date_or_none(other.get(key))
+    for key in _OTHER_INT_KEYS:
+        row[key] = _int_or_none(other.get(key))
+    return row
+
+
+def _int_or_none(value) -> int | None:
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return None
 
 
 def _date_or_none(value) -> date | None:

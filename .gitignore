@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 .venv/
 *.egg-info/
+~$*                          # Office lock files (never commit)
 
 # data/ is committed: the ledger is the project's memory and must survive
 # across machines (dedupe + state-transition detection depend on its history).
