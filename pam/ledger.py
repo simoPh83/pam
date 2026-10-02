@@ -74,7 +74,6 @@ EXTRA_COLUMNS = {
     "ward": "TEXT",
     "parish": "TEXT",
     "development_type": "TEXT",
-    "source_url": "TEXT",
     "comment_url": "TEXT",
     "map_url": "TEXT",
     "planning_portal_id": "TEXT",
@@ -97,6 +96,36 @@ EXTRA_COLUMNS = {
     "last_different": "TEXT",
     "last_scraped": "TEXT",
 }
+
+
+# URL columns stored as a tail after a per-authority base (table authority_urls).
+# source_url is the same portal page for every row, so only the base is kept.
+URL_FIELDS = ("council_url", "docs_url", "comment_url", "map_url")
+AUTHORITY_URLS_DDL = (
+    "CREATE TABLE IF NOT EXISTS authority_urls ("
+    "authority TEXT NOT NULL, field TEXT NOT NULL, base_url TEXT NOT NULL, "
+    "PRIMARY KEY (authority, field))"
+)
+
+
+def url_base(url: str) -> str:
+    """Prefix up to and including the last '/' of the path (query string excluded)."""
+    return url[: url.split("?", 1)[0].rfind("/") + 1]
+
+
+def _full_urls_view_sql(replace: str) -> str:
+    cols, joins = [], []
+    for i, field in enumerate(URL_FIELDS):
+        cols.append(
+            f"CASE WHEN a.{field} IS NULL OR a.{field} LIKE 'http%' OR b{i}.base_url IS NULL "
+            f"THEN a.{field} ELSE b{i}.base_url || a.{field} END AS {field}")
+        joins.append(f"LEFT JOIN authority_urls b{i} "
+                     f"ON b{i}.authority = a.authority AND b{i}.field = '{field}'")
+    cols.append("s.base_url AS source_url")
+    joins.append("LEFT JOIN authority_urls s ON s.authority = a.authority "
+                 "AND s.field = 'source_url'")
+    return (f"{replace} VIEW applications_full AS SELECT a.uid, {', '.join(cols)} "
+            f"FROM applications a {' '.join(joins)}")
 
 
 def _is_postgres(target) -> bool:
@@ -130,6 +159,14 @@ class Ledger:
                 if col not in existing:
                     self.conn.execute(
                         f"ALTER TABLE applications ADD COLUMN {col} {coltype}")
+        self.conn.execute(AUTHORITY_URLS_DDL)
+        if self.pg:
+            self.conn.execute(_full_urls_view_sql("CREATE OR REPLACE"))
+        else:
+            self.conn.execute("DROP VIEW IF EXISTS applications_full")
+            self.conn.execute(_full_urls_view_sql("CREATE"))
+        self._bases = {(a, f): b for a, f, b in self._exec(
+            "SELECT authority, field, base_url FROM authority_urls").fetchall()}
         # Seed history for rows stored before it existed (first sighting only)
         if not self._exec("SELECT 1 FROM state_history LIMIT 1").fetchone():
             self._exec(
@@ -144,6 +181,22 @@ class Ledger:
         if self.pg:
             sql = sql.replace("?", "%s")
         return self.conn.execute(sql, params)
+
+    def _set_base(self, authority: str, field: str, base: str) -> None:
+        self._exec(
+            "INSERT INTO authority_urls (authority, field, base_url) VALUES (?, ?, ?) "
+            "ON CONFLICT (authority, field) DO NOTHING", (authority, field, base))
+        self._bases[(authority, field)] = base
+
+    def _shorten(self, authority: str, field: str, url: str | None) -> str | None:
+        """Strip the authority's base from url; URLs on another base stay absolute."""
+        if not url:
+            return url
+        base = self._bases.get((authority, field))
+        if base is None:
+            base = url_base(url)
+            self._set_base(authority, field, base)
+        return url[len(base):] if url.startswith(base) else url
 
     def get_state(self, uid: str) -> str | None:
         row = self._exec(
@@ -182,7 +235,12 @@ class Ledger:
 
         def d(key):
             value = row.get(key)
+            if key in URL_FIELDS:
+                return self._shorten(row["authority"], key, value)
             return value.isoformat() if isinstance(value, date) else value
+
+        if row.get("source_url") and (row["authority"], "source_url") not in self._bases:
+            self._set_base(row["authority"], "source_url", row["source_url"])
 
         columns = (
             "uid", "reference", "authority", "app_state", "app_size", "app_type",
@@ -194,7 +252,7 @@ class Ledger:
             "other_fields_json",
             # promoted from other_fields
             "decision", "decided_by", "source_status", "ward", "parish",
-            "development_type", "source_url", "comment_url", "map_url",
+            "development_type", "comment_url", "map_url",
             "planning_portal_id", "uprn", "appeal_reference", "appeal_result",
             "date_received", "date_validated", "target_decision_date",
             "consultation_end_date", "application_expires_date",
