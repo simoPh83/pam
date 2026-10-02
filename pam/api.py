@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import logging
 import time
-from datetime import date
+from datetime import date, datetime, timedelta
 from typing import Iterator
 
 import requests
@@ -41,8 +41,9 @@ def _get(params: dict, cfg: Config, url: str = BASE_URL) -> dict:
                 # PlanIt rate-limits aggressively; respect Retry-After, else long backoff
                 retry_after = resp.headers.get("Retry-After")
                 wait = float(retry_after) if retry_after else 30.0 * (attempt + 1)
-                log.warning("Rate limited (429); waiting %.0fs before retry %d/%d",
-                            wait, attempt + 1, cfg.max_retries)
+                resume = datetime.now() + timedelta(seconds=wait)
+                log.warning("Rate limited (429); waiting %.0fs (resume at %s) before retry %d/%d",
+                            wait, resume.strftime("%H:%M"), attempt + 1, cfg.max_retries)
                 time.sleep(wait)
                 continue
             resp.raise_for_status()
