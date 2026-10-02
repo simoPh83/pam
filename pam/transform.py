@@ -23,6 +23,75 @@ _OTHER_DATE_KEYS = ("date_received", "date_validated", "target_decision_date",
 _OTHER_INT_KEYS = ("n_documents", "n_comments", "n_constraints", "n_dwellings")
 
 
+# other_fields key -> (ledger column, kind). A key is dropped from the stored
+# "extras" JSON only when the dedicated column already holds the same value.
+_EXTRA_KEY_COLUMNS: dict[str, tuple[str, str]] = {
+    "source_url": ("source_url", "raw"), "docs_url": ("docs_url", "raw"),
+    "comment_url": ("comment_url", "raw"), "map_url": ("map_url", "raw"),
+    "ward_name": ("ward", "text"), "status": ("source_status", "text"),
+    "decision": ("decision", "text"), "decided_by": ("decided_by", "text"),
+    "parish": ("parish", "text"), "development_type": ("development_type", "text"),
+    "planning_portal_id": ("planning_portal_id", "text"), "uprn": ("uprn", "text"),
+    "appeal_reference": ("appeal_reference", "text"),
+    "appeal_result": ("appeal_result", "text"),
+    "applicant_name": ("applicant_name", "text"),
+    "agent_name": ("agent_name", "text"), "agent": ("agent_name", "text"),
+    "agent_company": ("agent_name", "text"),
+    "agent_organisation": ("agent_name", "text"),
+    "application_type": ("app_type", "text"),
+    "permission_expires_date": ("permission_expires", "date"),
+    "decision_date": ("decided_date", "date"),
+    "lat": ("lat", "float"), "latitude": ("lat", "float"),
+    "lng": ("lng", "float"), "longitude": ("lng", "float"),
+    **{k: (k, "date") for k in _OTHER_DATE_KEYS},
+    **{k: (k, "int") for k in _OTHER_INT_KEYS},
+}
+
+
+def _comparable(value, kind: str):
+    if kind == "date":
+        parsed = value if isinstance(value, date) else _date_or_none(value)
+        return parsed.isoformat() if parsed else None
+    if kind == "int":
+        return _int_or_none(value)
+    if kind == "float":
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+    if kind == "raw":
+        return str(value).strip() or None
+    return _clean(value)
+
+
+def extra_fields(other: dict | None, row: dict) -> dict:
+    """Return the other_fields entries NOT already stored in dedicated columns.
+
+    `row` holds the column values (normalized row or a DB row; dates may be
+    date objects or ISO strings). Blank/junk values of mapped keys are dropped
+    too, since nothing is lost by it.
+    """
+    extras = {}
+    for key, value in (other or {}).items():
+        mapping = _EXTRA_KEY_COLUMNS.get(key)
+        if mapping is None:
+            extras[key] = value
+            continue
+        column, kind = mapping
+        parsed = _comparable(value, kind)
+        if parsed is None:
+            if value is None or str(value).strip().lower() in _JUNK_VALUES | {""}:
+                continue
+            extras[key] = value
+            continue
+        stored = _comparable(row.get(column), kind)
+        same = (abs(parsed - stored) < 1e-6 if kind == "float" and stored is not None
+                else parsed == stored)
+        if not same:
+            extras[key] = value
+    return extras
+
+
 def uid_of(raw: dict) -> str:
     name = raw.get("name")
     if name:
@@ -89,6 +158,10 @@ def normalize(raw: dict, area_name: str, home: tuple[float, float] | None) -> di
         "council_url": raw.get("url"),
         "docs_url": other.get("docs_url"),
         "planit_url": raw.get("link"),
+        # PlanIt change metadata: last_different = when the data last changed
+        "last_changed": raw.get("last_changed"),
+        "last_different": raw.get("last_different"),
+        "last_scraped": raw.get("last_scraped"),
         # --- promoted from other_fields ---
         "decision": _clean(other.get("decision")),
         "decided_by": _clean(other.get("decided_by")),

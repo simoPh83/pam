@@ -1,0 +1,98 @@
+2026-10-02 11:57:06 INFO Window: 2023-10-01 -> 2026-10-02 | areas: westminster
+2026-10-02 11:57:41 INFO [westminster/Permitted] page at offset 0: 100 records
+2026-10-02 11:57:41 INFO LEAD new: [Permitted] Westminster/26/06619/TELNOT — Greencoat Place London
+2026-10-02 11:57:41 INFO LEAD new: [Permitted] Westminster/26/06617/TELNOT — 41 Buckingham Palace Road London SW1W 0PP
+2026-10-02 11:57:41 INFO LEAD new: [Permitted] Westminster/26/05718/ADV — The Other Palace 12 Palace Street London SW1E 5JA
+2026-10-02 11:57:41 INFO LEAD new: [Permitted] Westminster/26/05687/GPDOD — Delamere Terrace London
+2026-10-02 11:57:41 INFO LEAD new: [Permitted] Westminster/26/05590/ADFULL — 10 Upbrook Mews London W2 3HG
+2026-10-02 11:57:53 INFO [westminster/Permitted] page at offset 100: 100 records
+2026-10-02 11:58:07 INFO LEAD new: [Permitted] Westminster/26/01017/ADV — 245 Regent Street London W1B 2EN
+2026-10-02 11:58:14 INFO [westminster/Permitted] page at offset 200: 100 records
+2026-10-02 11:58:14 INFO LEAD new: [Permitted] Westminster/26/01002/ADFULL — Gillingham House 38 - 44 Gillingham Street London SW1V 1HU
+2026-10-02 11:58:35 INFO [westminster/Permitted] page at offset 300: 100 records
+2026-10-02 11:58:36 INFO LEAD new: [Permitted] Westminster/26/00645/FULL — 15 Ordnance Hill London NW8 6PR
+2026-10-02 11:58:36 INFO LEAD new: [Permitted] Westminster/26/00657/LBC — First Floor Flat 34 Seymour Street London W1H 7JE
+2026-10-02 11:58:56 INFO [westminster/Permitted] page at offset 400: 100 records
+2026-10-02 11:58:56 INFO LEAD new: [Permitted] Westminster/26/00404/ADFULL — 30 Grosvenor Square London W1K 6AN
+2026-10-02 11:58:56 INFO LEAD new: [Permitted] Westminster/26/00402/LBC — 6 Upper Belgrave Street London SW1X 8BD
+2026-10-02 11:58:56 INFO LEAD new: [Permitted] Westminster/26/00410/ADV — 3 Marylebone High Street London W1U 4NG
+2026-10-02 11:59:13 INFO [westminster/Permitted] page at offset 500: 100 records
+2026-10-02 11:59:14 INFO LEAD new: [Permitted] Westminster/26/00231/LBC — 8 Abbey Gardens London NW8 9AT
+2026-10-02 11:59:14 INFO LEAD new: [Permitted] Westminster/26/00222/ADV — The Market Covent Garden London WC2E 8RA
+2026-10-02 11:59:14 INFO LEAD new: [Permitted] Westminster/26/00234/ADV — 28 Berkeley Square London W1J 6HD
+2026-10-02 11:59:36 INFO [westminster/Permitted] page at offset 600: 100 records
+2026-10-02 11:59:36 INFO LEAD new: [Permitted] Westminster/26/00068/FULL — Fairchild House Charlwood Street London SW1V 2DP
+2026-10-02 11:59:36 INFO LEAD new: [Permitted] Westminster/26/00060/ADV — 21 Long Acre London WC2E 9LD
+2026-10-02 11:59:36 INFO LEAD new: [Permitted] Westminster/26/00073/AD7 — First Floor 13 - 14 Dean Street London W1D 3RS
+2026-10-02 11:59:36 INFO LEAD new: [Permitted] Westminster/26/00064/ADFULL — 16 Cavendish Avenue London NW8 9JE
+2026-10-02 11:59:57 INFO [westminster/Permitted] page at offset 700: 100 records
+2026-10-02 12:00:17 INFO [westminster/Permitted] page at offset 800: 100 records
+2026-10-02 12:00:18 INFO LEAD new: [Permitted] Westminster/25/09157/LBC — 48 Mount Street London W1K 2SB
+2026-10-02 12:00:27 INFO LEAD new: [Permitted] Westminster/25/08988/ADFULL — West One Shopping Centre 381 Oxford Street London W1C 2JS
+2026-10-02 12:00:34 INFO [westminster/Permitted] page at offset 900: 100 records
+2026-10-02 12:00:35 INFO LEAD new: [Permitted] Westminster/25/08990/ADFULL — 25 - 27 St George Street London W1S 1FS
+2026-10-02 12:00:49 INFO LEAD new: [Permitted] Westminster/25/08864/ADFULL — 96A St John's Wood Terrace London NW8 6PP
+2026-10-02 12:00:56 INFO [westminster/Permitted] page at offset 1000: 100 records
+2026-10-02 12:01:15 INFO [westminster/Permitted] page at offset 1100: 100 records
+2026-10-02 12:01:15 INFO LEAD new: [Permitted] Westminster/25/08716/FULL — 20 Bruton Place London W1J 6LY
+2026-10-02 12:01:16 INFO LEAD new: [Permitted] Westminster/25/08719/FULL — 17 Carlton Hill London NW8 0JX
+2026-10-02 12:01:16 INFO LEAD new: [Permitted] Westminster/25/08711/ADLBC — 43 Eaton Place London SW1X 8BX
+2026-10-02 12:01:17 INFO LEAD new: [Permitted] Westminster/25/08698/ADLBC — 25 - 31 Wellington Street London WC2E 7DD
+2026-10-02 12:01:34 WARNING Rate limited (429); waiting 266s before retry 1/6
+2026-10-02 12:06:00 WARNING Request failed (403 Client Error: Forbidden for url: https://www.planit.org.uk/api/applics/json?app_state=Permitted&start_date=2023-10-01&end_date=2026-10-02&pg_sz=100&auth=Westminster&offset=1200); retry 2/6 in 10s
+2026-10-02 12:06:14 INFO [westminster/Permitted] page at offset 1200: 100 records
+2026-10-02 12:06:14 INFO LEAD new: [Permitted] Westminster/25/08572/NMA — Venture House 27 - 29 Glasshouse Street London W1B 5DF
+2026-10-02 12:06:30 INFO [westminster/Permitted] page at offset 1300: 100 records
+2026-10-02 12:06:49 INFO [westminster/Permitted] page at offset 1400: 100 records
+2026-10-02 12:06:50 INFO LEAD new: [Permitted] Westminster/25/08261/ADLBC — 13 Harley Street London W1G 9QG
+2026-10-02 12:07:11 INFO [westminster/Permitted] page at offset 1500: 100 records
+2026-10-02 12:07:11 INFO LEAD new: [Permitted] Westminster/25/08119/FULL — Barrett Street Public Convenience Outside 21 Barrett Street 
+2026-10-02 12:07:11 INFO LEAD new: [Permitted] Westminster/25/08148/NMA — Imperial College Prince Consort Road London SW7 2BW
+2026-10-02 12:07:21 INFO LEAD new: [Permitted] Westminster/25/07988/ADFULL — Paddington Green Police Station 4 Harrow Road London W2 1XJ
+2026-10-02 12:07:28 INFO [westminster/Permitted] page at offset 1600: 100 records
+2026-10-02 12:07:28 INFO LEAD new: [Permitted] Westminster/25/08009/FULL — 8 - 10 Great George Street London SW1P 3AE
+2026-10-02 12:07:29 INFO LEAD new: [Permitted] Westminster/25/07999/ADFULL — Royal College Of Art Kensington Gore London SW7 2EU
+2026-10-02 12:07:31 INFO LEAD new: [Permitted] Westminster/25/07994/FULL — 42 St George's Drive London SW1V 4BT
+2026-10-02 12:07:35 INFO LEAD new: [Permitted] Westminster/25/07997/ADFULL — 1 Clifton Hill London NW8 0QE
+2026-10-02 12:07:35 INFO LEAD new: [Permitted] Westminster/25/07989/ADFULL — Paddington Green Police Station 4 Harrow Road London W2 1XJ
+2026-10-02 12:07:51 INFO [westminster/Permitted] page at offset 1700: 100 records
+2026-10-02 12:08:11 INFO [westminster/Permitted] page at offset 1800: 100 records
+2026-10-02 12:08:17 INFO LEAD new: [Permitted] Westminster/25/07746/ADFULL — New Zealand House 80 Haymarket London SW1Y 4TE
+2026-10-02 12:08:18 INFO LEAD new: [Permitted] Westminster/25/07745/NMA — Flat 8 16 Catherine Place London SW1E 6HF
+2026-10-02 12:08:32 INFO [westminster/Permitted] page at offset 1900: 100 records
+2026-10-02 12:08:33 INFO LEAD new: [Permitted] Westminster/25/07642/FULL — 17 - 19 Regency Street London SW1P 4BY
+2026-10-02 12:08:53 INFO [westminster/Permitted] page at offset 2000: 100 records
+2026-10-02 12:08:53 INFO LEAD new: [Permitted] Westminster/25/07520/FULL — Brymon Court 31 - 32 Montagu Square London W1H 2LH
+2026-10-02 12:09:14 INFO [westminster/Permitted] page at offset 2100: 100 records
+2026-10-02 12:09:15 INFO LEAD new: [Permitted] Westminster/25/07367/FULL — 61 Park Lane London W1K 1QD
+2026-10-02 12:09:15 INFO LEAD new: [Permitted] Westminster/25/07374/FULL — Flats 112a To 128 Clifton Court Northwick Terrace London NW8
+2026-10-02 12:09:36 INFO [westminster/Permitted] page at offset 2200: 100 records
+2026-10-02 12:09:39 INFO LEAD new: [Permitted] Westminster/25/07227/ADFULL — Covent Garden London
+2026-10-02 12:09:40 INFO LEAD new: [Permitted] Westminster/25/07233/ADV — 195 - 197 Victoria Street London SW1E 5NE
+2026-10-02 12:09:40 INFO LEAD new: [Permitted] Westminster/25/07234/FULL — 195 - 197 Victoria Street London SW1E 5NE
+2026-10-02 12:09:55 INFO [westminster/Permitted] page at offset 2300: 100 records
+2026-10-02 12:09:56 INFO LEAD new: [Permitted] Westminster/25/07101/ADV — 81 Knightsbridge London SW1X 7RB
+2026-10-02 12:09:56 INFO LEAD new: [Permitted] Westminster/25/07106/FULL — 8 Whistler Square London SW1W 8BW
+2026-10-02 12:09:57 INFO LEAD new: [Permitted] Westminster/25/07088/ADFULL — 72 - 74 Lancaster Gate London W2 3NH
+2026-10-02 12:10:04 INFO LEAD new: [Permitted] Westminster/25/07082/COFUL — 60 - 62 Broadwick Street London W1F 9QZ
+2026-10-02 12:10:04 INFO LEAD new: [Permitted] Westminster/25/07116/ADV — 11 Berkeley Street London W1J 8DS
+2026-10-02 12:10:16 WARNING Rate limited (429); waiting 344s before retry 1/6
+2026-10-02 12:14:45 INFO Window: 2023-10-01 -> 2026-10-01 | areas: westminster
+2026-10-02 12:15:14 INFO [westminster/Permitted] already fetched for this window — skipping
+2026-10-02 12:15:14 INFO [westminster/Conditions] already fetched for this window — skipping
+2026-10-02 12:15:14 INFO [westminster/Undecided] resuming at offset 12500
+2026-10-02 12:15:15 WARNING Rate limited (429); waiting 45s before retry 1/6
+2026-10-02 12:16:00 WARNING Request failed (403 Client Error: Forbidden for url: https://www.planit.org.uk/api/applics/json?app_state=Undecided&start_date=2023-10-01&end_date=2026-10-01&pg_sz=100&auth=Westminster&offset=12500); retry 2/6 in 10s
+2026-10-02 12:16:13 INFO [westminster/Undecided] page at offset 12500: 100 records
+2026-10-02 12:16:30 INFO [westminster/Undecided] page at offset 12600: 100 records
+2026-10-02 12:16:47 INFO [westminster/Undecided] page at offset 12700: 100 records
+2026-10-02 12:17:11 INFO [westminster/Undecided] page at offset 12800: 100 records
+2026-10-02 12:17:37 INFO [westminster/Undecided] page at offset 12900: 100 records
+2026-10-02 12:18:06 INFO [westminster/Undecided] page at offset 13000: 100 records
+2026-10-02 12:18:25 INFO [westminster/Undecided] page at offset 13100: 100 records
+2026-10-02 12:18:59 INFO [westminster/Undecided] page at offset 13200: 100 records
+2026-10-02 12:19:15 INFO [westminster/Undecided] page at offset 13300: 100 records
+2026-10-02 12:19:42 INFO [westminster/Undecided] page at offset 13400: 100 records
+2026-10-02 12:20:03 INFO [westminster/Undecided] page at offset 13500: 100 records
+2026-10-02 12:20:28 INFO [westminster/Undecided] page at offset 13600: 24 records
+2026-10-02 12:20:44 INFO Done. fetched=1057 newly_tracked=1015 leads_added=0 leads_updated=0

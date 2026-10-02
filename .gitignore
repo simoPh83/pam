@@ -8,3 +8,9 @@ __pycache__/
 # across machines (dedupe + state-transition detection depend on its history).
 # NOTE: it contains applicant/agent names and addresses — keep the repo private.
 # logs/ stays committable as an audit trail.
+
+.env
+
+# local backups / scratch
+*.bak
+*.sqlite.bak

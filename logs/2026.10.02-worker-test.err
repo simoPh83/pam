@@ -1,0 +1,255 @@
+2026-10-02 17:31:33,299 INFO Job 1 start: sync enfield (attempt 1)
+2026-10-02 17:31:33,731 INFO Incremental sync: changed since 2026-09-30 | areas: enfield
+2026-10-02 17:31:35,288 INFO [enfield/All] page at offset 0: 100 records
+2026-10-02 17:31:38,514 INFO LEAD CHANGED: [Permitted] Enfield/26/03886/CND — Meridian Water Former Gas Holder Site Leeside Road London N1
+2026-10-02 17:31:40,651 INFO LEAD CHANGED: [Permitted] Enfield/26/03775/CEA — 2 Nightingale Road London N9 8AL
+2026-10-02 17:31:40,854 INFO LEAD CHANGED: [Permitted] Enfield/26/03789/CND — 46 Crown Road Enfield EN1 1TH
+2026-10-02 17:31:47,342 INFO [enfield/All] page at offset 100: 100 records
+2026-10-02 17:31:50,339 INFO LEAD CHANGED: [Permitted] Enfield/26/03593/CEA — 60 Bramley Road London N14 4HS
+2026-10-02 17:31:50,946 INFO LEAD CHANGED: [Conditions] Enfield/26/03598/VAR — 13 Sidney Avenue London N13 4XA
+2026-10-02 17:31:51,600 INFO LEAD CHANGED: [Permitted] Enfield/26/03551/CEA — 32 Meadway London N14 6NL
+2026-10-02 17:31:52,368 INFO LEAD CHANGED: [Permitted] Enfield/26/03504/CEA — 9 Stewartsby Close London N18 1AN
+2026-10-02 17:31:59,146 INFO [enfield/All] page at offset 200: 100 records
+2026-10-02 17:31:59,820 INFO LEAD CHANGED: [Permitted] Enfield/26/03375/CEA — 49 Ash Grove London N13 5AE
+2026-10-02 17:32:00,171 INFO LEAD CHANGED: [Permitted] Enfield/26/03360/CEA — 55 Holtwhites Hill Enfield EN2 0RU
+2026-10-02 17:32:00,778 INFO LEAD CHANGED: [Conditions] Enfield/26/03325/VAR — 25 Borrowdale Court 1 Gordon Hill Enfield EN2 0QJ
+2026-10-02 17:32:00,943 INFO LEAD CHANGED: [Permitted] Enfield/26/03309/PAT — Site:-Telecommunications Mast On Grass Verge Land Corner Of 
+2026-10-02 17:32:01,089 INFO LEAD CHANGED: [Permitted] Enfield/26/03303/CND — 87 -97 Chase Side London N14 5BU
+2026-10-02 17:32:02,566 INFO LEAD CHANGED: [Conditions] Enfield/26/03233/FUL — 24 And 26 Ulleswater Road London N14 7BS
+2026-10-02 17:32:02,932 INFO LEAD CHANGED: [Conditions] Enfield/26/03225/LBC — Bramley House Court Clay Hill Enfield EN2 9AR
+2026-10-02 17:32:03,858 INFO LEAD CHANGED: [Permitted] Enfield/26/03165/PRA — Wade House 3 Village Road Enfield EN1 2DL
+2026-10-02 17:32:10,290 INFO [enfield/All] page at offset 300: 100 records
+2026-10-02 17:32:12,791 INFO LEAD CHANGED: [Conditions] Enfield/26/02907/HOU — 48 Clay Hill Enfield EN2 9AW
+2026-10-02 17:32:14,744 INFO LEAD CHANGED: [Permitted] Enfield/26/02743/CEA — Main Building Westgrove Primary School Chase Road London N14
+2026-10-02 17:32:14,847 INFO LEAD new: [Permitted] Enfield/26/02737/PRAA — Oliver House 23 Windmill Hill Enfield EN2 7AB
+2026-10-02 17:32:15,262 INFO LEAD new: [Conditions] Enfield/26/02639/FUL — 40B Goring Road London N11 2DD
+2026-10-02 17:32:15,473 INFO LEAD new: [Conditions] Enfield/26/02636/HOU — 79 Derwent Road London N13 4QA
+2026-10-02 17:32:15,755 INFO LEAD new: [Conditions] Enfield/26/02601/VAR — 90 Ordnance Road Enfield EN3 6BW
+2026-10-02 17:32:15,918 INFO LEAD new: [Permitted] Enfield/26/02592/CND — 14 - 16 Westerham Avenue London N9 9BU
+2026-10-02 17:32:22,086 INFO [enfield/All] page at offset 400: 88 records
+2026-10-02 17:32:22,358 INFO LEAD new: [Conditions] Enfield/26/02566/FUL — 28 Alston Road London N18 2LB
+2026-10-02 17:32:22,685 INFO LEAD new: [Permitted] Enfield/26/02547/CND — 10 Seaforth Gardens London N21 3BS
+2026-10-02 17:32:23,184 INFO LEAD new: [Conditions] Enfield/26/02554/FUL — 24 Gloucester Road London N18 1HL
+2026-10-02 17:32:23,294 INFO LEAD new: [Conditions] Enfield/26/02499/HOU — 49 De Bohun Avenue London N14 4PU
+2026-10-02 17:32:23,569 INFO LEAD new: [Permitted] Enfield/26/02486/CEU — 25 Seymour Road London N9 0SE
+2026-10-02 17:32:23,692 INFO LEAD new: [Permitted] Enfield/26/02480/DCO — National Grid Overhead Electric Line Part Adjacent To River 
+2026-10-02 17:32:24,115 INFO LEAD new: [Permitted] Enfield/26/02417/CND — 48 Clay Hill Enfield EN2 9AW
+2026-10-02 17:32:24,185 INFO LEAD new: [Permitted] Enfield/26/02424/CND — 27 Church Street And 1 Little Park Gardens Enfield EN2
+2026-10-02 17:32:25,802 INFO LEAD new: [Permitted] Enfield/26/02221/NMA — Former Chase Farm Hospital The Ridgeway Enfield EN2 8JL
+2026-10-02 17:32:27,092 INFO LEAD new: [Permitted] Enfield/26/01857/CEA — 73 Leighton Road Enfield EN1 1XN
+2026-10-02 17:32:27,309 INFO LEAD new: [Conditions] Enfield/26/01801/HOU — 156 Carterhatch Road Enfield EN3 5LX
+2026-10-02 17:32:27,558 INFO LEAD new: [Conditions] Enfield/26/01731/ADV — Pavement Outside Edmonton Green Railway Station Church Stree
+2026-10-02 17:32:27,605 INFO LEAD new: [Conditions] Enfield/26/01730/FUL — Pavement Outside Edmonton Green Railway Station Church Stree
+2026-10-02 17:32:27,904 INFO LEAD new: [Permitted] Enfield/26/01609/CND — 57 Ridge Avenue London N21 2RH
+2026-10-02 17:32:28,261 INFO LEAD new: [Conditions] Enfield/26/01445/FUL — 79 Windmill Hill Enfield EN2 7AF
+2026-10-02 17:32:28,377 INFO LEAD new: [Permitted] Enfield/26/01392/CND — Former Chase Farm Hospital The Ridgeway Enfield EN2 8JL
+2026-10-02 17:32:34,481 INFO Done. fetched=470 newly_tracked=145 leads_added=38 leads_updated=0
+2026-10-02 17:32:34,671 INFO Job 1 done: {'fetched': 470, 'new_tracked': 145, 'leads_added': 38, 'leads_updated': 0}
+2026-10-02 17:32:34,721 INFO Job 2 start: sync greenwich (attempt 1)
+2026-10-02 17:32:35,080 INFO Incremental sync: changed since 2026-09-30 | areas: greenwich
+2026-10-02 17:32:36,499 INFO [greenwich/All] page at offset 0: 100 records
+2026-10-02 17:32:37,870 INFO LEAD new: [Permitted] Greenwich/26/2762/NM — Devonport House and Cooper Building, 66-68 King William Walk
+2026-10-02 17:32:41,183 INFO LEAD CHANGED: [Permitted] Greenwich/26/2489/PN1 — 14 FARNABY ROAD, ELTHAM, LONDON, SE9 6BG
+2026-10-02 17:32:41,737 INFO LEAD CHANGED: [Permitted] Greenwich/26/2458/SD — LAND AT GREENWICH PENINSULA, TO THE SOUTH OF THE O2, SE10
+2026-10-02 17:32:42,596 INFO LEAD CHANGED: [Permitted] Greenwich/26/2415/SD — FORMER LORRY PARK (ADJACENT TO STUDIO 338) LOCATED ON CORNER
+2026-10-02 17:32:43,166 INFO LEAD CHANGED: [Permitted] Greenwich/26/2330/SD — ALDINGTON HOUSE, 107A BLACKHEATH PARK
+2026-10-02 17:32:43,643 INFO LEAD CHANGED: [Permitted] Greenwich/26/2192/HD — 35 FROISSART ROAD, ELTHAM, LONDON, SE9 6QH
+2026-10-02 17:32:43,722 INFO LEAD CHANGED: [Permitted] Greenwich/26/2203/HD — 44 DUMBRECK ROAD, ELTHAM, LONDON, SE9 1XG
+2026-10-02 17:32:43,865 INFO LEAD CHANGED: [Permitted] Greenwich/26/2166/HD — 59A HORN PARK LANE, ELTHAM, LONDON, SE12 8AP
+2026-10-02 17:32:43,934 INFO LEAD CHANGED: [Permitted] Greenwich/26/2148/HD — 61 COLOMB STREET, GREENWICH, LONDON, SE10 9EZ
+2026-10-02 17:32:44,020 INFO LEAD CHANGED: [Permitted] Greenwich/26/2129/HD — 4 PLUMBRIDGE STREET, GREENWICH, LONDON, SE10 8PA
+2026-10-02 17:32:44,487 INFO LEAD CHANGED: [Permitted] Greenwich/26/2102/HD — 65 CONGREVE ROAD, ELTHAM, LONDON, SE9 1LW
+2026-10-02 17:32:50,018 INFO [greenwich/All] page at offset 100: 65 records
+2026-10-02 17:32:51,319 INFO LEAD new: [Permitted] Greenwich/26/1838/F — 107 MCLEOD ROAD, ABBEY WOOD, LONDON, SE2 0BW
+2026-10-02 17:32:53,894 INFO LEAD new: [Permitted] Greenwich/26/0473/F — 8 LIONEL GARDENS, ELTHAM, LONDON, SE9 6DG
+2026-10-02 17:32:54,366 INFO LEAD new: [Permitted] Greenwich/25/4326/I106 — GMV PHASES 3, 4 & 5
+2026-10-02 17:33:00,773 INFO Done. fetched=159 newly_tracked=88 leads_added=14 leads_updated=0
+2026-10-02 17:33:00,784 INFO Job 2 done: {'fetched': 159, 'new_tracked': 88, 'leads_added': 14, 'leads_updated': 0}
+2026-10-02 17:33:00,810 INFO Job 3 start: sync lambeth (attempt 1)
+2026-10-02 17:33:01,136 INFO Incremental sync: changed since 2026-09-30 | areas: lambeth
+2026-10-02 17:33:02,328 INFO [lambeth/All] page at offset 0: 100 records
+2026-10-02 17:33:06,919 INFO LEAD CHANGED: [Permitted] Lambeth/26/02307/DET — Tennis Club 35A Killieser Avenue London Lambeth SW2 4NX
+2026-10-02 17:33:14,099 INFO [lambeth/All] page at offset 100: 27 records
+2026-10-02 17:33:14,141 INFO LEAD CHANGED: [Permitted] Lambeth/26/01919/DET — Land Between Somerleyton Rd And Rail Line, Excluding Brixton
+2026-10-02 17:33:14,204 INFO LEAD new: [Permitted] Lambeth/26/01904/LDCP — 83 Ramillies Close London SW2 5DQ
+2026-10-02 17:33:14,468 INFO LEAD new: [Permitted] Lambeth/26/01768/FUL — 496 - 498 Brixton Road London SW9 8EQ
+2026-10-02 17:33:14,527 INFO LEAD new: [Permitted] Lambeth/26/01746/DET — 89 Kingsmead Road London Lambeth SW2 3HZ
+2026-10-02 17:33:15,103 INFO LEAD new: [Permitted] Lambeth/26/01165/S106D — 100 Woodgate Drive London SW16 5YP
+2026-10-02 17:33:21,461 INFO Done. fetched=119 newly_tracked=33 leads_added=6 leads_updated=0
+2026-10-02 17:33:21,547 INFO Job 3 done: {'fetched': 119, 'new_tracked': 33, 'leads_added': 6, 'leads_updated': 0}
+2026-10-02 17:33:21,623 INFO Job 4 start: sync lewisham (attempt 1)
+2026-10-02 17:33:21,905 INFO Incremental sync: changed since 2026-09-30 | areas: lewisham
+2026-10-02 17:33:23,188 INFO [lewisham/All] page at offset 0: 94 records
+2026-10-02 17:33:25,351 INFO LEAD CHANGED: [Permitted] Lewisham/DC/26/144601 — 5 WESTWOOD PARK, LONDON, SE23 3QB
+2026-10-02 17:33:25,457 INFO LEAD new: [Permitted] Lewisham/DC/26/144435 — 46 RINGSTEAD ROAD, LONDON, SE6 2BP
+2026-10-02 17:33:25,623 INFO LEAD new: [Permitted] Lewisham/DC/26/144445 — 91 RINGSTEAD ROAD, LONDON, SE6 2BT
+2026-10-02 17:33:25,798 INFO LEAD new: [Permitted] Lewisham/DC/26/144434 — 79 RINGSTEAD ROAD, LONDON, SE6 2BT
+2026-10-02 17:33:25,860 INFO LEAD new: [Permitted] Lewisham/DC/26/144373 — MARVELS LANE HEALTH CENTRE, 37 MARVELS LANE, LONDON, SE12 9P
+2026-10-02 17:33:31,037 INFO Done. fetched=47 newly_tracked=17 leads_added=5 leads_updated=0
+2026-10-02 17:33:31,056 INFO Job 4 done: {'fetched': 47, 'new_tracked': 17, 'leads_added': 5, 'leads_updated': 0}
+2026-10-02 17:33:31,083 INFO Job 5 start: sync newham (attempt 1)
+2026-10-02 17:33:31,390 INFO Incremental sync: changed since 2026-09-30 | areas: newham
+2026-10-02 17:33:32,626 INFO [newham/All] page at offset 0: 100 records
+2026-10-02 17:33:35,314 INFO LEAD new: [Permitted] Newham/26/01861/NONMAT — 214 Monega Road Manor Park London E12 6TS
+2026-10-02 17:33:35,894 INFO LEAD new: [Permitted] Newham/26/01744/FUL — 451A Green Street Upton Park London E13 9AU
+2026-10-02 17:33:35,948 INFO LEAD new: [Permitted] Newham/26/01777/AOD — Land Within The Development Of Pudding Mill Lane Stratford L
+2026-10-02 17:33:36,004 INFO LEAD new: [Permitted] Newham/26/01779/AOD — Land Within The Development Of Pudding Mill Lane Stratford L
+2026-10-02 17:33:36,235 INFO LEAD new: [Permitted] Newham/26/01778/AOD — Land Within The Development Of Pudding Mill Lane Stratford L
+2026-10-02 17:33:36,420 INFO LEAD new: [Permitted] Newham/26/01348/CLP — 7 Mantle Way Stratford London E15 4BT
+2026-10-02 17:33:37,164 INFO LEAD new: [Permitted] Newham/26/01754/CLP — 10 Holland Road Stratford London E15 3BP
+2026-10-02 17:33:37,279 INFO LEAD new: [Permitted] Newham/26/01743/AOD — Pontoon Dock DLR Station North Woolwich Road Silvertown Lond
+2026-10-02 17:33:37,395 INFO LEAD new: [Permitted] Newham/26/01714/ADV — 31 Broadway Stratford London E15 4BQ
+2026-10-02 17:33:37,965 INFO LEAD new: [Permitted] Newham/26/01704/ADV — Outside 260 High Street Stratford London E15 2JA
+2026-10-02 17:33:38,750 INFO LEAD new: [Permitted] Newham/26/01706/ADV — Opposite Paul Street West Ham Lane Stratford London E15 4PT
+2026-10-02 17:33:38,953 INFO LEAD new: [Permitted] Newham/26/01693/CLP — 75 Stevenage Road East Ham London E6 2AU
+2026-10-02 17:33:39,586 INFO LEAD new: [Permitted] Newham/26/01688/ADV — 4 - 8 Abercrombie Road Stratford London E20 1FU
+2026-10-02 17:33:39,649 INFO LEAD new: [Permitted] Newham/26/01692/HH — 20 Blanche Street Canning Town London E16 4JR
+2026-10-02 17:33:39,700 INFO LEAD new: [Permitted] Newham/26/01682/FUL — 184 Dames Road Forest Gate London E7 0EB
+2026-10-02 17:33:40,024 INFO LEAD new: [Permitted] Newham/26/01679/ADV — Unit 2 Gateway Retail Park Claps Gate Lane Beckton London E6
+2026-10-02 17:33:40,295 INFO LEAD new: [Permitted] Newham/26/01374/FUL — 158A Lathom Road East Ham London E6 2DY
+2026-10-02 17:33:45,833 INFO [newham/All] page at offset 100: 35 records
+2026-10-02 17:33:46,693 INFO LEAD new: [Permitted] Newham/26/01274/FUL — 12 Bradfield Road Silvertown London E16 2AX
+2026-10-02 17:33:46,748 INFO LEAD new: [Permitted] Newham/26/01270/NONMAT — Pontoon Dock DLR Station North Woolwich Road Silvertown Lond
+2026-10-02 17:33:46,864 INFO LEAD new: [Permitted] Newham/26/01230/FUL — One Stratford Place Westfield Stratford City Montfichet Road
+2026-10-02 17:33:46,929 INFO LEAD new: [Permitted] Newham/26/01261/HH — 78 Hampton Road Forest Gate London E7 0NU
+2026-10-02 17:33:46,985 INFO LEAD new: [Permitted] Newham/26/01261/FUL — 78 Hampton Road Forest Gate London E7 0NU
+2026-10-02 17:33:47,150 INFO LEAD new: [Permitted] Newham/26/01097/AOD — Development Site For Twelvetrees Park Stephenson Street Cann
+2026-10-02 17:33:47,876 INFO LEAD new: [Permitted] Newham/25/02630/FUL — 197 - 201 Lonsdale Avenue East Ham London E6 3PR
+2026-10-02 17:33:53,123 INFO Done. fetched=133 newly_tracked=92 leads_added=24 leads_updated=0
+2026-10-02 17:33:53,141 INFO Job 5 done: {'fetched': 133, 'new_tracked': 92, 'leads_added': 24, 'leads_updated': 0}
+2026-10-02 17:33:53,162 INFO Job 6 start: sync southwark (attempt 1)
+2026-10-02 17:33:53,522 INFO Incremental sync: changed since 2026-09-30 | areas: southwark
+2026-10-02 17:33:54,568 WARNING Rate limited (429); waiting 126s before retry 1/6
+2026-10-02 17:36:00,861 WARNING Request failed (403 Client Error: Forbidden for url: https://www.planit.org.uk/api/applics/json?pg_sz=100&different_start=2026-09-30&auth=Southwark); retry 2/6 in 10s
+2026-10-02 17:36:11,890 INFO [southwark/All] page at offset 0: 100 records
+2026-10-02 17:36:13,977 INFO LEAD CHANGED: [Permitted] Southwark/26/AP/2760 — Land At 19 21 And 23 Harper Road 325 Borough High Street And
+2026-10-02 17:36:14,804 INFO LEAD CHANGED: [Permitted] Southwark/26/AP/2666 — 358-384 Old Kent Road London Southwark SE1 5AA
+2026-10-02 17:36:15,204 INFO LEAD CHANGED: [Permitted] Southwark/26/AP/2629 — 2 -4 Melior Place London Southwark
+2026-10-02 17:36:21,778 INFO [southwark/All] page at offset 100: 100 records
+2026-10-02 17:36:22,368 INFO LEAD CHANGED: [Permitted] Southwark/26/AP/2466 — Arch 190 17 Park Street London Southwark SE1 9AB
+2026-10-02 17:36:22,982 INFO LEAD CHANGED: [Permitted] Southwark/26/AP/2340 — 83 Talfourd Road London Southwark SE15 5NN
+2026-10-02 17:36:23,039 INFO LEAD CHANGED: [Permitted] Southwark/26/AP/2341 — 51 Archdale Road London Southwark SE22 9HL
+2026-10-02 17:36:23,333 INFO LEAD CHANGED: [Permitted] Southwark/26/AP/2338 — 23 Alleyn Park London Southwark SE21 8AU
+2026-10-02 17:36:23,813 INFO LEAD CHANGED: [Permitted] Southwark/26/AP/2278 — 16 -18 Marshalsea Road London Southwark SE1 1HL
+2026-10-02 17:36:23,917 INFO LEAD CHANGED: [Permitted] Southwark/26/AP/2297 — 38-42 Snowsfields And 62-64 (Evens) Weston Street London Sou
+2026-10-02 17:36:24,625 INFO LEAD CHANGED: [Permitted] Southwark/26/AP/2241 — 254-268 Camberwell Road London Southwark SE5 0DP
+2026-10-02 17:36:24,892 INFO LEAD CHANGED: [Permitted] Southwark/26/AP/2210 — Flat 2 12 Colyton Road London Southwark SE22 0NE
+2026-10-02 17:36:25,064 INFO LEAD CHANGED: [Permitted] Southwark/26/AP/2178 — Bridge Masters House Tower Bridge Tower Bridge Road London S
+2026-10-02 17:36:25,436 INFO LEAD CHANGED: [Permitted] Southwark/26/AP/2076 — 5 Frank Dixon Way London Southwark SE21 7BB
+2026-10-02 17:36:32,016 INFO [southwark/All] page at offset 200: 62 records
+2026-10-02 17:36:32,354 INFO LEAD new: [Permitted] Southwark/26/AP/1865 — 22 Chesterfield Grove London Southwark SE22 8RW
+2026-10-02 17:36:32,556 INFO LEAD new: [Permitted] Southwark/26/AP/1829 — 51 Southwark Street London Southwark SE1 1RU
+2026-10-02 17:36:32,635 INFO LEAD new: [Permitted] Southwark/26/AP/1822 — Bankside Yards Formerly Sampson House 64 Hopton Street SE1 9
+2026-10-02 17:36:32,865 INFO LEAD new: [Permitted] Southwark/26/AP/1711 — Bankside Yards (BY2) Former Sampson House, 64 Hopton Street 
+2026-10-02 17:36:33,161 INFO LEAD new: [Permitted] Southwark/26/AP/1612 — Coburg House 63 - 67 Newington Causeway London Southwark SE1
+2026-10-02 17:36:33,734 INFO LEAD new: [Permitted] Southwark/26/AP/1400 — 152 Fort Road London Southwark SE1 5QA
+2026-10-02 17:36:33,903 INFO LEAD new: [Permitted] Southwark/26/AP/1387 — Southwark Underground Station And Adjoining Land The Cut Lon
+2026-10-02 17:36:34,030 INFO LEAD new: [Permitted] Southwark/26/AP/1193 — Scandic Crown Hotel 265A Rotherhithe Street London Southwark
+2026-10-02 17:36:34,098 INFO LEAD new: [Permitted] Southwark/26/AP/1168 — 101 - 103 Denmark Hill London Southwark SE5 8AA
+2026-10-02 17:36:34,208 INFO LEAD new: [Permitted] Southwark/26/AP/1131 — London Bridge City Pier The Queens Walk London Southwark SE1
+2026-10-02 17:36:34,266 INFO LEAD new: [Permitted] Southwark/26/AP/1105 — 7 - 14 Great Dover Street London Southwark SE1 4YR
+2026-10-02 17:36:34,451 INFO LEAD new: [Permitted] Southwark/26/AP/0908 — Aylesbury Estate Land Bounded By Albany Road Portland Street
+2026-10-02 17:36:36,131 INFO LEAD new: [Permitted] Southwark/26/AP/0464 — Aylesbury Estate Land Bounded By Albany Road Portland Street
+2026-10-02 17:36:36,273 INFO LEAD new: [Permitted] Southwark/26/AP/0404 — Bankside Yards (BY2) 64 Hopton Street London Southwark SE1 9
+2026-10-02 17:36:36,383 INFO LEAD new: [Permitted] Southwark/26/AP/0234 — 57 - 61 Union Street London Southwark SE1 1SG
+2026-10-02 17:36:36,563 INFO LEAD new: [Permitted] Southwark/25/AP/3804 — 301-303 Ilderton Road London Southwark SE15 1NW
+2026-10-02 17:36:41,833 INFO Done. fetched=221 newly_tracked=77 leads_added=29 leads_updated=0
+2026-10-02 17:36:41,874 INFO Job 6 done: {'fetched': 221, 'new_tracked': 77, 'leads_added': 29, 'leads_updated': 0}
+2026-10-02 17:36:41,886 INFO Job 7 start: sync sutton (attempt 1)
+2026-10-02 17:36:42,263 INFO Incremental sync: changed since 2026-09-30 | areas: sutton
+2026-10-02 17:36:43,778 INFO [sutton/All] page at offset 0: 100 records
+2026-10-02 17:36:47,748 INFO LEAD CHANGED: [Permitted] Sutton/DM2026/01004 — 57 Alington Grove Wallington SM6 9NH
+2026-10-02 17:36:49,204 INFO LEAD CHANGED: [Permitted] Sutton/DM2026/00945 — 82 Barrington Road Sutton SM3 9PR
+2026-10-02 17:36:54,933 INFO [sutton/All] page at offset 100: 100 records
+2026-10-02 17:36:55,429 INFO LEAD CHANGED: [Permitted] Sutton/DM2026/00918 — 43 Culvers Way Carshalton SM5 2LL
+2026-10-02 17:36:55,808 INFO LEAD CHANGED: [Permitted] Sutton/DM2026/00902 — Flat 2 Kempston House The Downsway Sutton SM2 5RE
+2026-10-02 17:36:55,873 INFO LEAD CHANGED: [Permitted] Sutton/DM2026/00899 — 20 Danescourt Crescent Sutton SM1 3EA
+2026-10-02 17:36:56,634 INFO LEAD CHANGED: [Permitted] Sutton/DM2026/00873 — 109-111 Wrythe Lane Carshalton SM5 2RR
+2026-10-02 17:36:56,954 INFO LEAD CHANGED: [Permitted] Sutton/DM2026/00857 — 79 Wordsworth Drive North Cheam SM3 8HE
+2026-10-02 17:36:57,024 INFO LEAD CHANGED: [Permitted] Sutton/DM2026/00856 — 691A London Road North Cheam SM3 9DL
+2026-10-02 17:36:58,452 INFO LEAD new: [Permitted] Sutton/CLC2026/00105 — Elm Grove Estate 216 - 220 High Street Sutton SM1 1NU
+2026-10-02 17:36:58,567 INFO LEAD new: [Permitted] Sutton/DM2026/00759 — 818 London Road North Cheam SM3 9BJ
+2026-10-02 17:36:58,756 INFO LEAD new: [Permitted] Sutton/DM2026/00747 — Greenshaw High School Grennell Road Sutton SM1 3DY
+2026-10-02 17:36:58,818 INFO LEAD new: [Permitted] Sutton/DM2026/00731 — Christ Church Christchurch Park Sutton SM2 5TN
+2026-10-02 17:36:58,873 INFO LEAD new: [Permitted] Sutton/DM2026/00711 — 105 Longfellow Road Worcester Park KT4 8BD
+2026-10-02 17:36:58,944 INFO LEAD new: [Permitted] Sutton/DM2026/00685 — East Wing The Royal Marsden Hospital Downs Road Sutton SM2 5
+2026-10-02 17:36:59,108 INFO LEAD new: [Permitted] Sutton/DM2026/00618 — Garage To The Rear Of 15 Hilldale Road Cheam SM1 2JA
+2026-10-02 17:36:59,677 INFO LEAD new: [Permitted] Sutton/DM2026/00423 — 34 Duke Of Edinburgh Road Sutton SM1 3NZ
+2026-10-02 17:37:06,234 INFO [sutton/All] page at offset 200: 10 records
+2026-10-02 17:37:06,693 INFO LEAD new: [Permitted] Sutton/DM2025/00561 — London Cancer Hub Cotswold Road Sutton SM2 5NF
+2026-10-02 17:37:11,876 INFO Done. fetched=197 newly_tracked=58 leads_added=17 leads_updated=0
+2026-10-02 17:37:11,890 INFO Job 7 done: {'fetched': 197, 'new_tracked': 58, 'leads_added': 17, 'leads_updated': 0}
+2026-10-02 17:37:11,908 INFO Job 8 start: sync tower-hamlets (attempt 1)
+2026-10-02 17:37:12,189 INFO Incremental sync: changed since 2026-09-30 | areas: tower-hamlets
+2026-10-02 17:37:13,309 INFO [tower-hamlets/All] page at offset 0: 100 records
+2026-10-02 17:37:13,460 INFO LEAD CHANGED: [Permitted] TowerHamlets/PA/26/01616/NC — Thames Wharf, Dock Road, Silvertown, London, E16 1AF
+2026-10-02 17:37:17,615 INFO LEAD CHANGED: [Permitted] TowerHamlets/PA/26/01434/S — 57 Brick Lane, London, E1 6PU
+2026-10-02 17:37:17,877 INFO LEAD CHANGED: [Permitted] TowerHamlets/PA/26/01477/S — 57 Brick Lane, London, E1 6PU
+2026-10-02 17:37:23,688 INFO [tower-hamlets/All] page at offset 100: 100 records
+2026-10-02 17:37:28,968 INFO LEAD CHANGED: [Permitted] TowerHamlets/PA/26/01268/NC — Flat 101, Pegswood Court, 92 Cable Street, London, E1 8GX
+2026-10-02 17:37:34,752 INFO [tower-hamlets/All] page at offset 200: 100 records
+2026-10-02 17:37:34,908 INFO LEAD CHANGED: [Permitted] TowerHamlets/PA/26/01253/NC — Harris Science Academy East London,, Blocks A, B and C, 18 G
+2026-10-02 17:37:35,323 INFO LEAD CHANGED: [Permitted] TowerHamlets/PA/26/01351/S — Former News International Site, Buildings H & J, London Dock
+2026-10-02 17:37:35,501 INFO LEAD CHANGED: [Permitted] TowerHamlets/PA/26/01344/NC — 107B Commercial Street, London, E1 6BG
+2026-10-02 17:37:36,169 INFO LEAD CHANGED: [Permitted] TowerHamlets/PA/26/01316/S — Mulberry Place Town Hall, 5 Clove Crescent, And Lighterman H
+2026-10-02 17:37:46,180 INFO [tower-hamlets/All] page at offset 300: 100 records
+2026-10-02 17:37:46,713 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01017/NC — 133 Whitechapel Road, London, E1 1DT
+2026-10-02 17:37:47,059 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01050/NC — West Wintergarden, 35 Bank Street, London, E14 5NW
+2026-10-02 17:37:47,393 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00790/NC — 13 and 15 Brannan Street, LONDON, E14 9ZR
+2026-10-02 17:37:47,615 INFO LEAD new: [Permitted] TowerHamlets/PA/26/01008/S — Former Piano Factory, Stour Road, London E3 2NT
+2026-10-02 17:37:47,705 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00926/NC — Unit 1, Rum Warehouse, Pennington Street, London, E1W 2AP
+2026-10-02 17:37:48,043 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00941/NC — 82 Clinton Road, London, E3 4QU
+2026-10-02 17:37:48,106 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00951/S — Wood Wharf, Prestons Road, London E14 9SF
+2026-10-02 17:37:48,698 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00834/S — London Docklands Travelodge Hotel, Coriander Avenue, London,
+2026-10-02 17:37:49,010 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00551/S — Former Poplar Bus Depot, Leven Road, London, E14 0LN
+2026-10-02 17:37:49,599 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00733/NC — 37-43 Baxendale Street, London, E2 7BY
+2026-10-02 17:37:49,664 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00730/S — London Docklands Travelodge Hotel, Coriander Avenue, London,
+2026-10-02 17:37:49,797 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00702/S — Land Comprising Harriott House, Apsley House, Pattison House
+2026-10-02 17:37:49,850 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00698/S — Omega Works, 4 Roach Road, London, E3 2GY
+2026-10-02 17:37:51,135 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00479/S — 1-5 Tenter Ground, London E1 7NH & 66-68 Bell Lane, London E
+2026-10-02 17:37:51,747 INFO LEAD new: [Permitted] TowerHamlets/PA/26/00357/NC — 29 Toynbee Street, London E1
+2026-10-02 17:37:57,652 INFO [tower-hamlets/All] page at offset 400: 50 records
+2026-10-02 17:37:58,980 INFO LEAD new: [Permitted] TowerHamlets/PA/25/01682/S — 83-87 Wapping Lane, London E1
+2026-10-02 17:38:00,045 INFO LEAD new: [Permitted] TowerHamlets/PA/25/00137/A1 — 382 - 384 Bethnal Green Road, London, E2 0AH
+2026-10-02 17:38:06,470 INFO Done. fetched=426 newly_tracked=134 leads_added=25 leads_updated=0
+2026-10-02 17:38:06,481 INFO Job 8 done: {'fetched': 426, 'new_tracked': 134, 'leads_added': 25, 'leads_updated': 0}
+2026-10-02 17:38:06,491 INFO Job 9 start: sync islington (attempt 1)
+2026-10-02 17:38:06,758 INFO Incremental sync: changed since 2026-09-30 | areas: islington
+2026-10-02 17:38:07,989 INFO [islington/All] page at offset 0: 68 records
+2026-10-02 17:38:09,828 INFO LEAD CHANGED: [Conditions] Islington/P2026/2208/COL — Flat 3, 165 Offord Road, London, N1 1LR
+2026-10-02 17:38:09,979 INFO LEAD CHANGED: [Conditions] Islington/P2026/2171/LBC — 11, Excl Basement, Wharton Street, London, WC1X 9PT
+2026-10-02 17:38:10,181 INFO LEAD CHANGED: [Conditions] Islington/P2026/2124/FUL — 13 Willow Bridge Road, London, N1 2LB
+2026-10-02 17:38:10,238 INFO LEAD CHANGED: [Conditions] Islington/P2026/2119/FUL — 36, Arlington Avenue, London, N1 7AY
+2026-10-02 17:38:10,298 INFO LEAD CHANGED: [Conditions] Islington/P2026/2099/AOD — 26, Museum of the Order of Saint John, St John's Lane, Londo
+2026-10-02 17:38:10,424 INFO LEAD CHANGED: [Conditions] Islington/P2026/1974/FUL — Shearling Way Estate London N7 9TL
+2026-10-02 17:38:10,516 INFO LEAD CHANGED: [Conditions] Islington/P2026/1900/FUL — 68A Romilly Road, London, N4 2QX
+2026-10-02 17:38:10,664 INFO LEAD CHANGED: [Conditions] Islington/P2026/1757/FUL — Ground Floor And Basement, 1 Clerkenwell Road, London, EC1M 
+2026-10-02 17:38:10,903 INFO LEAD CHANGED: [Conditions] Islington/P2026/1704/FUL — 173 Liverpool Road, London, N1 0RF
+2026-10-02 17:38:11,163 INFO LEAD CHANGED: [Conditions] Islington/P2026/1705/LBC — 173 Liverpool Road, London, N1 0RF
+2026-10-02 17:38:11,699 INFO LEAD CHANGED: [Conditions] Islington/P2025/3244/AOD — 36 - 44 Tabernacle Street, London, EC2A 4DT
+2026-10-02 17:38:16,821 INFO Done. fetched=53 newly_tracked=11 leads_added=11 leads_updated=0
+2026-10-02 17:38:16,832 INFO Job 9 done: {'fetched': 53, 'new_tracked': 11, 'leads_added': 11, 'leads_updated': 0}
+2026-10-02 17:38:16,842 INFO Job 10 start: sync camden (attempt 1)
+2026-10-02 17:38:17,109 INFO Incremental sync: changed since 2026-09-30 | areas: camden
+2026-10-02 17:38:17,898 WARNING Rate limited (429); waiting 463s before retry 1/6
+2026-10-02 17:46:01,640 INFO [camden/All] page at offset 0: 100 records
+2026-10-02 17:46:11,588 INFO [camden/All] page at offset 100: 10 records
+2026-10-02 17:46:17,081 INFO Done. fetched=73 newly_tracked=0 leads_added=0 leads_updated=0
+2026-10-02 17:46:17,151 INFO Job 10 done: {'fetched': 73, 'new_tracked': 0, 'leads_added': 0, 'leads_updated': 0}
+2026-10-02 17:46:17,292 INFO Job 11 start: sync westminster (attempt 1)
+2026-10-02 17:46:17,593 INFO Incremental sync: changed since 2026-09-30 | areas: westminster
+2026-10-02 17:46:18,964 INFO [westminster/All] page at offset 0: 98 records
+2026-10-02 17:46:29,493 INFO Done. fetched=87 newly_tracked=40 leads_added=0 leads_updated=0
+2026-10-02 17:46:29,506 INFO Job 11 done: {'fetched': 87, 'new_tracked': 40, 'leads_added': 0, 'leads_updated': 0}
+2026-10-02 17:46:29,517 INFO Job 12 start: sync city-of-london (attempt 1)
+2026-10-02 17:46:29,771 INFO Incremental sync: changed since 2026-09-30 | areas: city-of-london
+2026-10-02 17:46:30,745 INFO [city-of-london/All] page at offset 0: 100 records
+2026-10-02 17:46:42,220 INFO [city-of-london/All] page at offset 100: 100 records
+2026-10-02 17:46:53,191 INFO [city-of-london/All] page at offset 200: 71 records
+2026-10-02 17:47:02,073 INFO Done. fetched=271 newly_tracked=22 leads_added=0 leads_updated=0
+2026-10-02 17:47:02,168 INFO Job 12 done: {'fetched': 271, 'new_tracked': 22, 'leads_added': 0, 'leads_updated': 0}
+2026-10-02 17:47:02,180 INFO Job 13 start: sync hackney (attempt 1)
+2026-10-02 17:47:02,441 INFO Incremental sync: changed since 2026-09-30 | areas: hackney
+2026-10-02 17:47:03,366 INFO [hackney/All] page at offset 0: 0 records
+2026-10-02 17:47:08,417 INFO Done. fetched=0 newly_tracked=0 leads_added=0 leads_updated=0
+2026-10-02 17:47:08,431 INFO Job 13 done: {'fetched': 0, 'new_tracked': 0, 'leads_added': 0, 'leads_updated': 0}

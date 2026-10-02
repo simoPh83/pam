@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from dataclasses import dataclass, field
 from datetime import date
@@ -36,10 +37,29 @@ class Config:
     max_retries: int
     leads_path: Path
     ledger_path: Path
+    database_url: str | None = None  # postgres:// URL overrides ledger_path
     exclude_app_types: list[str] = field(default_factory=list)
     # CLI-only modifiers
     cli_start_date: date | None = None
     cli_end_date: date | None = None
+    cli_since: date | None = None
+    fetch_all_states: bool = True
+
+
+def load_dotenv(path: Path) -> None:
+    """Load KEY=value lines from a .env file; real environment variables win."""
+    if not path.exists():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key, value = key.strip(), value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        if key:
+            os.environ.setdefault(key, value)
 
 
 def _parse_date(value: str | None) -> date | None:
@@ -60,6 +80,9 @@ def load_config(path: Path = DEFAULT_CONFIG_PATH, argv: list[str] | None = None)
                         help="Override query window start (PlanIt start_date)")
     parser.add_argument("--to", dest="end_date", metavar="YYYY-MM-DD",
                         help="Override query window end (default: today)")
+    parser.add_argument("--since", metavar="YYYY-MM-DD",
+                        help="Incremental sync: records changed on/after this date "
+                             "(PlanIt last_different), any state, any start_date")
     parser.add_argument("--states", nargs="+", metavar="STATE",
                         help="Extra app_states to fetch, e.g. --states Withdrawn Rejected")
     parser.add_argument("--no-backfill", action="store_true",
@@ -113,6 +136,9 @@ def load_config(path: Path = DEFAULT_CONFIG_PATH, argv: list[str] | None = None)
         max_retries=int(api.get("max_retries", 4)),
         leads_path=root / output.get("leads_path", "data/leads.xlsx"),
         ledger_path=root / output.get("ledger_path", "data/ledger.sqlite"),
+        database_url=os.environ.get("DATABASE_URL") or None,
         cli_start_date=_parse_date(args.start_date),
         cli_end_date=_parse_date(args.end_date),
+        cli_since=_parse_date(args.since),
+        fetch_all_states=bool(defaults.get("fetch_all_states", True)),
     )

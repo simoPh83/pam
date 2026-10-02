@@ -1,4 +1,4 @@
-"""PlanIt API client.
+﻿"""PlanIt API client.
 
 Design seam: fetch_area() yields normalized record dicts. A second source
 (planning.data.gov.uk, Camden Socrata, ...) can be added later by emitting
@@ -57,21 +57,28 @@ def _get(params: dict, cfg: Config, url: str = BASE_URL) -> dict:
 
 
 def fetch_area(area: Area, states: list[str], start: date | None, end: date,
-               cfg: Config, progress=None) -> Iterator[dict]:
+               cfg: Config, progress=None, since: date | None = None) -> Iterator[dict]:
     """Yield raw PlanIt records for one area, all states, paged.
 
     `progress` (optional) is a ledger-like object implementing
     progress(window, area, state) and save_progress(...) so an interrupted
     backfill can resume at the last completed page.
+
+    The pseudo-state "All" omits the app_state filter, so every state
+    (Rejected, Withdrawn, ...) comes back. `since` switches to incremental
+    mode: records whose data changed on/after that date (PlanIt
+    different_start), regardless of registration date.
     """
-    window = f"{start or 'all'}_{end}"
+    window = f"since_{since}" if since else f"{start or 'all'}_{end}"
     for state in states:
-        params: dict = {
-            "app_state": state,
-            "start_date": (start or end.replace(year=end.year - 20)).isoformat(),
-            "end_date": end.isoformat(),
-            "pg_sz": cfg.page_size,
-        }
+        params: dict = {"pg_sz": cfg.page_size}
+        if state != "All":
+            params["app_state"] = state
+        if since:
+            params["different_start"] = since.isoformat()
+        else:
+            params["start_date"] = (start or end.replace(year=end.year - 20)).isoformat()
+            params["end_date"] = end.isoformat()
         if area.postcode:
             params["pcode"] = area.postcode
             params["krad"] = area.radius_km or 5
@@ -108,3 +115,4 @@ def fetch_area(area: Area, states: list[str], start: date | None, end: date,
             offset += cfg.page_size
             time.sleep(cfg.delay_seconds)
         time.sleep(cfg.delay_seconds)
+

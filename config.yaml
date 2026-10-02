@@ -51,8 +51,12 @@ areas:
   #   authority: Croydon
   # - name: ealing
   #   authority: Ealing
-  # - name: city-of-london
-  #   authority: City
+  # City of London enabled 2026-10-02 for 3y backfill (feed name is 'City'
+  # per audit alias).
+  - name: city-of-london
+    authority: City
+  - name: hackney
+    authority: Hackney
 
 defaults:
   # States the spreadsheet treats as leads. "Conditions" = approved with
@@ -60,6 +64,10 @@ defaults:
   lead_states: [Permitted, Conditions]
   # States tracked in the ledger for future transitions to a lead state.
   watch_states: [Undecided]
+  # Fetch every app_state in one query (adds Rejected, Withdrawn, ... which
+  # otherwise vanish from the feed and leave stale Undecided rows). Lead /
+  # watch logic above still decides what is flagged.
+  fetch_all_states: true
   app_size: null                # Small | Medium | Large | null (all)
   keywords: null                # list of words, matched against description (any)
                                 # e.g. ["discharge of condition"] flags imminent construction

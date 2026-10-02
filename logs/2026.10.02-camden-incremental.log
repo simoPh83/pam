@@ -1,0 +1,5 @@
+2026-10-02 16:26:23 INFO Incremental sync: changed since 2026-10-01 | areas: camden
+2026-10-02 16:27:39 INFO [camden/All] page at offset 0: 44 records
+2026-10-02 16:27:41 INFO LEAD CHANGED: [Permitted] Camden/2026/4045/P — 234 - 240 Grafton Road London NW5 4NS
+2026-10-02 16:27:43 INFO LEAD CHANGED: [Permitted] Camden/2026/3821/P — Plots B, C and D at Highgate Studios Highgate Road London NW
+2026-10-02 16:27:53 INFO Done. fetched=38 newly_tracked=0 leads_added=2 leads_updated=0
