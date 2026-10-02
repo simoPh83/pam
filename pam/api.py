@@ -37,13 +37,15 @@ def _get(params: dict, cfg: Config, url: str = BASE_URL) -> dict:
         try:
             resp = requests.get(url, params=params, headers=headers,
                                 timeout=cfg.timeout_seconds)
-            if resp.status_code == 429:
-                # PlanIt rate-limits aggressively; respect Retry-After, else long backoff
+            if resp.status_code in (429, 403):
+                # PlanIt rate-limits aggressively (403 is a temporary block that can
+                # outlast Retry-After); retrying early escalates the penalty
                 retry_after = resp.headers.get("Retry-After")
-                wait = float(retry_after) if retry_after else 30.0 * (attempt + 1)
+                wait = (float(retry_after) + 60.0) if retry_after else 300.0 * (attempt + 1)
                 resume = datetime.now() + timedelta(seconds=wait)
-                log.warning("Rate limited (429); waiting %.0fs (resume at %s) before retry %d/%d",
-                            wait, resume.strftime("%H:%M"), attempt + 1, cfg.max_retries)
+                log.warning("Rate limited (%d); waiting %.0fs (resume at %s) before retry %d/%d",
+                            resp.status_code, wait, resume.strftime("%H:%M"),
+                            attempt + 1, cfg.max_retries)
                 time.sleep(wait)
                 continue
             resp.raise_for_status()
