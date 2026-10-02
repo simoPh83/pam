@@ -41,7 +41,7 @@ def main() -> None:
         "WHERE agent_display IS NULL AND agent_name IS NOT NULL").fetchone()[0]
     rows = ledger._exec(
         "SELECT uid, other_fields_json FROM applications "
-        "WHERE other_fields_json LIKE '%agent_address%'").fetchall()
+        "WHERE other_fields_json LIKE ?", ("%agent_address%",)).fetchall()
     print(f"{moved} legacy agent names -> agent_company; {len(rows)} rows with agent_address")
     if args.dry_run:
         return
