@@ -88,10 +88,42 @@ def area_names() -> list[str]:
     return [a.name for a in load_config(argv=[]).areas]
 
 
-def enqueue_sync(conn, days: int = SYNC_DAYS) -> int:
-    since = date.today() - timedelta(days=days)
-    return sum(enqueue(conn, kind="sync", area=name, since=since, priority=100)
-               for name in area_names())
+def sync_since(conn, area: str) -> date:
+    """Per-area watermark: start of the last successful sync (minus 1 day overlap).
+
+    Uses started_at (not finished_at) so changes made during a run are re-seen.
+    A new area with no sync yet starts from its first backfill, so changes made
+    while the backfill was running aren't missed; otherwise today - SYNC_DAYS.
+    """
+    row = conn.execute(
+        """
+        SELECT COALESCE(
+            (SELECT max(started_at) FROM jobs
+             WHERE kind = 'sync' AND status = 'done' AND area = %(a)s),
+            (SELECT min(started_at) FROM jobs
+             WHERE kind = 'backfill' AND area = %(a)s AND started_at IS NOT NULL))
+        """, {"a": area}).fetchone()
+    if row and row[0]:
+        return row[0].date() - timedelta(days=1)
+    return date.today() - timedelta(days=SYNC_DAYS)
+
+
+def enqueue_sync(conn, days: int | None = None) -> int:
+    """days=None: automatic per-area watermark; days=N: manual override."""
+    added = 0
+    for name in area_names():
+        if days is not None:
+            since = date.today() - timedelta(days=days)
+        else:
+            busy = conn.execute(
+                "SELECT 1 FROM jobs WHERE kind = 'sync' AND area = %s "
+                "AND (status IN ('pending', 'running') "
+                "     OR created_at >= date_trunc('day', now()))", (name,)).fetchone()
+            if busy:
+                continue  # at most one sync per area per UTC day
+            since = sync_since(conn, name)
+        added += enqueue(conn, kind="sync", area=name, since=since, priority=100)
+    return added
 
 
 def claim(conn) -> dict | None:
