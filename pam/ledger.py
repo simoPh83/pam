@@ -56,6 +56,9 @@ EXTRA_COLUMNS = {
     "description": "TEXT",
     "app_type": "TEXT",
     "agent_name": "TEXT",
+    "agent_company": "TEXT",
+    "agent_address": "TEXT",
+    "agent_display": "TEXT",
     "applicant_name": "TEXT",
     "permission_expires": "TEXT",
     "distance_km": "REAL",
@@ -184,7 +187,8 @@ class Ledger:
         columns = (
             "uid", "reference", "authority", "app_state", "app_size", "app_type",
             "address", "postcode", "description",
-            "agent_name", "applicant_name",
+            "agent_name", "agent_company", "agent_address", "agent_display",
+            "applicant_name",
             "start_date", "decided_date", "permission_expires",
             "distance_km", "lat", "lng", "council_url", "docs_url",
             "other_fields_json",
@@ -205,7 +209,8 @@ class Ledger:
                       if raw else None)
 
         mutable = [c for c in columns
-                   if c not in ("uid", "agent_name", "applicant_name")]
+                   if c not in ("uid", "agent_name", "agent_company", "agent_address",
+                                  "agent_display", "applicant_name")]
         prev_state = self.get_state(row["uid"])
         new_state = row.get("app_state")
         if prev_state is None or (new_state and new_state != prev_state):
@@ -226,7 +231,10 @@ class Ledger:
             VALUES ({", ".join("?" * (len(columns) + 3))})
             ON CONFLICT(uid) DO UPDATE SET
                 {update_sql},
-                agent_name     = COALESCE(excluded.agent_name, applications.agent_name),
+                agent_name     = excluded.agent_name,
+                agent_company  = excluded.agent_company,
+                agent_address  = excluded.agent_address,
+                agent_display  = excluded.agent_display,
                 applicant_name = COALESCE(excluded.applicant_name, applications.applicant_name),
                 last_updated   = excluded.last_updated,
                 in_leads_sheet = {greatest}(applications.in_leads_sheet, excluded.in_leads_sheet)

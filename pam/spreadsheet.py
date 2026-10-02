@@ -30,7 +30,7 @@ COLUMNS = [
     ("decided_date", "Decided", 11),
     ("target_decision_date", "Target date", 11),
     ("permission_expires", "Perm. expires", 12),
-    ("agent_name", "Agent / practice", 24),
+    ("agent_display", "Agent / practice", 24),
     ("applicant_name", "Applicant", 20),
     ("distance_km", "km from home", 9),
     ("state_changed", "State changed", 12),

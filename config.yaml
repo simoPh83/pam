@@ -7,7 +7,7 @@ home_postcode: N19 4HF          # recorded as distance_km on every row (never a 
 # overlap. Postcode+radius areas remain supported if ever needed.
 # Audit 2026-09.27: these boroughs have fresh PlanIt crawls (scraped daily).
 # Barking & Dagenham is STALE (July) — excluded until the crawl recovers.
-# Remaining ~23 London boroughs: audit pending rate-limit reset, add after.
+# All 33 London authorities are now listed.
 areas:
   # First live backfill (2026-09-28): Enfield only — best agent coverage in the
   # audit (86%) and not previously backfilled. Other areas below stay disabled
@@ -39,18 +39,49 @@ areas:
   # per audit alias; covers south Fitzrovia, Soho, Mayfair, Marylebone).
   - name: westminster
     authority: Westminster
-  # - name: barnet
-  #   authority: Barnet
-  # - name: brent
-  #   authority: Brent
-  # - name: bexley
-  #   authority: Bexley
-  # - name: bromley
-  #   authority: Bromley
-  # - name: croydon
-  #   authority: Croydon
-  # - name: ealing
-  #   authority: Ealing
+  - name: barnet
+    authority: Barnet
+  - name: brent
+    authority: Brent
+  - name: bexley
+    authority: Bexley
+  - name: bromley
+    authority: Bromley
+  - name: croydon
+    authority: Croydon
+  - name: ealing
+    authority: Ealing
+  # Remaining boroughs (2026-10-02). PlanIt feed names per the audit aliases.
+  - name: hammersmith-fulham
+    authority: Hammersmith and Fulham
+  - name: haringey
+    authority: Haringey
+  - name: havering
+    authority: Havering
+  - name: hillingdon
+    authority: Hillingdon
+  - name: hounslow
+    authority: Hounslow
+  - name: kingston
+    authority: Kingston
+  - name: redbridge
+    authority: Redbridge
+  - name: richmond
+    authority: Richmond
+  - name: wandsworth
+    authority: Wandsworth
+  # Stale PlanIt crawls at audit time (data may stop months ago); kept so they
+  # backfill whatever exists and pick up new data if the crawl recovers.
+  - name: barking-dagenham
+    authority: Barking and Dagenham
+  - name: harrow
+    authority: Harrow
+  - name: kensington-chelsea
+    authority: Kensington
+  - name: merton
+    authority: Merton
+  - name: waltham-forest
+    authority: Waltham Forest
   # City of London enabled 2026-10-02 for 3y backfill (feed name is 'City'
   # per audit alias).
   - name: city-of-london
@@ -72,11 +103,6 @@ defaults:
   keywords: null                # list of words, matched against description (any)
                                 # e.g. ["discharge of condition"] flags imminent construction
   exclude_app_types: [Trees]    # tree works are never photography leads
-
-backfill:
-  enabled: true
-  start_date: "2026-06-27"      # 3 months back; filters PlanIt start_date server-side,
-                                # then decided_date client-side for the leads sheet
 
 api:
   page_size: 100                # PlanIt is flaky below ~10; 100 keeps requests few

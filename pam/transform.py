@@ -11,7 +11,8 @@ from datetime import date
 
 # other_fields keys seen holding agent info across councils (mostly junk —
 # "See source" — but cheap to check; real values appear in some councils)
-_AGENT_KEYS = ("agent_name", "agent", "agent_company", "agent_organisation")
+_AGENT_NAME_KEYS = ("agent_name", "agent")
+_AGENT_COMPANY_KEYS = ("agent_company", "agent_organisation")
 _JUNK_VALUES = {"see source", "n/a", "na", "not supplied", "unknown", "-",
                 "not in borough"}
 
@@ -36,8 +37,9 @@ _EXTRA_KEY_COLUMNS: dict[str, tuple[str, str]] = {
     "appeal_result": ("appeal_result", "text"),
     "applicant_name": ("applicant_name", "text"),
     "agent_name": ("agent_name", "text"), "agent": ("agent_name", "text"),
-    "agent_company": ("agent_name", "text"),
-    "agent_organisation": ("agent_name", "text"),
+    "agent_company": ("agent_company", "text"),
+    "agent_organisation": ("agent_company", "text"),
+    "agent_address": ("agent_address", "text"),
     "application_type": ("app_type", "text"),
     "permission_expires_date": ("permission_expires", "date"),
     "decision_date": ("decided_date", "date"),
@@ -99,13 +101,20 @@ def uid_of(raw: dict) -> str:
     return f"{raw.get('area_id')}/{raw.get('uid')}"
 
 
-def _agent_name(raw: dict) -> str | None:
-    other = raw.get("other_fields") or {}
-    for key in _AGENT_KEYS:
-        value = other.get(key)
-        if value and str(value).strip().lower() not in _JUNK_VALUES:
-            return str(value).strip()
+def _first_clean(other: dict, keys) -> str | None:
+    for key in keys:
+        value = _clean(other.get(key))
+        if value:
+            return value
     return None
+
+
+def _agent_name(raw: dict) -> str | None:
+    return _first_clean(raw.get("other_fields") or {}, _AGENT_NAME_KEYS)
+
+
+def _agent_company(raw: dict) -> str | None:
+    return _first_clean(raw.get("other_fields") or {}, _AGENT_COMPANY_KEYS)
 
 
 def _clean(value) -> str | None:
@@ -151,6 +160,10 @@ def normalize(raw: dict, area_name: str, home: tuple[float, float] | None) -> di
         "decided_date": _date_or_none(raw.get("decided_date")),
         "permission_expires": _date_or_none(other.get("permission_expires_date")),
         "agent_name": _agent_name(raw),
+        "agent_company": _agent_company(raw),
+        "agent_address": _clean(other.get("agent_address")),
+        # business if known, else whatever the council supplied
+        "agent_display": _agent_company(raw) or _agent_name(raw),
         "applicant_name": _applicant_name(raw),
         "distance_km": distance,
         "lat": lat,
