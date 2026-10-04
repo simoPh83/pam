@@ -1,4 +1,4 @@
-"""Ledger (SQLite locally, Postgres when a postgres:// URL is given): every application we've ever seen, with its state.
+"""Ledger (Postgres): every application we've ever seen, with its state.
 
 The ledger is the memory of the system. It tracks all watched states
 (e.g. Undecided) so that a later transition to a lead state (Permitted /
@@ -8,9 +8,7 @@ Conditions) is detected as an event — the outreach trigger.
 from __future__ import annotations
 
 import json
-import sqlite3
-from datetime import date, datetime
-from pathlib import Path
+from datetime import date, datetime, timezone
 
 from pam.transform import extra_fields
 
@@ -21,30 +19,30 @@ CREATE TABLE IF NOT EXISTS applications (
     authority      TEXT,
     app_state      TEXT,
     app_size       TEXT,
-    start_date     TEXT,
-    decided_date   TEXT,
-    first_seen     TEXT NOT NULL,
-    last_updated   TEXT NOT NULL,
-    in_leads_sheet INTEGER NOT NULL DEFAULT 0
+    start_date     DATE,
+    decided_date   DATE,
+    first_seen     DATE NOT NULL,
+    last_updated   DATE NOT NULL,
+    in_leads_sheet BOOLEAN NOT NULL DEFAULT false
 );
 CREATE TABLE IF NOT EXISTS fetch_progress (
     run_window   TEXT NOT NULL,
     area         TEXT NOT NULL,
     state        TEXT NOT NULL,
     last_offset  INTEGER NOT NULL,
-    done         INTEGER NOT NULL DEFAULT 0,
+    done         BOOLEAN NOT NULL DEFAULT false,
     PRIMARY KEY (run_window, area, state)
 );
 -- One row per observed app_state change (and the first sighting, old_state NULL).
 CREATE TABLE IF NOT EXISTS state_history (
-    id             __IDCOL__,
+    id             BIGSERIAL PRIMARY KEY,
     uid            TEXT NOT NULL,
-    observed_at    TEXT NOT NULL,
+    observed_at    TIMESTAMPTZ NOT NULL,
     old_state      TEXT,
     new_state      TEXT,
-    decided_date   TEXT,
+    decided_date   DATE,
     decision       TEXT,
-    last_different TEXT
+    last_different TIMESTAMPTZ
 );
 CREATE INDEX IF NOT EXISTS idx_state_history_uid ON state_history (uid);
 """
@@ -60,13 +58,13 @@ EXTRA_COLUMNS = {
     "agent_address": "TEXT",
     "agent_display": "TEXT",
     "applicant_name": "TEXT",
-    "permission_expires": "TEXT",
-    "distance_km": "REAL",
-    "lat": "REAL",
-    "lng": "REAL",
+    "permission_expires": "DATE",
+    "distance_km": "DOUBLE PRECISION",
+    "lat": "DOUBLE PRECISION",
+    "lng": "DOUBLE PRECISION",
     "council_url": "TEXT",
     "docs_url": "TEXT",
-    "other_fields_json": "TEXT",
+    "other_fields_json": "JSONB",
     # Promoted from other_fields (schema review 2026-10-01)
     "decision": "TEXT",
     "decided_by": "TEXT",
@@ -80,21 +78,29 @@ EXTRA_COLUMNS = {
     "uprn": "TEXT",
     "appeal_reference": "TEXT",
     "appeal_result": "TEXT",
-    "date_received": "TEXT",
-    "date_validated": "TEXT",
-    "target_decision_date": "TEXT",
-    "consultation_end_date": "TEXT",
-    "application_expires_date": "TEXT",
-    "decision_issued_date": "TEXT",
-    "appeal_date": "TEXT",
-    "appeal_decision_date": "TEXT",
+    "date_received": "DATE",
+    "date_validated": "DATE",
+    "target_decision_date": "DATE",
+    "consultation_end_date": "DATE",
+    "application_expires_date": "DATE",
+    "decision_issued_date": "DATE",
+    "appeal_date": "DATE",
+    "appeal_decision_date": "DATE",
     "n_documents": "INTEGER",
     "n_comments": "INTEGER",
     "n_constraints": "INTEGER",
     "n_dwellings": "INTEGER",
-    "last_changed": "TEXT",
-    "last_different": "TEXT",
-    "last_scraped": "TEXT",
+    "n_statutory_days": "INTEGER",
+    "application_type": "TEXT",
+    "applicant_address": "TEXT",
+    "comment_date": "DATE",
+    "neighbour_consultation_start_date": "DATE",
+    "neighbour_consultation_end_date": "DATE",
+    "consultation_start_date": "DATE",
+    "decision_published_date": "DATE",
+    "last_changed": "TIMESTAMPTZ",
+    "last_different": "TIMESTAMPTZ",
+    "last_scraped": "TIMESTAMPTZ",
 }
 
 
@@ -128,43 +134,22 @@ def _full_urls_view_sql(replace: str) -> str:
             f"FROM applications a {' '.join(joins)}")
 
 
-def _is_postgres(target) -> bool:
-    return str(target).startswith(("postgres://", "postgresql://"))
-
-
 class Ledger:
-    """`target` is a SQLite file path or a postgres:// connection URL."""
+    """`target` is a postgres:// connection URL."""
 
     def __init__(self, target):
-        self.pg = _is_postgres(target)
-        if self.pg:
-            import psycopg
-            self.conn = psycopg.connect(str(target))
-            schema = SCHEMA.replace("__IDCOL__", "BIGSERIAL PRIMARY KEY")
-            for stmt in schema.split(";"):
-                if stmt.strip():
-                    self.conn.execute(stmt)
-            for col, coltype in EXTRA_COLUMNS.items():
-                self.conn.execute(
-                    f"ALTER TABLE applications ADD COLUMN IF NOT EXISTS {col} {coltype}")
-        else:
-            path = Path(target)
-            path.parent.mkdir(parents=True, exist_ok=True)
-            self.conn = sqlite3.connect(path)
-            self.conn.executescript(
-                SCHEMA.replace("__IDCOL__", "INTEGER PRIMARY KEY AUTOINCREMENT"))
-            existing = {row[1] for row in
-                        self.conn.execute("PRAGMA table_info(applications)")}
-            for col, coltype in EXTRA_COLUMNS.items():
-                if col not in existing:
-                    self.conn.execute(
-                        f"ALTER TABLE applications ADD COLUMN {col} {coltype}")
+        if not str(target).startswith(("postgres://", "postgresql://")):
+            raise SystemExit("A postgres:// DATABASE_URL is required (SQLite is no longer supported)")
+        import psycopg
+        self.conn = psycopg.connect(str(target))
+        for stmt in SCHEMA.split(";"):
+            if stmt.strip():
+                self.conn.execute(stmt)
+        for col, coltype in EXTRA_COLUMNS.items():
+            self.conn.execute(
+                f"ALTER TABLE applications ADD COLUMN IF NOT EXISTS {col} {coltype}")
         self.conn.execute(AUTHORITY_URLS_DDL)
-        if self.pg:
-            self.conn.execute(_full_urls_view_sql("CREATE OR REPLACE"))
-        else:
-            self.conn.execute("DROP VIEW IF EXISTS applications_full")
-            self.conn.execute(_full_urls_view_sql("CREATE"))
+        self.conn.execute(_full_urls_view_sql("CREATE OR REPLACE"))
         self._bases = {(a, f): b for a, f, b in self._exec(
             "SELECT authority, field, base_url FROM authority_urls").fetchall()}
         # Seed history for rows stored before it existed (first sighting only)
@@ -177,10 +162,8 @@ class Ledger:
         self.conn.commit()
 
     def _exec(self, sql: str, params=()):
-        """Run SQL written with ? placeholders on either backend."""
-        if self.pg:
-            sql = sql.replace("?", "%s")
-        return self.conn.execute(sql, params)
+        """Run SQL written with ? placeholders (converted to psycopg's %s)."""
+        return self.conn.execute(sql.replace("?", "%s"), params)
 
     def _set_base(self, authority: str, field: str, base: str) -> None:
         self._exec(
@@ -220,7 +203,7 @@ class Ledger:
             "VALUES (?, ?, ?, ?, ?) "
             "ON CONFLICT(run_window, area, state) DO UPDATE SET "
             "last_offset = excluded.last_offset, done = excluded.done",
-            (window, area, state, offset, int(done)),
+            (window, area, state, offset, bool(done)),
         )
         self.conn.commit()
 
@@ -231,13 +214,13 @@ class Ledger:
         return bool(row[0]) if row else False
 
     def upsert(self, row: dict, *, in_leads: bool, raw: dict | None = None) -> None:
-        today = date.today().isoformat()
+        today = date.today()
 
         def d(key):
             value = row.get(key)
             if key in URL_FIELDS:
                 return self._shorten(row["authority"], key, value)
-            return value.isoformat() if isinstance(value, date) else value
+            return value or None if isinstance(value, str) else value
 
         if row.get("source_url") and (row["authority"], "source_url") not in self._bases:
             self._set_base(row["authority"], "source_url", row["source_url"])
@@ -258,6 +241,10 @@ class Ledger:
             "consultation_end_date", "application_expires_date",
             "decision_issued_date", "appeal_date", "appeal_decision_date",
             "n_documents", "n_comments", "n_constraints", "n_dwellings",
+            "n_statutory_days", "application_type", "applicant_address",
+            "comment_date", "neighbour_consultation_start_date",
+            "neighbour_consultation_end_date", "consultation_start_date",
+            "decision_published_date",
             "last_changed", "last_different", "last_scraped",
         )
         values = [d(key) for key in columns if key != "other_fields_json"]
@@ -275,10 +262,9 @@ class Ledger:
             self._exec(
                 "INSERT INTO state_history (uid, observed_at, old_state, new_state, "
                 "decided_date, decision, last_different) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (row["uid"], datetime.now().isoformat(timespec="seconds"), prev_state,
+                (row["uid"], datetime.now(timezone.utc), prev_state,
                  new_state, d("decided_date"), d("decision"), d("last_different")),
             )
-        greatest = "GREATEST" if self.pg else "MAX"
         update_sql = ",\n                ".join(
             f"{c} = COALESCE(excluded.{c}, applications.{c})" for c in mutable
         )
@@ -295,9 +281,9 @@ class Ledger:
                 agent_display  = excluded.agent_display,
                 applicant_name = COALESCE(excluded.applicant_name, applications.applicant_name),
                 last_updated   = excluded.last_updated,
-                in_leads_sheet = {greatest}(applications.in_leads_sheet, excluded.in_leads_sheet)
+                in_leads_sheet = (applications.in_leads_sheet OR excluded.in_leads_sheet)
             """,
-            (*values, today, today, int(in_leads)),
+            (*values, today, today, bool(in_leads)),
         )
         self.conn.commit()
 

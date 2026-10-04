@@ -20,8 +20,16 @@ _JUNK_VALUES = {"see source", "n/a", "na", "not supplied", "unknown", "-",
 # 2026-10-01). Dates go through _date_or_none; counts through _int_or_none.
 _OTHER_DATE_KEYS = ("date_received", "date_validated", "target_decision_date",
                     "consultation_end_date", "application_expires_date",
-                    "decision_issued_date", "appeal_date", "appeal_decision_date")
-_OTHER_INT_KEYS = ("n_documents", "n_comments", "n_constraints", "n_dwellings")
+                    "decision_issued_date", "appeal_date", "appeal_decision_date",
+                    "comment_date", "neighbour_consultation_start_date",
+                    "neighbour_consultation_end_date", "consultation_start_date",
+                    "decision_published_date")
+_OTHER_INT_KEYS = ("n_documents", "n_comments", "n_constraints", "n_dwellings",
+                   "n_statutory_days")
+
+# Never stored: no value (case_officer is always "See source"; easting/northing
+# duplicate lat/lng).
+_DROP_KEYS = {"case_officer", "easting", "northing"}
 
 
 # other_fields key -> (ledger column, kind). A key is dropped from the stored
@@ -40,7 +48,8 @@ _EXTRA_KEY_COLUMNS: dict[str, tuple[str, str]] = {
     "agent_company": ("agent_company", "text"),
     "agent_organisation": ("agent_company", "text"),
     "agent_address": ("agent_address", "text"),
-    "application_type": ("app_type", "text"),
+    "application_type": ("application_type", "text"),
+    "applicant_address": ("applicant_address", "text"),
     "permission_expires_date": ("permission_expires", "date"),
     "decision_date": ("decided_date", "date"),
     "lat": ("lat", "float"), "latitude": ("lat", "float"),
@@ -75,6 +84,8 @@ def extra_fields(other: dict | None, row: dict) -> dict:
     """
     extras = {}
     for key, value in (other or {}).items():
+        if key in _DROP_KEYS:
+            continue
         mapping = _EXTRA_KEY_COLUMNS.get(key)
         if mapping is None:
             extras[key] = value
@@ -189,6 +200,8 @@ def normalize(raw: dict, area_name: str, home: tuple[float, float] | None) -> di
         "uprn": _clean(other.get("uprn")),
         "appeal_reference": _clean(other.get("appeal_reference")),
         "appeal_result": _clean(other.get("appeal_result")),
+        "application_type": _clean(other.get("application_type")),
+        "applicant_address": _clean(other.get("applicant_address")),
     }
     for key in _OTHER_DATE_KEYS:
         row[key] = _date_or_none(other.get(key))

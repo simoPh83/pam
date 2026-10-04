@@ -69,7 +69,7 @@ def execute(argv: list[str] | None = None) -> tuple[int, dict]:
     else:
         log.info("Window: %s -> %s | areas: %s", start, end, ", ".join(a.name for a in cfg.areas))
 
-    ledger = Ledger(cfg.database_url or cfg.ledger_path)
+    ledger = Ledger(cfg.database_url)
     # With Postgres, leads are a query on applications.in_leads_sheet; the xlsx
     # is only maintained for local SQLite runs.
     sheet = None if cfg.database_url else LeadsSheet(cfg.leads_path)
