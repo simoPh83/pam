@@ -1,6 +1,7 @@
 # PAM web client — kickoff brief for an AI coding agent
 
-Paste this file first, then `01-database-contract.md`, then `02-ui-spec-and-setup.md`.
+Paste this file first, then `01-database-contract.md`, then `02-ui-spec-and-setup.md`,
+then `03-project-grouping-ui.md` (how to read grouped projects).
 `2026.10.02-web-app-roadmap.md` and `2026.09.29-next-steps-roadmap.md` are background
 (from the fetcher repo); the three numbered files take precedence where they differ.
 
