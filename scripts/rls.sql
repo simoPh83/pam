@@ -29,3 +29,16 @@ begin
     grant select on public.applications_full to authenticated;
   end if;
 end $$;
+
+
+-- projects / project_applications (2026-10-04)
+alter table projects enable row level security;
+alter table project_applications enable row level security;
+revoke all on projects from anon;
+revoke all on project_applications from anon;
+revoke insert, update, delete on projects from authenticated;
+grant select on projects to authenticated;
+revoke insert, update, delete on project_applications from authenticated;
+grant select on project_applications to authenticated;
+create policy "authenticated read" on projects for select to authenticated using (true);
+create policy "authenticated read" on project_applications for select to authenticated using (true);

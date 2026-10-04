@@ -11,6 +11,7 @@ import requests
 from .api import fetch_area
 from .config import load_config
 from .ledger import Ledger
+from . import projects
 from .spreadsheet import LeadsSheet
 from .transform import matches_filters, normalize
 
@@ -77,6 +78,7 @@ def execute(argv: list[str] | None = None) -> tuple[int, dict]:
                      else list(dict.fromkeys(cfg.lead_states + cfg.watch_states)))
 
     stats = {"fetched": 0, "new_tracked": 0, "leads_added": 0, "leads_updated": 0}
+    touched_uids: set[str] = set()
 
     try:
         for area in cfg.areas:
@@ -94,6 +96,7 @@ def execute(argv: list[str] | None = None) -> tuple[int, dict]:
 
                 if is_lead and not already_listed and row["decided_date"] and row["decided_date"] < lead_cutoff:
                     ledger.upsert(row, in_leads=False, raw=raw)
+                    touched_uids.add(row["uid"])
                     stats["new_tracked"] += 1
                     continue
 
@@ -121,6 +124,11 @@ def execute(argv: list[str] | None = None) -> tuple[int, dict]:
 
                 if not dry_run:
                     ledger.upsert(row, in_leads=is_lead or already_listed, raw=raw)
+                    touched_uids.add(row["uid"])
+
+        if not dry_run and touched_uids:
+            projects.group(touched_uids, ledger.conn)
+            ledger.conn.commit()
 
         if not dry_run and sheet:
             sheet.save()

@@ -71,6 +71,28 @@ Nice-to-have: a "Data freshness" page showing last done sync per area.
 ## `fetch_progress`
 Fetcher-internal resume bookkeeping. Ignore.
 
+## `projects` / `project_applications` (site grouping, added 2026-10-04)
+Applications on the same development site are grouped into one project so
+outreach is per site, not per application. Clustering key:
+`(authority, address_key)` where `address_key` is the normalised address.
+
+`projects`: `id, authority, name (shortest address in cluster), address_key,
+root_uid (earliest original application), latest_uid, n_applications,
+first_seen, last_updated, created_at`.
+
+`project_applications`: `(project_id, uid)` membership + `parent_ref` (best
+parent reference extracted from the description — the one resolving to the
+earliest application we hold), `is_root`, `role`
+(`original|variation|discharge|nma`).
+
+Maintained by the worker at the end of every run; updated incrementally.
+
+## The `leads` view (read this, not the raw table)
+All `applications` where state is Permitted/Conditions and type isn't Trees,
+plus `project_id` and `n_applications` (joined from projects). Use
+`project_id` to collapse the list to one row per site (show the `latest_uid`
+row, badge with `n_applications`).
+
 ## What the UI must add (UI-owned tables; suggested)
 ```sql
 -- outreach log, one row per contact attempt

@@ -149,6 +149,10 @@ class Ledger:
             self.conn.execute(
                 f"ALTER TABLE applications ADD COLUMN IF NOT EXISTS {col} {coltype}")
         self.conn.execute(AUTHORITY_URLS_DDL)
+        from pam.projects import SCHEMA as PROJECTS_SCHEMA
+        for stmt in PROJECTS_SCHEMA.split(";"):
+            if stmt.strip():
+                self.conn.execute(stmt)
         self.conn.execute(_full_urls_view_sql("CREATE OR REPLACE"))
         self._bases = {(a, f): b for a, f, b in self._exec(
             "SELECT authority, field, base_url FROM authority_urls").fetchall()}
