@@ -1,0 +1,33 @@
+Be able to register architectural practice manually. More than 1 per project, with notes, shared amongst users. So the db should be able to differentiate global metadata (like this one) from by-user metadata like the outreach logs.
+
+Dates: every application should show
+- date when it was originally filed (we call this entry the root)
+- date when last decision was taken (we should already have a table for that)
+- whether or not the root application is in the db. Root is not simply the earliest date of any application by project (as I believe it is now) but it needs to be the real first root, so the one with to reference to other applications in their description. To we need to review how the isRoot boolean is currently decided in the db? I think so but please double check.
+
+Search should ask to edit both date range: global starting date, and last update date. Queries should look at projects globally rather than by single application. When searching a date in which it was filed it means the earliest date of all dates per project, so we know we will include the root.
+Date for last update: latest update received by project, meaning either the filing of an secondary application or an update on any existing application in that project.
+The user ultimately should be able to run queries as: projects started between these x and y dates, and that have updates within these w and z dates
+
+In leads page: Show application tabs in filed order and apply colour code and description based on state. Two dates in the card/tab for each application: filed date and last update date (if any). So I image something like
+tab 1: root. Filed 03.04.2020 (tick for present or not present in the db). Decision: name of decision - taken 20.05.2020
+tab 2 discharge of condition: filed 4.5.2025 - pending
+tab 3 non material amendment: filed 9.11.2025 - decision: approved taken 23.11.2025
+
+Now that we've run a script to write parent application an all applications, is there a way to find what applications are in the db, which probably have a parent (not by matchin address and authority, but because we found an application-like code in the description) but the application is not in the db (likely because it was filed and approved before our backfill starting date). These leaf applications should count the missing parent an application in their number-of-apllications-field and the missing parent should be added in a new table of applications-to-be-found. A script running overnight would search for this parent application (we know authority and year so that the scope for planit APIs) and inserted in the db. We need to cap this backfilling search otherwise in the end we're going to trace back the history of all applications that ever existed probably and that is of no use. The idea is to trace back the history of all "active" applications now. By active we can perhaps test a small range and then increase it, keeping track of the db size. Maybe we can start with a 9 month period from today. Once  this job is complete - so we have the total history of all applications that have been active over the last 9 months - I'm happy (following review) to delete everything else in the past. Or perhaps (as these are quite useful info) just keep track of the exact date in which to-be-deleted applications were found, in case they "wake up" anytime in the future. A simple table with application code, authority and date would  be enough.
+
+Implement this reccomendations from planIt going forward on our worker jobs.
+Can I scrape historical data / keep my database up to date using the API?
+Yes, but please try to follow these guidelines:
+Run overnight, 18:00-06:00, so as not to compete with daytime users
+Leave a minimum 60 seconds between requests, with adaptive backoff that honours the Retry-After header
+Try to limit yourself to a daily request cap of 300
+Place an identifier string, including your email, in the User-Agent field
+Note: I will block requests without a valid user agent or those that exceed a reasonable number per day.
+
+This is by user: once a user stars an application, all applications of that project should be starred. Or even better, the starring should always happen at project level, rather than at single application level.
+For starred project we want to create alerts (for the moment to be kept in the app rather than by email) to remind the user when it would be reasonable reaching out to the practice. Every user would have its own parameters and we'd need to discuss which ones are reasonable together. I'm imaginig something like
+- same day as a "non material amendment" is filed (or approved)
+- 2 years after a large application has been approved
+- 3 months after a discharge of conditions 
+etc...
