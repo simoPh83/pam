@@ -12,8 +12,13 @@ the client builds on top. Read `01-database-contract.md` and
 
 **Two kinds of metadata — keep them visually distinct:**
 - **Global/shared** (same for every user): projects, applications, practices,
-  practice links, outreach log. Anyone can add; everyone sees everything.
-- **Per-user**: stars and alert rules/alerts. Each user has their own.
+  practice links, agent details. Anyone can add practices; everyone sees
+  everything.
+- **Read-shared, write-own**: stars — everyone sees what others starred
+  (keeps outreach coordinated), but each user stars/unstars only their own.
+- **Per-user, private**: outreach log, alert rules and alerts. Each user has
+  their own and cannot see other users'. Every row is scoped by
+  `created_by`/`user_id = auth.uid()`.
 
 ## 2. New/changed schema the client uses
 
@@ -85,13 +90,26 @@ create table ui_alerts (
 );
 ```
 
-RLS for the per-user tables — strict ownership:
+RLS for the per-user tables — stars are read-shared/write-own, the rest
+strictly private:
 ```sql
 alter table ui_project_stars enable row level security;
 alter table ui_alert_rules  enable row level security;
 alter table ui_alerts       enable row level security;
-create policy "own stars" on ui_project_stars for all to authenticated
-  using (auth.uid() = user_id) with check (auth.uid() = user_id);
+alter table ui_outreach     enable row level security;
+
+-- stars: everyone reads (coordination), only the owner writes
+create policy "read all stars" on ui_project_stars for select to authenticated
+  using (true);
+create policy "write own stars" on ui_project_stars for insert to authenticated
+  with check (auth.uid() = user_id);
+create policy "delete own stars" on ui_project_stars for delete to authenticated
+  using (auth.uid() = user_id);
+
+-- outreach: strictly personal, not visible to other users
+create policy "own outreach" on ui_outreach for all to authenticated
+  using (auth.uid() = created_by) with check (auth.uid() = created_by);
+
 create policy "own rules" on ui_alert_rules for all to authenticated
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "read own alerts" on ui_alerts for select to authenticated
@@ -168,8 +186,12 @@ rejected rose-600, withdrawn/neutral zinc-500.
 ## 6. Stars & alerts
 
 - **Star toggle** lives on the **project**, not the application: starring any
-  application stars its project (`ui_project_stars`). Show star state on the
-  leads list (via join on `project_id`) and project page.
+  application stars its project (`ui_project_stars`). Stars are
+  **read-shared**: show your own star state prominently, and indicate when a
+  project is starred by another user (e.g. "starred by X" — join
+  `auth.users` email via a view or edge function; do not expose user ids
+  raw). This coordination is deliberate: it prevents two users targeting the
+  same practice unknowingly. Write/delete is own-rows only.
 - **Alerts inbox:** in-app list of `ui_alerts` for the user, unread first,
   grouped by `due_on`; "mark read" sets `read_at`. No email in v1.
 - **Alert settings page:** CRUD for the user's `ui_alert_rules`. Preset

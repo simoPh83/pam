@@ -149,10 +149,8 @@ class Ledger:
             self.conn.execute(
                 f"ALTER TABLE applications ADD COLUMN IF NOT EXISTS {col} {coltype}")
         self.conn.execute(AUTHORITY_URLS_DDL)
-        from pam.projects import SCHEMA as PROJECTS_SCHEMA
-        for stmt in PROJECTS_SCHEMA.split(";"):
-            if stmt.strip():
-                self.conn.execute(stmt)
+        from pam.projects import ensure_schema
+        ensure_schema(self.conn)
         self.conn.execute(_full_urls_view_sql("CREATE OR REPLACE"))
         self._bases = {(a, f): b for a, f, b in self._exec(
             "SELECT authority, field, base_url FROM authority_urls").fetchall()}
@@ -272,6 +270,12 @@ class Ledger:
         update_sql = ",\n                ".join(
             f"{c} = COALESCE(excluded.{c}, applications.{c})" for c in mutable
         )
+        # last_updated bumps only when a tracked field actually changed (or the
+        # state flipped) — not on every nightly re-fetch.
+        change_checks = " OR ".join(
+            f"excluded.{c} IS DISTINCT FROM applications.{c}" for c in mutable
+            if c != "other_fields_json"
+        )
         self._exec(
             f"""
             INSERT INTO applications
@@ -284,7 +288,9 @@ class Ledger:
                 agent_address  = excluded.agent_address,
                 agent_display  = excluded.agent_display,
                 applicant_name = COALESCE(excluded.applicant_name, applications.applicant_name),
-                last_updated   = excluded.last_updated,
+                last_updated   = CASE WHEN {change_checks}
+                                      THEN excluded.last_updated
+                                      ELSE applications.last_updated END,
                 in_leads_sheet = (applications.in_leads_sheet OR excluded.in_leads_sheet)
             """,
             (*values, today, today, bool(in_leads)),

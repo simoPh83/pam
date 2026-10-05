@@ -105,7 +105,7 @@ create table ui_outreach (
   status text not null default 'contacted', -- contacted|replied|follow_up|won|lost|no_interest
   follow_up_on date,
   notes text,
-  created_by uuid not null default auth.uid() references auth.users(id),  -- who logged it; outreach is shared across users for now
+  created_by uuid not null default auth.uid() references auth.users(id),  -- owner; outreach is private per user (RLS: auth.uid() = created_by)
   created_at timestamptz not null default now()
 );
 create index on ui_outreach (uid);

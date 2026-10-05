@@ -37,7 +37,7 @@ outreach log. Don't over-engineer.
   separately, e.g. in the same DB under a clear naming (`ui_*`) or the `app` schema,
   so the fetcher can be wiped and re-run without losing human data. Link by `uid`
   (soft reference, no FK that cascades deletes).
-- **Security:** RLS is ALREADY applied to the fetcher tables (`scripts/rls.sql` in the worker repo): `anon` has no access, any `authenticated` user has SELECT only. Do not weaken it. UI-owned tables get RLS too: any authenticated user can read/write all rows (outreach is **shared** between users for now; each row records `created_by = auth.uid()` for logging only). A later phase may restrict contacting the same lead by different users, so always store `created_by`.
+- **Security:** RLS is ALREADY applied to the fetcher tables (`scripts/rls.sql` in the worker repo): `anon` has no access, any `authenticated` user has SELECT only. Do not weaken it. UI-owned tables get RLS too, with three tiers (final model, 2026-10-05): **shared** — practices and project links (everyone reads/writes); **read-shared, write-own** — stars (everyone sees who starred what, you can only write your own); **private** — outreach log and alerts (each user sees only their own rows; RLS `using (auth.uid() = created_by)`). Always store `created_by = auth.uid()`.
 - Prefer querying through the server (Server Components / Route Handlers) with the
   user's session; never expose the service-role key to the browser.
 - Use the **transaction pooler** (port 6543) if connecting with a raw Postgres driver

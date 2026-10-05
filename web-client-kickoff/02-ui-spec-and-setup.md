@@ -24,9 +24,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
      council page / documents / PlanIt (from `applications_full`).
    - State history timeline from `state_history`.
    - Agent block (company, person, address) with "other leads by this agent" list.
-   - Outreach log (shared by all users; show who logged each entry): add entry (channel, to, status, follow-up date, notes), list of
-     previous entries, notes/star/hide.
-4. `/outreach` — all outreach entries, filter by status, "follow-ups due" first.
+   - Outreach log (private to the current user): add entry (channel, to,
+     status, follow-up date, notes), list of own previous entries,
+     notes/star/hide. Star state also shows when another user starred the
+     project.
+4. `/outreach` — the current user's own outreach entries (private), filter by
+   status, "follow-ups due" first.
 5. `/status` (admin) — data freshness: per borough last successful sync, row counts,
    job queue summary from `jobs`.
 

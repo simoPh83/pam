@@ -35,10 +35,25 @@ CREATE TABLE IF NOT EXISTS project_applications (
     parent_ref TEXT,
     is_root    BOOLEAN NOT NULL DEFAULT false,
     role       TEXT,
+    has_parent_refs BOOLEAN NOT NULL DEFAULT false,
     PRIMARY KEY (project_id, uid)
 );
 CREATE INDEX IF NOT EXISTS idx_project_applications_uid ON project_applications (uid);
 """
+
+# Columns added after first release — applied idempotently by ensure_schema().
+MIGRATIONS = (
+    "ALTER TABLE project_applications ADD COLUMN IF NOT EXISTS "
+    "has_parent_refs BOOLEAN NOT NULL DEFAULT false",
+)
+
+
+def ensure_schema(conn) -> None:
+    for stmt in SCHEMA.split(";"):
+        if stmt.strip():
+            conn.execute(stmt)
+    for stmt in MIGRATIONS:
+        conn.execute(stmt)
 
 _WS = re.compile(r"\s+")
 _PUNCT = re.compile(r"[^\w\s/-]")
@@ -151,13 +166,15 @@ def group(uids, conn) -> int:
         for uid, _name, role, refs in members:
             known = [r for r in resolved.get(auth, {}) if r in refs]
             memberships.append((pid, uid, known[0] if known else
-                                (refs[0] if refs else None), role))
+                                (refs[0] if refs else None), role, bool(refs)))
     with conn.cursor() as cur:
         cur.executemany(
-            "INSERT INTO project_applications (project_id, uid, parent_ref, role) "
-            "VALUES (%s, %s, %s, %s) "
+            "INSERT INTO project_applications (project_id, uid, parent_ref, role, "
+            "has_parent_refs) "
+            "VALUES (%s, %s, %s, %s, %s) "
             "ON CONFLICT (project_id, uid) DO UPDATE "
-            "SET parent_ref = excluded.parent_ref, role = excluded.role",
+            "SET parent_ref = excluded.parent_ref, role = excluded.role, "
+            "has_parent_refs = excluded.has_parent_refs",
             memberships)
 
     # Pass 5: refresh aggregates for touched projects in one set-based pass
@@ -175,7 +192,8 @@ def group(uids, conn) -> int:
             SELECT pa.project_id,
                    count(*) AS n,
                    (array_agg(a.uid ORDER BY
-                       (pa.role = 'original') DESC,
+                       (pa.role = 'original' AND NOT pa.has_parent_refs) DESC,
+                       (NOT pa.has_parent_refs) DESC,
                        a.start_date ASC NULLS LAST, a.uid))[1] AS root_uid,
                    (array_agg(a.uid ORDER BY
                        coalesce(a.decided_date, a.last_updated) DESC NULLS LAST,
@@ -197,7 +215,7 @@ def group(uids, conn) -> int:
         "FROM projects p WHERE p.id = pa.project_id AND p.id = ANY(%s)", (pids,))
 
     # Merge candidates: chosen parent_ref lives in a different project
-    refs_used = sorted({ref for _pid, _uid, ref, _r in memberships if ref})
+    refs_used = sorted({ref for _pid, _uid, ref, _r, _h in memberships if ref})
     if refs_used:
         other = {}
         for ref, pid in conn.execute(
@@ -206,7 +224,7 @@ def group(uids, conn) -> int:
                 "JOIN applications a ON a.uid = pa.uid "
                 "WHERE upper(a.reference) = ANY(%s)", (refs_used,)):
             other.setdefault(ref, set()).add(pid)
-        for pid, _uid, ref, _r in memberships:
+        for pid, _uid, ref, _r, _h in memberships:
             if ref and any(p != pid for p in other.get(ref, ())):
                 log.info("merge candidate: project %s parent_ref %s also in "
                          "project %s", pid, ref, sorted(other[ref] - {pid}))
