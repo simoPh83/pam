@@ -26,7 +26,20 @@ of the deploy, next step.
 - Code changes are local and **not deployed**. Until deployed, a worker
   restart WILL re-enqueue ~537 hunts. Next: check Barking and Dagenham
   results, then decide staggered strategy (PlanIt API load is the concern).
-
+- **Hunt rewritten (per-reference lookup)**: old hunts stored everything
+  fetched (~10.5k B&D rows flagged as leads). PlanIt supports
+  `id_match=<ref>` + `auth=<authority>` (exact, one ref per request; lists,
+  pipes, repeated params don't work). `worker.run_parent_hunt` now: one job
+  per authority, loops pending `missing_parents` (ref_year not null, newest
+  first), calls `api.lookup_reference`, upserts the match with in_leads=False,
+  marks `found` (before regrouping), regroups parent + children, marks misses
+  `exhausted`, follows new chains. Pace: `HUNT_DELAY_SECONDS` (default 10s).
+  `enqueue-parent-hunt` enqueues one job per authority (no --months).
+  Live test on 4 B&D refs: 2 found, 2 exhausted; works. ~9.2k refs total.
+- **Cleanup applied** (worker stopped): deleted 10,495 B&D apps + state_history,
+  10,181 memberships, 266 junk pending refs, 24 old hunt jobs; 42 hunt-target
+  rows kept. Open: ~40 flagged leads with decided_date < 2023-10-01 to check.
+- Still local/uncommitted; deploy, restart worker, then enqueue-parent-hunt.
 ## 2026-10-05 (evening) — root semantics + parent finder (point 1 & 3)
 
 **Done (code + DB, both live):**

@@ -59,6 +59,13 @@ def _get(params: dict, cfg: Config, url: str = BASE_URL) -> dict:
     raise RuntimeError(f"PlanIt API unreachable after {cfg.max_retries} retries") from last_exc
 
 
+def lookup_reference(authority: str, reference: str, cfg: Config) -> list[dict]:
+    """Exact lookup of one application by reference within an authority
+    (PlanIt `id_match`; spatial params are ignored when it is supplied)."""
+    data = _get({"id_match": reference, "auth": authority, "pg_sz": 10}, cfg)
+    return data.get("records") or []
+
+
 def fetch_area(area: Area, states: list[str], start: date | None, end: date,
                cfg: Config, progress=None, since: date | None = None) -> Iterator[dict]:
     """Yield raw PlanIt records for one area, all states, paged.

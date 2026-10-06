@@ -25,9 +25,12 @@ from datetime import date, datetime, timedelta, timezone
 
 import psycopg
 
+from . import projects
+from .api import lookup_reference
 from .config import DEFAULT_CONFIG_PATH, load_config, load_dotenv
 from .ledger import Ledger
-from .main import execute
+from .main import execute, geocode_home
+from .transform import normalize
 
 log = logging.getLogger("pam.worker")
 
@@ -38,6 +41,8 @@ SYNC_HOUR_UTC = int(os.environ.get("SYNC_HOUR_UTC", "5"))
 SYNC_DAYS = int(os.environ.get("SYNC_DAYS", "2"))  # --since = today - SYNC_DAYS
 # Off by default: parent hunts are only enqueued manually (enqueue-parent-hunt).
 AUTO_PARENT_HUNT = os.environ.get("AUTO_PARENT_HUNT", "0") == "1"
+# Pause between single-reference PlanIt lookups (seconds)
+HUNT_DELAY = float(os.environ.get("HUNT_DELAY_SECONDS", "10"))
 
 JOBS_DDL = """
 CREATE TABLE IF NOT EXISTS jobs (
@@ -160,7 +165,7 @@ def job_argv(job: dict) -> list[str]:
     argv = ["--area", area]
     if job["kind"] == "sync":
         argv += ["--since", job["since"].isoformat()]
-    else:
+    elif job["kind"] != "parent_hunt":
         argv += ["--from", job["start_date"].isoformat(),
                  "--to", job["end_date"].isoformat()]
     return argv
@@ -170,9 +175,12 @@ def process(conn, job: dict) -> None:
     log.info("Job %s start: %s %s (attempt %s)", job["id"], job["kind"],
              job["area"], job["attempts"])
     try:
-        code, stats = execute(job_argv(job))
-        if code != 0:
-            raise RuntimeError(f"pam exited with code {code}")
+        if job["kind"] == "parent_hunt":
+            stats = run_parent_hunt(conn, job)
+        else:
+            code, stats = execute(job_argv(job))
+            if code != 0:
+                raise RuntimeError(f"pam exited with code {code}")
     except (Exception, SystemExit) as exc:
         err = traceback.format_exc() if isinstance(exc, Exception) else str(exc)
         log.error("Job %s failed: %s", job["id"], exc)
@@ -190,32 +198,65 @@ def process(conn, job: dict) -> None:
         (json.dumps(stats), job["id"]),
     )
     log.info("Job %s done: %s", job["id"], stats)
-    if job["kind"] == "parent_hunt":
-        resolve_parents(conn, job)
 
 
-def resolve_parents(conn, job: dict) -> None:
-    """After a parent_hunt window fetch: mark refs that turned up as found,
-    count attempts for the rest, exhaust after 2 tries (year-boundary refs get
-    one retry via the adjacent-year job enqueued by the bootstrap)."""
-    year = job["start_date"].year
-    found = conn.execute(
-        """
-        UPDATE missing_parents mp SET status = 'found', found_uid = a.uid
-        FROM applications a
-        WHERE mp.authority = %(a)s AND upper(a.reference) = mp.reference
-          AND mp.authority = a.authority AND mp.status <> 'found'
-          AND mp.ref_year = %(y)s
-        RETURNING mp.id
-        """, {"a": job["area"], "y": year}).fetchall()
-    conn.execute(
-        """
-        UPDATE missing_parents SET attempts = attempts + 1,
-            status = CASE WHEN attempts + 1 >= 2 THEN 'exhausted' ELSE status END
-        WHERE authority = %(a)s AND ref_year = %(y)s AND status = 'pending'
-        """, {"a": job["area"], "y": year})
-    log.info("Parent hunt %s/%s: %d refs resolved", job["area"], year,
-             len(found))
+def run_parent_hunt(conn, job: dict) -> dict:
+    """Look up each pending missing parent of one authority by exact reference
+    (PlanIt id_match). Only the matching application is stored (never as a
+    lead); the parent and the children citing it are then regrouped. A lookup
+    is definitive, so a miss marks the ref 'exhausted'. Progress is per ref, so
+    an interrupted job simply resumes. Parents may cite older parents; those
+    new refs are picked up by the same job."""
+    cfg = load_config(argv=job_argv(job))
+    area = cfg.areas[0]
+    home = geocode_home(cfg.home_postcode)
+    ledger = Ledger(cfg.database_url)
+    stats = {"looked_up": 0, "found": 0, "not_found": 0}
+    try:
+        while True:
+            pending = conn.execute(
+                "SELECT id, reference, requested_by FROM missing_parents "
+                "WHERE authority = %s AND status = 'pending' AND ref_year IS NOT NULL "
+                "ORDER BY ref_year DESC, id LIMIT 200", (area.authority,)).fetchall()
+            if not pending:
+                break
+            for mp_id, ref, requested_by in pending:
+                match = None
+                for raw in lookup_reference(area.authority, ref, cfg):
+                    row = normalize(raw, area.name, home)
+                    if str(row["reference"] or "").strip().upper() == ref:
+                        match = (row, raw)
+                        break
+                stats["looked_up"] += 1
+                if match:
+                    row, raw = match
+                    ledger.upsert(row, in_leads=False, raw=raw)
+                    conn.execute(
+                        "UPDATE missing_parents SET status = 'found', found_uid = %s, "
+                        "attempts = attempts + 1 WHERE id = %s", (row["uid"], mp_id))
+                    children = {r[0] for r in conn.execute(
+                        "SELECT pa.uid FROM project_applications pa "
+                        "JOIN projects p ON p.id = pa.project_id "
+                        "WHERE p.authority = %s AND pa.parent_ref = %s",
+                        (area.authority, ref))}
+                    if requested_by:
+                        children.add(requested_by)
+                    projects.group({row["uid"]} | children, ledger.conn)
+                    ledger.conn.commit()
+                    stats["found"] += 1
+                else:
+                    conn.execute(
+                        "UPDATE missing_parents SET status = 'exhausted', "
+                        "attempts = attempts + 1 WHERE id = %s", (mp_id,))
+                    stats["not_found"] += 1
+                if stats["looked_up"] % 50 == 0:
+                    log.info("Parent hunt %s: %s", area.authority, stats)
+                    conn.execute("UPDATE jobs SET stats = %s::jsonb WHERE id = %s",
+                                 (json.dumps(stats), job["id"]))
+                time.sleep(HUNT_DELAY)
+    finally:
+        ledger.close()
+    return stats
 
 
 def requeue_interrupted(conn) -> None:
@@ -282,9 +323,7 @@ def main() -> None:
     sy = sub.add_parser("enqueue-sync")
     sy.add_argument("--days", type=int, default=SYNC_DAYS)
     ph = sub.add_parser("enqueue-parent-hunt",
-                        help="one job per (area, year) with pending missing parents")
-    ph.add_argument("--months", type=int, default=9,
-                    help="only hunt parents of projects active in the last N months")
+                        help="one job per authority with pending missing parents")
     args = parser.parse_args()
 
     if args.cmd in ("run", "once"):
@@ -301,34 +340,24 @@ def main() -> None:
     elif args.cmd == "enqueue-sync":
         print(f"Enqueued {enqueue_sync(conn, args.days)} sync job(s)")
     elif args.cmd == "enqueue-parent-hunt":
-        print(f"Enqueued {enqueue_parent_hunt(conn, args.months)} parent-hunt job(s)")
+        print(f"Enqueued {enqueue_parent_hunt(conn)} parent-hunt job(s)")
 
 
-def enqueue_parent_hunt(conn, months: int = 9) -> int:
-    """One year-window fetch job per (authority, ref_year) with pending
-    missing_parents belonging to recently-active projects.
-
-    The dedupe key includes the hunt round (max attempts so far), so a group
-    can be retried once after its first hunt completes; groups at round 2 are
-    exhausted and skipped. Retry jobs re-fetch nothing (fetch_progress marks
-    the window done) — they only re-run the resolution pass."""
+def enqueue_parent_hunt(conn) -> int:
+    """One job per authority that still has pending missing parents. Skipped
+    while that authority already has a pending/running hunt; the dedupe key
+    carries the date so a new job can be queued on a later day."""
     rows = conn.execute(
         """
-        SELECT mp.authority, mp.ref_year, max(mp.attempts) AS round
-        FROM missing_parents mp
-        JOIN projects p ON p.id = mp.project_id
+        SELECT mp.authority FROM missing_parents mp
         WHERE mp.status = 'pending' AND mp.ref_year IS NOT NULL
-          AND p.last_updated >= current_date - make_interval(months => %s)
-        GROUP BY 1, 2 HAVING max(mp.attempts) < 2
-        ORDER BY 1, 2
-        """, (months,)).fetchall()
-    added = 0
-    for authority, year, rnd in rows:
-        added += enqueue(conn, kind="parent_hunt", area=authority,
-                         start=date(year, 1, 1), end=date(year, 12, 31),
-                         priority=50,  # below syncs, above backfills
-                         dedupe_suffix=f":r{rnd}")
-    return added
+          AND NOT EXISTS (SELECT 1 FROM jobs j WHERE j.kind = 'parent_hunt'
+                          AND j.area = mp.authority
+                          AND j.status IN ('pending', 'running'))
+        GROUP BY 1 ORDER BY count(*) DESC
+        """).fetchall()
+    return sum(enqueue(conn, kind="parent_hunt", area=a, priority=50,
+                       dedupe_suffix=f":{date.today()}") for (a,) in rows)
 
 
 if __name__ == "__main__":
