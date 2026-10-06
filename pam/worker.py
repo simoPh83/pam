@@ -36,6 +36,8 @@ RETRY_DELAY = timedelta(minutes=10)
 POLL_SECONDS = 30
 SYNC_HOUR_UTC = int(os.environ.get("SYNC_HOUR_UTC", "5"))
 SYNC_DAYS = int(os.environ.get("SYNC_DAYS", "2"))  # --since = today - SYNC_DAYS
+# Off by default: parent hunts are only enqueued manually (enqueue-parent-hunt).
+AUTO_PARENT_HUNT = os.environ.get("AUTO_PARENT_HUNT", "0") == "1"
 
 JOBS_DDL = """
 CREATE TABLE IF NOT EXISTS jobs (
@@ -228,9 +230,10 @@ def maybe_schedule_sync(conn) -> None:
         added = enqueue_sync(conn)  # deduped per day by the since date
         if added:
             log.info("Scheduled %d daily sync job(s)", added)
-        hunted = enqueue_parent_hunt(conn)  # deduped; no-op when none pending
-        if hunted:
-            log.info("Scheduled %d parent-hunt job(s)", hunted)
+        if AUTO_PARENT_HUNT:
+            hunted = enqueue_parent_hunt(conn)  # deduped; no-op when none pending
+            if hunted:
+                log.info("Scheduled %d parent-hunt job(s)", hunted)
 
 
 def loop(once: bool) -> None:

@@ -12,9 +12,20 @@ of the deploy, next step.
 - Fixed worker argument construction for `parent_hunt`: jobs store the
   authority (used for parent resolution), while `--area` expects the matching
   configured area name. Resolve authority to config name before running fetch.
-- Code changes are local and **not deployed**; worker was stopped per user
-  report. After deploy, rerun `python scripts/apply_rls.py`, then resume the
-  worker and confirm parent-hunt jobs are using configured area names.
+- `apply_rls.py` ran successfully against the DB (anon denied; authenticated
+  read-only). Needs Supabase **Session pooler** URL (direct host is IPv6-only).
+- Analysis: `projects.last_updated` is Oct 2026 for ~all projects (backfill
+  stamped them), so the "last N months" filter in `enqueue_parent_hunt` is a
+  no-op: 1 and 9 months both give 542 jobs / 9,229 refs. 2021–2023 hold ~5.6k
+  refs. Ideas: use max applications.last_changed as activity signal, skip
+  2000–2012, cap jobs/night. **Undecided.**
+- Deleted 524 pending parent_hunt jobs (all except Barking and Dagenham, which
+  is the trial run). Added `AUTO_PARENT_HUNT` env switch (default off) so the
+  worker no longer re-enqueues hunts at startup/nightly. Manual
+  `enqueue-parent-hunt` still works.
+- Code changes are local and **not deployed**. Until deployed, a worker
+  restart WILL re-enqueue ~537 hunts. Next: check Barking and Dagenham
+  results, then decide staggered strategy (PlanIt API load is the concern).
 
 ## 2026-10-05 (evening) — root semantics + parent finder (point 1 & 3)
 
