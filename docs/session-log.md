@@ -6,6 +6,25 @@ of the deploy, next step.
 
 ## 2026-10-06 — Parent hunt rewrite, project merge, RLS
 
+**Wandsworth hunt review (16:55, job 47960 done, no error):**
+- Final: 168 found / 20 exhausted / 2 pending. The 2 pending (`92/C/0446`,
+  `W/99/0121`) have no usable year, so the hunt skips them on purpose.
+- Worker was restarted by a deploy mid-run; it resumed and finished (last
+  run did 8 lookups). Queue is empty now.
+- Most "exhausted" refs are not real refs: date strings caught by
+  `parent_refs_of` (`12/11/2014`, `DATED04/01/2022`, `28/02/2020`,
+  `2021/3601DATED`). A few are real refs PlanIt lacks (`16/05114/FUL`,
+  `20/02331/FUL`). Harmless, but TODO: filter date-like strings in
+  `parent_refs_of` so they stop creating missing_parents rows.
+- Checks clean: no hunt-found parent flagged as lead, no empty projects, no
+  duplicate memberships, counts/roots consistent. Cross-project links now
+  128 (cross-references left unmerged); project_aliases 1,607; projects 162,720.
+- **WARNING / decision needed:** user added the two Railway variables
+  (`AUTO_PARENT_HUNT` presumably =1 and `HUNT_DELAY_SECONDS`). If
+  `AUTO_PARENT_HUNT=1`, the next 05:00 UTC cycle enqueues hunts for ALL
+  remaining authorities (~9,000 refs, ~25h+ at 10s). To stage instead, set it
+  back to 0 and enqueue a few authorities at a time via `enqueue()`; or leave
+  on if happy with the load on PlanIt. Verify the Railway values first.
 **State at end of session (pick up here):**
 - Code is committed/pushed by the user (hunt rewrite + merge + RLS files);
   confirm Railway deployed it before relying on any of it.
