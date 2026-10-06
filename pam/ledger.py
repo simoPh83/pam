@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS fetch_progress (
     done         BOOLEAN NOT NULL DEFAULT false,
     PRIMARY KEY (run_window, area, state)
 );
--- One row per observed app_state change (and the first sighting, old_state NULL).
+-- One row per observed app_state change. First sightings are not recorded:
+-- applications.first_seen already carries that information.
 CREATE TABLE IF NOT EXISTS state_history (
     id             BIGSERIAL PRIMARY KEY,
     uid            TEXT NOT NULL,
@@ -154,13 +155,6 @@ class Ledger:
         self.conn.execute(_full_urls_view_sql("CREATE OR REPLACE"))
         self._bases = {(a, f): b for a, f, b in self._exec(
             "SELECT authority, field, base_url FROM authority_urls").fetchall()}
-        # Seed history for rows stored before it existed (first sighting only)
-        if not self._exec("SELECT 1 FROM state_history LIMIT 1").fetchone():
-            self._exec(
-                "INSERT INTO state_history (uid, observed_at, old_state, new_state, "
-                "decided_date, decision) "
-                "SELECT uid, first_seen, NULL, app_state, decided_date, decision "
-                "FROM applications")
         self.conn.commit()
 
     def _exec(self, sql: str, params=()):
@@ -260,7 +254,9 @@ class Ledger:
                                   "agent_display", "applicant_name")]
         prev_state = self.get_state(row["uid"])
         new_state = row.get("app_state")
-        if prev_state is None or (new_state and new_state != prev_state):
+        # Record genuine state changes only; a first sighting adds nothing
+        # beyond applications.first_seen and cost 292k rows / ~54 MB.
+        if prev_state is not None and new_state and new_state != prev_state:
             self._exec(
                 "INSERT INTO state_history (uid, observed_at, old_state, new_state, "
                 "decided_date, decision, last_different) VALUES (?, ?, ?, ?, ?, ?, ?)",

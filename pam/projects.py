@@ -150,14 +150,20 @@ def parent_refs_of(description: str | None) -> list[str]:
 
 
 def _resolve_refs(refs: set[str], authority: str, conn) -> dict[str, str]:
-    """Map each extracted ref to the ref whose application has the earliest
-    start_date in this authority (self-mapped); refs with no match are absent."""
+    """Map each extracted ref to the stored reference whose application has
+    the earliest start_date in this authority; refs with no match are absent.
+    A cited ref also matches a stored reference carrying a type suffix —
+    Tower Hamlets cites "PA/26/00475" while PlanIt stores "PA/26/00475/NC"."""
     if not refs:
         return {}
-    return {r[0]: r[0] for r in conn.execute(
-        "SELECT upper(reference) FROM applications "
-        "WHERE authority = %s AND upper(reference) = ANY(%s) "
-        "ORDER BY start_date ASC NULLS LAST", (authority, list(refs)))}
+    return {r[0]: r[1] for r in conn.execute(
+        "SELECT DISTINCT ON (cand.ref) cand.ref, upper(a.reference) "
+        "FROM unnest(%s::text[]) AS cand(ref) "
+        "JOIN applications a ON a.authority = %s "
+        "  AND (upper(a.reference) = cand.ref "
+        "       OR starts_with(upper(a.reference), cand.ref || '/')) "
+        "ORDER BY cand.ref, a.start_date ASC NULLS LAST",
+        (list(refs), authority))}
 
 
 def group(uids, conn) -> int:
@@ -372,7 +378,8 @@ def merge_linked(conn, pids=None, dry_run: bool = False) -> dict:
         "FROM project_applications pa "
         "JOIN applications ch ON ch.uid = pa.uid "
         "JOIN applications par ON par.authority = ch.authority "
-        "  AND upper(par.reference) = pa.parent_ref "
+        "  AND (upper(par.reference) = pa.parent_ref "
+        "       OR starts_with(upper(par.reference), pa.parent_ref || '/')) "
         "JOIN project_applications pb ON pb.uid = par.uid "
         "  AND pb.project_id <> pa.project_id " + where, params).fetchall()
 

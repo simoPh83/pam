@@ -4,7 +4,70 @@ Running log of working sessions — what's done, what's live, what's next.
 Newest entries at the top. Keep each entry short: date, what changed, state
 of the deploy, next step.
 
-## 2026-10-06 � Parent hunt rewrite, project merge, RLS
+## 2026-10-06 � Parent hunt rewrite, project merge, RLS
+
+**Evening (~23:45) — TH hunt 0% hit rate investigated, suffix fix:**
+Tower Hamlets hunt (job 47961) marked its first ~150 refs exhausted with 0
+found. Not a code bug: PlanIt `id_match` is exact on the FULL reference, but
+TH descriptions cite refs without the type suffix (PA/26/00475) while PlanIt
+stores suffixed names (PA/26/00475/NC) — verified live: bare ref → 0 records,
+suffixed → 1; and 'PA/26/00281' → 0 vs 'PA/26/00281/S' → 1. 94% of stored TH
+apps carry a suffix; 88% of TH pending refs are suffix-less. Wandsworth/B&D
+were unaffected (their refs carry the suffix inline). **Crucially, 162 of the
+167 exhausted TH refs (and 88 of the pending) already match an application in
+our own DB by exact-or-prefix — no API call was ever needed.** Fixes:
+- `projects._resolve_refs`: prefix-aware (`starts_with(ref || '/')`), maps to
+  earliest start_date match → stops creating bogus missing_parents rows.
+- `projects.merge_linked`: parent join prefix-aware → TH cross-project merges
+  now work.
+- `worker.run_parent_hunt`: local-first resolution (exact or prefix in our
+  DB) — marks found with the existing uid, no API call, no 10s delay; API
+  lookup only for refs we don't hold. New `resolved_locally` stat.
+- **After deploy:** flip the false-exhausted rows back to pending so the hunt
+  re-resolves them locally: `UPDATE missing_parents mp SET status='pending',
+  attempts=0 WHERE status='exhausted' AND EXISTS (SELECT 1 FROM applications a
+  WHERE a.authority=mp.authority AND (upper(a.reference)=mp.reference OR
+  starts_with(upper(a.reference), mp.reference || '/')))` (162 rows, TH only).
+  Do NOT flip before deploy or the old-code worker re-burns an API call on each.
+- Side observation: 4 TH refs have duplicate applications rows with the same
+  reference string (e.g. two rows of PA/23/01979/A1) — investigate separately.
+- Idea parked: for suffix-less refs with no local match, could try common
+  suffixes via API (/NC, /S, /A1) — ~4 calls/ref × hundreds of refs is too
+  expensive; only worth it if PlanIt adds fuzzy id_match.
+
+**Evening (~22:15) — disk relief (509 → 455 MB):** DB was over the 500 MB
+Supabase cap. Findings: `projects`/`project_applications` are core (leads
+view + hunts) — kept; an authority-id lookup would save only ~8–12 MB —
+skipped; backfill 3y→2y would save only ~8 MB (data starts Oct 2023) —
+skipped. Actions:
+- **B&D junk purge**: the 10-05 cleanup had missed 4,672 year-scan rows
+  (first_seen 2026-10-05, all decided ≤ 2023-08-10 or NULL). Deleted them +
+  memberships + history + 2,551 now-empty B&D projects. The 145 first_seen
+  10-06 rows = the 139 hunt-found parents — kept. Side effect: ~3,300
+  phantom pre-window B&D rows were showing in the `leads` view (it has no
+  date filter) — B&D leads now 116, all legit.
+- **state_history slimmed**: 292,250 first-sighting seed rows (99.9% of the
+  table, redundant with `applications.first_seen`) deleted; 312 genuine
+  change rows kept. [ledger.py](../pam/ledger.py) no longer writes
+  first-sighting rows nor reseeds an empty table — **needs commit + push**
+  (until deployed, the live worker adds ~200 first-sighting rows/day —
+  harmless, re-purge with `DELETE FROM state_history WHERE old_state IS NULL`).
+- `VACUUM FULL state_history` + plain `VACUUM ANALYZE` on the big three
+  (applications/projects/project_applications too large to VACUUM FULL with
+  only ~45 MB headroom; their freed pages will be reused instead of growing
+  files). Note: Postgres never shrinks files after DELETE — the Supabase
+  disk number only drops on TRUNCATE/VACUUM FULL.
+- Indexes kept (postcode/agent_display barely read, ~8.6 MB — revisit later).
+- Growth: ~200k apps/yr; plan a retention rule (prune non-lead decided apps
+  > 24 months, keep projects/history) within ~2–3 months.
+
+**Evening (~21:30) — hunts enqueued for tonight:** AUTO_PARENT_HUNT confirmed
+0 on Railway. Enqueued parent hunts for the top 5 authorities by pending
+refs (jobs 47961–47965): Tower Hamlets 683, Barnet 593, Camden 558,
+Bromley 520, Southwark 460 = 2,814 lookups, ~8h at HUNT_DELAY 10s, so done
+by morning. Worker picked up Tower Hamlets within a minute (running).
+Assess results in the morning, then enqueue the next batch (Hackney 455,
+Lambeth 444, Hammersmith and Fulham 426, Croydon 421, Richmond 382...).
 
 **Wandsworth hunt review (16:55, job 47960 done, no error):**
 - Final: 168 found / 20 exhausted / 2 pending. The 2 pending (`92/C/0446`,

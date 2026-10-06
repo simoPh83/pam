@@ -211,7 +211,23 @@ def run_parent_hunt(conn, job: dict) -> dict:
     area = cfg.areas[0]
     home = geocode_home(cfg.home_postcode)
     ledger = Ledger(cfg.database_url)
-    stats = {"looked_up": 0, "found": 0, "not_found": 0}
+    stats = {"looked_up": 0, "found": 0, "not_found": 0, "resolved_locally": 0}
+
+    def mark_found(mp_id: int, ref: str, uid: str, requested_by: str | None) -> None:
+        conn.execute(
+            "UPDATE missing_parents SET status = 'found', found_uid = %s, "
+            "attempts = attempts + 1 WHERE id = %s", (uid, mp_id))
+        children = {r[0] for r in conn.execute(
+            "SELECT pa.uid FROM project_applications pa "
+            "JOIN projects p ON p.id = pa.project_id "
+            "WHERE p.authority = %s AND pa.parent_ref = %s",
+            (area.authority, ref))}
+        if requested_by:
+            children.add(requested_by)
+        projects.group({uid} | children, ledger.conn)
+        ledger.conn.commit()
+        stats["found"] += 1
+
     try:
         while True:
             pending = conn.execute(
@@ -221,6 +237,19 @@ def run_parent_hunt(conn, job: dict) -> dict:
             if not pending:
                 break
             for mp_id, ref, requested_by in pending:
+                # Local first: a cited ref may match an application we already
+                # hold under a suffixed reference (Tower Hamlets cites
+                # "PA/26/00475"; we store "PA/26/00475/NC"). No API call needed.
+                local = conn.execute(
+                    "SELECT uid FROM applications "
+                    "WHERE authority = %s AND (upper(reference) = %s "
+                    "  OR starts_with(upper(reference), %s || '/')) "
+                    "ORDER BY start_date ASC NULLS LAST LIMIT 1",
+                    (area.authority, ref, ref)).fetchone()
+                if local:
+                    mark_found(mp_id, ref, local[0], requested_by)
+                    stats["resolved_locally"] += 1
+                    continue
                 match = None
                 for raw in lookup_reference(area.authority, ref, cfg):
                     row = normalize(raw, area.name, home)
@@ -231,19 +260,7 @@ def run_parent_hunt(conn, job: dict) -> dict:
                 if match:
                     row, raw = match
                     ledger.upsert(row, in_leads=False, raw=raw)
-                    conn.execute(
-                        "UPDATE missing_parents SET status = 'found', found_uid = %s, "
-                        "attempts = attempts + 1 WHERE id = %s", (row["uid"], mp_id))
-                    children = {r[0] for r in conn.execute(
-                        "SELECT pa.uid FROM project_applications pa "
-                        "JOIN projects p ON p.id = pa.project_id "
-                        "WHERE p.authority = %s AND pa.parent_ref = %s",
-                        (area.authority, ref))}
-                    if requested_by:
-                        children.add(requested_by)
-                    projects.group({row["uid"]} | children, ledger.conn)
-                    ledger.conn.commit()
-                    stats["found"] += 1
+                    mark_found(mp_id, ref, row["uid"], requested_by)
                 else:
                     conn.execute(
                         "UPDATE missing_parents SET status = 'exhausted', "

@@ -57,6 +57,9 @@ defensively. Don't select it in list queries.
 `id, uid, observed_at, old_state, new_state, decided_date, decision, last_different`.
 One row per observed state change (e.g. Undecided → Permitted). Index on `uid`.
 Useful for "recently approved" and for timelines on the detail page.
+Note (2026-10-06): first-sighting rows are no longer recorded (they duplicated
+`applications.first_seen` and were purged — 292k rows, ~54 MB). Start timelines
+from `applications.first_seen`, then apply these change rows.
 
 ## `authority_urls`
 `(authority, field, base_url)` — used by `applications_full`; UI normally doesn't
