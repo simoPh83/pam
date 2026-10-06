@@ -4,54 +4,63 @@ Running log of working sessions — what's done, what's live, what's next.
 Newest entries at the top. Keep each entry short: date, what changed, state
 of the deploy, next step.
 
-## 2026-10-06 — RLS rerun + parent-hunt config failures
+## 2026-10-06 � Parent hunt rewrite, project merge, RLS
 
-- **Project merge by parent_ref + address corroboration** (`projects.merge_linked`,
-  called at the end of `group()`): children whose `parent_ref` resolves to an
-  application in another project are merged only if addresses corroborate:
-  A same postcode, B postcode missing + street words overlap + house numbers
-  don't conflict, X2 different postcode but same number and street. Otherwise
-  logged once as "cross-reference, not merged" (e.g. agent citing other work).
-  Survivor = largest project; absorbed address keys go to new table
-  `project_aliases` so regroups land in the survivor.  B&D hunt: 139 found / 5 exhausted / 22 pending.
-  Applied result: projects 164,288 -> 162,802 (1,486 absorbed, 1,283 groups,
-  largest 8); no orphans/empty projects/duplicate memberships; 113 links left
-  as cross-references. Local code, **not yet committed/deployed**; `project_aliases`
-  needs RLS added in scripts/rls.sql.
-- Fixed `scripts/rls.sql` reruns: drop the existing `authenticated read`
-  policies before recreating them on `projects`, `project_applications`,
-  and `missing_parents`. The fetcher-table policy loop was already idempotent.
-- Fixed worker argument construction for `parent_hunt`: jobs store the
-  authority (used for parent resolution), while `--area` expects the matching
-  configured area name. Resolve authority to config name before running fetch.
-- `apply_rls.py` ran successfully against the DB (anon denied; authenticated
-  read-only). Needs Supabase **Session pooler** URL (direct host is IPv6-only).
-- Analysis: `projects.last_updated` is Oct 2026 for ~all projects (backfill
-  stamped them), so the "last N months" filter in `enqueue_parent_hunt` is a
-  no-op: 1 and 9 months both give 542 jobs / 9,229 refs. 2021–2023 hold ~5.6k
-  refs. Ideas: use max applications.last_changed as activity signal, skip
-  2000–2012, cap jobs/night. **Undecided.**
-- Deleted 524 pending parent_hunt jobs (all except Barking and Dagenham, which
-  is the trial run). Added `AUTO_PARENT_HUNT` env switch (default off) so the
-  worker no longer re-enqueues hunts at startup/nightly. Manual
-  `enqueue-parent-hunt` still works.
-- Code changes are local and **not deployed**. Until deployed, a worker
-  restart WILL re-enqueue ~537 hunts. Next: check Barking and Dagenham
-  results, then decide staggered strategy (PlanIt API load is the concern).
+**State at end of session (pick up here):**
+- Code is committed/pushed by the user (hunt rewrite + merge + RLS files);
+  confirm Railway deployed it before relying on any of it.
+- **Wandsworth parent_hunt (job 47960) was still running** (checked ~16:35:
+  150 looked up, 131 found, 19 not found, 21 pending left). User wants to
+  review its result before enqueuing the other authorities. Review checklist:
+  found/exhausted split, "cross-reference, not merged" lines in the worker
+  log, no hunt rows flagged as leads (`in_leads_sheet` false), no empty
+  projects / orphans, new pending refs from chains.
+- **Nothing is scheduled nightly for hunts.** `AUTO_PARENT_HUNT` defaults to
+  off (code in `maybe_schedule_sync`); only the daily sync is enqueued (from
+  05:00 UTC). Check the Railway env var is NOT set to 1. Hunts run only when
+  enqueued manually: `python -m pam.worker enqueue-parent-hunt` (one job per
+  authority with pending refs; 29 authorities, ~9k refs left, Tower Hamlets
+  683, Barnet 593, Camden 558...) or a single authority via `enqueue()`.
+  Daily syncs DO group new apps (and add new `missing_parents`), but nothing
+  hunts them until a hunt is enqueued.
+- Open decisions: pace (`HUNT_DELAY_SECONDS`, default 10s; ~9k lookups is
+  ~25h+), whether to add an off-peak window / cap per night, whether to turn
+  on `AUTO_PARENT_HUNT` once the hit rate is confirmed (B&D 139 found / 5
+  exhausted; Wandsworth ~87% found).
+- Open: ~40 `in_leads_sheet=true` apps with decided_date < 2023-10-01 (likely
+  hunt-kept B&D parents) to check/unflag; `projects.last_updated` is not a
+  usable activity signal (backfill stamped Oct 2026); other pending items from
+  earlier logs (practices tables, alerts, PlanIt pacing/User-Agent).
+
+**Done today:**
+- Fixed `scripts/rls.sql` reruns (drop policy if exists) and the hunt
+  authority-name vs config-slug mismatch in `job_argv`. Added Session pooler
+  note: direct Supabase host is IPv6-only, use pooler URL (port 5432).
 - **Hunt rewritten (per-reference lookup)**: old hunts stored everything
-  fetched (~10.5k B&D rows flagged as leads). PlanIt supports
-  `id_match=<ref>` + `auth=<authority>` (exact, one ref per request; lists,
-  pipes, repeated params don't work). `worker.run_parent_hunt` now: one job
-  per authority, loops pending `missing_parents` (ref_year not null, newest
-  first), calls `api.lookup_reference`, upserts the match with in_leads=False,
-  marks `found` (before regrouping), regroups parent + children, marks misses
-  `exhausted`, follows new chains. Pace: `HUNT_DELAY_SECONDS` (default 10s).
-  `enqueue-parent-hunt` enqueues one job per authority (no --months).
-  Live test on 4 B&D refs: 2 found, 2 exhausted; works. ~9.2k refs total.
-- **Cleanup applied** (worker stopped): deleted 10,495 B&D apps + state_history,
-  10,181 memberships, 266 junk pending refs, 24 old hunt jobs; 42 hunt-target
-  rows kept. Open: ~40 flagged leads with decided_date < 2023-10-01 to check.
-- Still local/uncommitted; deploy, restart worker, then enqueue-parent-hunt.
+  fetched. PlanIt `id_match=<ref>` + `auth=<authority>` gives an exact match,
+  one ref per request (lists/pipes/repeated params don't work; confirmed in
+  docs). `worker.run_parent_hunt`: one job per authority, loops pending
+  `missing_parents` (ref_year not null, newest first), `api.lookup_reference`,
+  upserts the match with in_leads=False, marks `found` before regrouping,
+  regroups parent + children, marks misses `exhausted`, follows chains.
+  Job stats: looked_up/found/not_found every 50 lookups.
+- **Cleanup applied**: deleted 10,495 B&D apps + state_history, 10,181
+  memberships, 266 junk pending refs, 24 old hunt jobs; 42 hunt-target rows kept.
+- **Project merge** (`projects.merge_linked`, run at end of `group()`):
+  children whose `parent_ref` lives in another project are merged only if
+  addresses corroborate (A same postcode; B postcode missing + street words
+  overlap + house numbers don't conflict; X2 different postcode but same
+  number and street). Else logged once as "cross-reference, not merged".
+  Survivor = largest project; absorbed address keys go to `project_aliases`
+  so regroups land in the survivor. Applied to DB: projects 164,288 ->
+  162,802 (1,486 absorbed, 1,283 groups, largest 8); integrity checks clean;
+  ~112 links left as cross-references. Barking Riverside multi-phase sites
+  deliberately left unmerged.
+- **RLS**: `project_aliases` added; found and fixed `missing_parents` being
+  writable by `authenticated` (revoked insert/update/delete). `apply_rls.py`
+  now verifies projects, project_applications, missing_parents,
+  project_aliases. All tables: anon denied, authenticated read-only.
+- B&D hunt result: 139 found / 5 exhausted / 22 pending (chains).
 ## 2026-10-05 (evening) — root semantics + parent finder (point 1 & 3)
 
 **Done (code + DB, both live):**
