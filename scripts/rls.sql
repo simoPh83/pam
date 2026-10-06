@@ -40,7 +40,9 @@ revoke insert, update, delete on projects from authenticated;
 grant select on projects to authenticated;
 revoke insert, update, delete on project_applications from authenticated;
 grant select on project_applications to authenticated;
+drop policy if exists "authenticated read" on projects;
 create policy "authenticated read" on projects for select to authenticated using (true);
+drop policy if exists "authenticated read" on project_applications;
 create policy "authenticated read" on project_applications for select to authenticated using (true);
 
 
@@ -48,4 +50,5 @@ create policy "authenticated read" on project_applications for select to authent
 alter table missing_parents enable row level security;
 revoke all on missing_parents from anon;
 grant select on missing_parents to authenticated;
+drop policy if exists "authenticated read" on missing_parents;
 create policy "authenticated read" on missing_parents for select to authenticated using (true);

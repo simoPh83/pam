@@ -145,7 +145,17 @@ def claim(conn) -> dict | None:
 
 
 def job_argv(job: dict) -> list[str]:
-    argv = ["--area", job["area"]]
+    area = job["area"]
+    if job["kind"] == "parent_hunt":
+        configured_area = next(
+            (a.name for a in load_config(argv=[]).areas if a.authority == area),
+            None,
+        )
+        if configured_area is None:
+            raise ValueError(f"No configured area for authority '{area}'")
+        area = configured_area
+
+    argv = ["--area", area]
     if job["kind"] == "sync":
         argv += ["--since", job["since"].isoformat()]
     else:

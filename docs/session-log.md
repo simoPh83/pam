@@ -4,6 +4,18 @@ Running log of working sessions — what's done, what's live, what's next.
 Newest entries at the top. Keep each entry short: date, what changed, state
 of the deploy, next step.
 
+## 2026-10-06 — RLS rerun + parent-hunt config failures
+
+- Fixed `scripts/rls.sql` reruns: drop the existing `authenticated read`
+  policies before recreating them on `projects`, `project_applications`,
+  and `missing_parents`. The fetcher-table policy loop was already idempotent.
+- Fixed worker argument construction for `parent_hunt`: jobs store the
+  authority (used for parent resolution), while `--area` expects the matching
+  configured area name. Resolve authority to config name before running fetch.
+- Code changes are local and **not deployed**; worker was stopped per user
+  report. After deploy, rerun `python scripts/apply_rls.py`, then resume the
+  worker and confirm parent-hunt jobs are using configured area names.
+
 ## 2026-10-05 (evening) — root semantics + parent finder (point 1 & 3)
 
 **Done (code + DB, both live):**
