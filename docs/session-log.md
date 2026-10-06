@@ -23,12 +23,18 @@ our own DB by exact-or-prefix — no API call was ever needed.** Fixes:
 - `worker.run_parent_hunt`: local-first resolution (exact or prefix in our
   DB) — marks found with the existing uid, no API call, no 10s delay; API
   lookup only for refs we don't hold. New `resolved_locally` stat.
-- **After deploy:** flip the false-exhausted rows back to pending so the hunt
-  re-resolves them locally: `UPDATE missing_parents mp SET status='pending',
-  attempts=0 WHERE status='exhausted' AND EXISTS (SELECT 1 FROM applications a
-  WHERE a.authority=mp.authority AND (upper(a.reference)=mp.reference OR
-  starts_with(upper(a.reference), mp.reference || '/')))` (162 rows, TH only).
-  Do NOT flip before deploy or the old-code worker re-burns an API call on each.
+- **DONE (~23:55):** user deployed; worker immediately began resolving parents
+  (found 0 → 26 within minutes). Flipped ALL 194 TH exhausted rows back to
+  pending (168 with local matches resolve free; 26 genuine misses get one
+  final API re-check). Running job 47961 picks them up automatically — no
+  re-enqueue needed. By ~00:00: pending 696 and draining, found 27,
+  re-exhausted 10.
+- Note: job `stats` in the jobs table lags during local-resolution streaks
+  (flushed every 50 API lookups only; local hits don't increment looked_up).
+- TODO (minor): `ref_year_of` extracts bogus years from zero-padded sequence
+  numbers — 'PA/15/02027' (a 2015 app) yields 2027 via the '2027' inside
+  '02027', so genuinely-old refs sort newest-first in the hunt queue.
+  Ordering-only impact; consider word-boundaried year matching.
 - Side observation: 4 TH refs have duplicate applications rows with the same
   reference string (e.g. two rows of PA/23/01979/A1) — investigate separately.
 - Idea parked: for suffix-less refs with no local match, could try common
