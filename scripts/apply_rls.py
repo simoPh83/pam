@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from pam.config import load_dotenv  # noqa: E402
 
 TABLES = ["applications", "state_history", "fetch_progress", "authority_urls",
-          "jobs", "applications_full"]
+          "jobs", "applications_full", "projects", "project_applications",
+          "missing_parents", "project_aliases"]
 
 
 def main() -> None:

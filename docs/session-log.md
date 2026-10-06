@@ -6,6 +6,18 @@ of the deploy, next step.
 
 ## 2026-10-06 — RLS rerun + parent-hunt config failures
 
+- **Project merge by parent_ref + address corroboration** (`projects.merge_linked`,
+  called at the end of `group()`): children whose `parent_ref` resolves to an
+  application in another project are merged only if addresses corroborate:
+  A same postcode, B postcode missing + street words overlap + house numbers
+  don't conflict, X2 different postcode but same number and street. Otherwise
+  logged once as "cross-reference, not merged" (e.g. agent citing other work).
+  Survivor = largest project; absorbed address keys go to new table
+  `project_aliases` so regroups land in the survivor.  B&D hunt: 139 found / 5 exhausted / 22 pending.
+  Applied result: projects 164,288 -> 162,802 (1,486 absorbed, 1,283 groups,
+  largest 8); no orphans/empty projects/duplicate memberships; 113 links left
+  as cross-references. Local code, **not yet committed/deployed**; `project_aliases`
+  needs RLS added in scripts/rls.sql.
 - Fixed `scripts/rls.sql` reruns: drop the existing `authenticated read`
   policies before recreating them on `projects`, `project_applications`,
   and `missing_parents`. The fetcher-table policy loop was already idempotent.

@@ -38,6 +38,12 @@ CREATE TABLE IF NOT EXISTS project_applications (
     has_parent_refs BOOLEAN NOT NULL DEFAULT false,
     PRIMARY KEY (project_id, uid)
 );
+CREATE TABLE IF NOT EXISTS project_aliases (
+    authority   TEXT NOT NULL,
+    address_key TEXT NOT NULL,
+    project_id  BIGINT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    PRIMARY KEY (authority, address_key)
+);
 CREATE INDEX IF NOT EXISTS idx_project_applications_uid ON project_applications (uid);
 CREATE TABLE IF NOT EXISTS missing_parents (
     id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -179,8 +185,15 @@ def group(uids, conn) -> int:
     # Pass 2: resolve refs per authority (one query each), pick earliest
     resolved = {a: _resolve_refs(refs, a, conn) for a, refs in all_refs.items()}
 
-    # Pass 3: bulk-insert projects, then read back their ids
+    # Pass 3: bulk-insert projects, then read back their ids. Address keys
+    # that were merged into another project (project_aliases) map to it.
     keys = list(prepared)
+    alias = {(a, k): pid for a, k, pid in conn.execute(
+        "SELECT al.authority, al.address_key, al.project_id FROM project_aliases al "
+        "JOIN (SELECT * FROM unnest(%s::text[], %s::text[])) v(authority, address_key) "
+        "ON v.authority = al.authority AND v.address_key = al.address_key",
+        ([k[0] for k in keys], [k[1] for k in keys])).fetchall()}
+    new_keys = [k for k in keys if k not in alias]
     conn.execute(
         "INSERT INTO projects (authority, name, address_key) "
         "SELECT authority, min(name), address_key FROM ("
@@ -188,15 +201,16 @@ def group(uids, conn) -> int:
         ") v(authority, name, address_key) "
         "GROUP BY authority, address_key "
         "ON CONFLICT (authority, address_key) DO NOTHING",
-        ([k[0] for k in keys],
-         [min((m[1] for m in prepared[k] if m[1]), default=None) for k in keys],
-         [k[1] for k in keys]))
+        ([k[0] for k in new_keys],
+         [min((m[1] for m in prepared[k] if m[1]), default=None) for k in new_keys],
+         [k[1] for k in new_keys]))
     id_rows = conn.execute(
         "SELECT p.authority, p.address_key, p.id FROM projects p "
         "JOIN (SELECT * FROM unnest(%s::text[], %s::text[])) v(authority, address_key) "
         "ON v.authority = p.authority AND v.address_key = p.address_key",
-        ([k[0] for k in keys], [k[1] for k in keys])).fetchall()
+        ([k[0] for k in new_keys], [k[1] for k in new_keys])).fetchall()
     pid_of = {(a, k): pid for a, k, pid in id_rows}
+    pid_of.update(alias)
 
     # Pass 4: bulk-upsert memberships
     memberships = []
@@ -235,7 +249,20 @@ def group(uids, conn) -> int:
                 unresolved)
 
     # Pass 5: refresh aggregates for touched projects in one set-based pass
-    pids = list(pid_of.values())
+    pids = sorted(set(pid_of.values()))
+    refresh(conn, pids)
+
+    # Pass 6: fold projects together when a child's parent_ref lives elsewhere
+    # and the addresses corroborate it
+    merge_linked(conn, pids)
+
+    grouped = len(memberships)
+    log.info("Grouped %s applications into %s projects", grouped, len(pid_of))
+    return grouped
+
+
+def refresh(conn, pids) -> None:
+    """Recompute counts, root, latest and root_in_db for the given projects."""
     conn.execute(
         """
         UPDATE projects p SET
@@ -279,21 +306,135 @@ def group(uids, conn) -> int:
         "  WHERE pa.project_id = p.id) "
         "WHERE p.id = ANY(%s)", (pids,))
 
-    # Merge candidates: chosen parent_ref lives in a different project
-    refs_used = sorted({ref for _pid, _uid, ref, _r, _h in memberships if ref})
-    if refs_used:
-        other = {}
-        for ref, pid in conn.execute(
-                "SELECT upper(a.reference), pa.project_id "
-                "FROM project_applications pa "
-                "JOIN applications a ON a.uid = pa.uid "
-                "WHERE upper(a.reference) = ANY(%s)", (refs_used,)):
-            other.setdefault(ref, set()).add(pid)
-        for pid, _uid, ref, _r, _h in memberships:
-            if ref and any(p != pid for p in other.get(ref, ())):
-                log.info("merge candidate: project %s parent_ref %s also in "
-                         "project %s", pid, ref, sorted(other[ref] - {pid}))
 
-    grouped = len(memberships)
-    log.info("Grouped %s applications into %s projects", grouped, len(pid_of))
-    return grouped
+_PC_RE = re.compile(r"\b[a-z]{1,2}\d[a-z\d]?\s*\d[a-z]{2}\b", re.I)
+_STOP = {"and", "the", "of", "london", "barking", "dagenham", "road", "rd",
+         "street", "st", "avenue", "ave", "lane", "close", "way", "court",
+         "gardens", "house", "lodge"}
+
+
+def _pc(x) -> str:
+    return re.sub(r"\s", "", (x or "").upper())
+
+
+def _addr(a) -> str:
+    return _PC_RE.sub(" ", a or "").lower()
+
+
+def _nums(a) -> set[str]:
+    return set(re.findall(r"\b\d+[a-z]?\b", _addr(a)))
+
+
+def _words(a) -> set[str]:
+    return set(re.findall(r"[a-z]{3,}", _addr(a))) - _STOP
+
+
+def _street_ok(a, b) -> bool:
+    wa, wb = _words(a), _words(b)
+    return bool(wa and wb) and len(wa & wb) / min(len(wa), len(wb)) >= 0.6
+
+
+def link_rule(c_addr, c_pc, p_addr, p_pc) -> str | None:
+    """Which corroboration rule (if any) says child and parent are one site.
+    A: same postcode. B: a postcode is missing, street words overlap and house
+    numbers don't conflict. X2: postcodes differ but house number and street
+    match. Anything else is a cross-reference and stays separate."""
+    a, b = _pc(c_pc), _pc(p_pc)
+    if a and b:
+        if a == b:
+            return "A"
+        na, nb = _nums(c_addr), _nums(p_addr)
+        return "X2" if na and nb and na & nb and _street_ok(c_addr, p_addr) else None
+    if _street_ok(c_addr, p_addr):
+        na, nb = _nums(c_addr), _nums(p_addr)
+        if not na or not nb or na & nb:
+            return "B"
+    return None
+
+
+def merge_linked(conn, pids=None, dry_run: bool = False) -> dict:
+    """Merge projects linked by a corroborated child -> parent_ref edge.
+
+    pids limits the scan to edges whose child project is in pids (None = all).
+    The survivor of each group is its largest project (lowest id on ties); the
+    absorbed address keys become aliases so later regroups land in the survivor.
+    """
+    params: tuple = ()
+    where = ""
+    if pids is not None:
+        if not pids:
+            return {}
+        where = "WHERE pa.project_id = ANY(%s)"
+        params = (list(pids),)
+    rows = conn.execute(
+        "SELECT DISTINCT pa.project_id, pb.project_id, pa.parent_ref, "
+        "ch.address, ch.postcode, par.address, par.postcode "
+        "FROM project_applications pa "
+        "JOIN applications ch ON ch.uid = pa.uid "
+        "JOIN applications par ON par.authority = ch.authority "
+        "  AND upper(par.reference) = pa.parent_ref "
+        "JOIN project_applications pb ON pb.uid = par.uid "
+        "  AND pb.project_id <> pa.project_id " + where, params).fetchall()
+
+    stats: dict = {"links": len(rows)}
+    edges = set()
+    unmerged = set()
+    for cp, pp, ref, ca, cpc, pa_, ppc in rows:
+        rule = link_rule(ca, cpc, pa_, ppc)
+        if rule:
+            stats[rule] = stats.get(rule, 0) + 1
+            edges.add((cp, pp))
+        else:
+            unmerged.add((cp, ref, pp))
+    for cp, ref, pp in sorted(unmerged):
+        log.info("cross-reference, not merged: project %s cites %s (project %s)",
+                 cp, ref, pp)
+    stats["not_merged"] = len(unmerged)
+
+    parent: dict[int, int] = {}
+
+    def find(x: int) -> int:
+        while parent.setdefault(x, x) != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for a, b in edges:
+        parent[find(a)] = find(b)
+    groups: dict[int, set[int]] = {}
+    for x in list(parent):
+        groups.setdefault(find(x), set()).add(x)
+    groups = {r: g for r, g in groups.items() if len(g) > 1}
+    stats["groups"] = len(groups)
+    stats["absorbed"] = sum(len(g) - 1 for g in groups.values())
+    stats["largest"] = max((len(g) for g in groups.values()), default=0)
+    if dry_run or not groups:
+        return stats
+
+    sizes = dict(conn.execute(
+        "SELECT id, n_applications FROM projects WHERE id = ANY(%s)",
+        (sorted({p for g in groups.values() for p in g}),)).fetchall())
+    survivors = []
+    for g in groups.values():
+        keep = max(g, key=lambda p: (sizes.get(p, 0), -p))
+        gone = sorted(g - {keep})
+        conn.execute(
+            "INSERT INTO project_aliases (authority, address_key, project_id) "
+            "SELECT authority, address_key, %s FROM projects WHERE id = ANY(%s) "
+            "ON CONFLICT (authority, address_key) DO UPDATE "
+            "SET project_id = excluded.project_id", (keep, gone))
+        conn.execute(
+            "UPDATE project_aliases SET project_id = %s WHERE project_id = ANY(%s)",
+            (keep, gone))
+        conn.execute(
+            "INSERT INTO project_applications (project_id, uid, parent_ref, role, "
+            "has_parent_refs) SELECT %s, uid, parent_ref, role, has_parent_refs "
+            "FROM project_applications WHERE project_id = ANY(%s) "
+            "ON CONFLICT (project_id, uid) DO NOTHING", (keep, gone))
+        conn.execute("UPDATE missing_parents SET project_id = %s "
+                     "WHERE project_id = ANY(%s)", (keep, gone))
+        conn.execute("DELETE FROM projects WHERE id = ANY(%s)", (gone,))
+        survivors.append(keep)
+    refresh(conn, survivors)
+    log.info("Merged %s projects into %s", stats["absorbed"], len(groups))
+    return stats
