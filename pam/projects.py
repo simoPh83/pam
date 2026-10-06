@@ -39,12 +39,26 @@ CREATE TABLE IF NOT EXISTS project_applications (
     PRIMARY KEY (project_id, uid)
 );
 CREATE INDEX IF NOT EXISTS idx_project_applications_uid ON project_applications (uid);
+CREATE TABLE IF NOT EXISTS missing_parents (
+    id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    authority    TEXT NOT NULL,
+    reference    TEXT NOT NULL,          -- unresolved parent ref (upper-case)
+    ref_year     SMALLINT,               -- parsed from the ref, if possible
+    requested_by TEXT,                   -- uid of the child application citing it
+    project_id   BIGINT REFERENCES projects(id) ON DELETE SET NULL,
+    status       TEXT NOT NULL DEFAULT 'pending',  -- pending|found|exhausted
+    attempts     INTEGER NOT NULL DEFAULT 0,
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    found_uid    TEXT,
+    UNIQUE (authority, reference)
+);
 """
 
 # Columns added after first release — applied idempotently by ensure_schema().
 MIGRATIONS = (
     "ALTER TABLE project_applications ADD COLUMN IF NOT EXISTS "
     "has_parent_refs BOOLEAN NOT NULL DEFAULT false",
+    "ALTER TABLE projects ADD COLUMN IF NOT EXISTS root_in_db BOOLEAN",
 )
 
 
@@ -91,6 +105,31 @@ def role_of(description: str | None, app_type: str | None = None) -> str:
             or "discharge" in text or "condition" in text):
         return "discharge"
     return "original"
+
+
+_YEAR4 = re.compile(r"(?:19|20)\d{2}")
+_YEAR2 = re.compile(r"(?:^|/)(\d{2})/")
+
+
+def ref_year_of(ref: str) -> int | None:
+    """Year embedded in a council reference, e.g. P2018/2269/FUL → 2018,
+    2018/1234/P → 2018, PA/18/01585 → 2018, 18/06246/FUL → 2018.
+    Returns None for implausible years (condition numbers, drawing refs and
+    other regex false positives) and for pre-2000 years: PlanIt's historical
+    coverage starts 2000–2002 depending on the authority, so those refs can
+    never resolve."""
+    from datetime import date
+    lo, hi = 2000, date.today().year + 1
+    m = _YEAR4.search(ref)
+    if m:
+        year = int(m.group(0))
+        return year if lo <= year <= hi else None
+    m = _YEAR2.search(ref)
+    if m:
+        yy = int(m.group(1))
+        year = 2000 + yy if yy < 30 else 1900 + yy
+        return year if lo <= year <= hi else None
+    return None
 
 
 def parent_refs_of(description: str | None) -> list[str]:
@@ -177,6 +216,24 @@ def group(uids, conn) -> int:
             "has_parent_refs = excluded.has_parent_refs",
             memberships)
 
+    # Pass 4b: record unresolved refs for the parent hunt (scoped later to
+    # recently-active projects; here we just keep the catalogue complete)
+    unresolved = []  # (authority, reference, ref_year, child uid, project id)
+    for (auth, key), members in prepared.items():
+        pid = pid_of[(auth, key)]
+        for uid, _name, _role, refs in members:
+            for ref in refs:
+                if ref not in resolved.get(auth, {}):
+                    unresolved.append((auth, ref, ref_year_of(ref), uid, pid))
+    if unresolved:
+        with conn.cursor() as cur:
+            cur.executemany(
+                "INSERT INTO missing_parents "
+                "(authority, reference, ref_year, requested_by, project_id) "
+                "VALUES (%s, %s, %s, %s, %s) "
+                "ON CONFLICT (authority, reference) DO NOTHING",
+                unresolved)
+
     # Pass 5: refresh aggregates for touched projects in one set-based pass
     pids = list(pid_of.values())
     conn.execute(
@@ -213,6 +270,14 @@ def group(uids, conn) -> int:
     conn.execute(
         "UPDATE project_applications pa SET is_root = (pa.uid = p.root_uid) "
         "FROM projects p WHERE p.id = pa.project_id AND p.id = ANY(%s)", (pids,))
+    # root_in_db: no member still waiting on an unresolved parent ref
+    conn.execute(
+        "UPDATE projects p SET root_in_db = NOT EXISTS ("
+        "  SELECT 1 FROM project_applications pa "
+        "  JOIN missing_parents mp ON mp.authority = p.authority "
+        "    AND mp.reference = pa.parent_ref AND mp.status <> 'found'"
+        "  WHERE pa.project_id = p.id) "
+        "WHERE p.id = ANY(%s)", (pids,))
 
     # Merge candidates: chosen parent_ref lives in a different project
     refs_used = sorted({ref for _pid, _uid, ref, _r, _h in memberships if ref})

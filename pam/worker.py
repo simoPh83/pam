@@ -40,7 +40,7 @@ SYNC_DAYS = int(os.environ.get("SYNC_DAYS", "2"))  # --since = today - SYNC_DAYS
 JOBS_DDL = """
 CREATE TABLE IF NOT EXISTS jobs (
     id          BIGSERIAL PRIMARY KEY,
-    kind        TEXT NOT NULL,              -- backfill | sync
+    kind        TEXT NOT NULL,              -- backfill | sync | parent_hunt
     area        TEXT NOT NULL,
     start_date  DATE,
     end_date    DATE,
@@ -74,8 +74,8 @@ def connect() -> psycopg.Connection:
 
 def enqueue(conn, *, kind: str, area: str, start: date | None = None,
             end: date | None = None, since: date | None = None,
-            priority: int = 0) -> bool:
-    key = f"{kind}:{area}:{start}:{end}:{since}"
+            priority: int = 0, dedupe_suffix: str = "") -> bool:
+    key = f"{kind}:{area}:{start}:{end}:{since}{dedupe_suffix}"
     cur = conn.execute(
         "INSERT INTO jobs (kind, area, start_date, end_date, since, priority, dedupe_key) "
         "VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT (dedupe_key) DO NOTHING",
@@ -178,6 +178,32 @@ def process(conn, job: dict) -> None:
         (json.dumps(stats), job["id"]),
     )
     log.info("Job %s done: %s", job["id"], stats)
+    if job["kind"] == "parent_hunt":
+        resolve_parents(conn, job)
+
+
+def resolve_parents(conn, job: dict) -> None:
+    """After a parent_hunt window fetch: mark refs that turned up as found,
+    count attempts for the rest, exhaust after 2 tries (year-boundary refs get
+    one retry via the adjacent-year job enqueued by the bootstrap)."""
+    year = job["start_date"].year
+    found = conn.execute(
+        """
+        UPDATE missing_parents mp SET status = 'found', found_uid = a.uid
+        FROM applications a
+        WHERE mp.authority = %(a)s AND upper(a.reference) = mp.reference
+          AND mp.authority = a.authority AND mp.status <> 'found'
+          AND mp.ref_year = %(y)s
+        RETURNING mp.id
+        """, {"a": job["area"], "y": year}).fetchall()
+    conn.execute(
+        """
+        UPDATE missing_parents SET attempts = attempts + 1,
+            status = CASE WHEN attempts + 1 >= 2 THEN 'exhausted' ELSE status END
+        WHERE authority = %(a)s AND ref_year = %(y)s AND status = 'pending'
+        """, {"a": job["area"], "y": year})
+    log.info("Parent hunt %s/%s: %d refs resolved", job["area"], year,
+             len(found))
 
 
 def requeue_interrupted(conn) -> None:
@@ -192,6 +218,9 @@ def maybe_schedule_sync(conn) -> None:
         added = enqueue_sync(conn)  # deduped per day by the since date
         if added:
             log.info("Scheduled %d daily sync job(s)", added)
+        hunted = enqueue_parent_hunt(conn)  # deduped; no-op when none pending
+        if hunted:
+            log.info("Scheduled %d parent-hunt job(s)", hunted)
 
 
 def loop(once: bool) -> None:
@@ -239,6 +268,10 @@ def main() -> None:
     bf.add_argument("--priority", type=int, default=0)
     sy = sub.add_parser("enqueue-sync")
     sy.add_argument("--days", type=int, default=SYNC_DAYS)
+    ph = sub.add_parser("enqueue-parent-hunt",
+                        help="one job per (area, year) with pending missing parents")
+    ph.add_argument("--months", type=int, default=9,
+                    help="only hunt parents of projects active in the last N months")
     args = parser.parse_args()
 
     if args.cmd in ("run", "once"):
@@ -254,6 +287,35 @@ def main() -> None:
         print(f"Enqueued {added} of {len(names)} backfill job(s)")
     elif args.cmd == "enqueue-sync":
         print(f"Enqueued {enqueue_sync(conn, args.days)} sync job(s)")
+    elif args.cmd == "enqueue-parent-hunt":
+        print(f"Enqueued {enqueue_parent_hunt(conn, args.months)} parent-hunt job(s)")
+
+
+def enqueue_parent_hunt(conn, months: int = 9) -> int:
+    """One year-window fetch job per (authority, ref_year) with pending
+    missing_parents belonging to recently-active projects.
+
+    The dedupe key includes the hunt round (max attempts so far), so a group
+    can be retried once after its first hunt completes; groups at round 2 are
+    exhausted and skipped. Retry jobs re-fetch nothing (fetch_progress marks
+    the window done) — they only re-run the resolution pass."""
+    rows = conn.execute(
+        """
+        SELECT mp.authority, mp.ref_year, max(mp.attempts) AS round
+        FROM missing_parents mp
+        JOIN projects p ON p.id = mp.project_id
+        WHERE mp.status = 'pending' AND mp.ref_year IS NOT NULL
+          AND p.last_updated >= current_date - make_interval(months => %s)
+        GROUP BY 1, 2 HAVING max(mp.attempts) < 2
+        ORDER BY 1, 2
+        """, (months,)).fetchall()
+    added = 0
+    for authority, year, rnd in rows:
+        added += enqueue(conn, kind="parent_hunt", area=authority,
+                         start=date(year, 1, 1), end=date(year, 12, 31),
+                         priority=50,  # below syncs, above backfills
+                         dedupe_suffix=f":r{rnd}")
+    return added
 
 
 if __name__ == "__main__":

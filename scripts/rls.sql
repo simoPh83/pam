@@ -42,3 +42,10 @@ revoke insert, update, delete on project_applications from authenticated;
 grant select on project_applications to authenticated;
 create policy "authenticated read" on projects for select to authenticated using (true);
 create policy "authenticated read" on project_applications for select to authenticated using (true);
+
+
+-- missing_parents (2026-10-05): worker-owned, users read-only
+alter table missing_parents enable row level security;
+revoke all on missing_parents from anon;
+grant select on missing_parents to authenticated;
+create policy "authenticated read" on missing_parents for select to authenticated using (true);
