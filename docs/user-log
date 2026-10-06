@@ -1,0 +1,73 @@
+deployed but applying rls encountered error
+
+python scripts/apply_rls.py
+Traceback (most recent call last):
+  File "D:\Python playfolder\PAM\scripts\apply_rls.py", line 52, in <module>
+    main()
+    ~~~~^^
+  File "D:\Python playfolder\PAM\scripts\apply_rls.py", line 23, in main
+    conn.execute((Path(__file__).parent / "rls.sql").read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python playfolder\PAM\.venv\Lib\site-packages\psycopg\connection.py", line 304, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.DuplicateObject: policy "authenticated read" for table "projects" already exists
+
+
+
+
+
+also the runner is bumbping into errors as well so I stopped it for now
+Starting Container
+2026-10-06 06:24:43,533 INFO Scheduled 537 parent-hunt job(s)
+2026-10-06 06:24:43,543 INFO Job 2416 start: parent_hunt Barking and Dagenham (attempt 1)
+2026-10-06 06:24:43,552 ERROR Job 2416 failed: No area named 'Barking and Dagenham' in config
+2026-10-06 06:24:48,608 INFO Job 2422 start: parent_hunt Barking and Dagenham (attempt 1)
+2026-10-06 06:24:48,615 ERROR Job 2422 failed: No area named 'Barking and Dagenham' in config
+2026-10-06 06:24:53,699 INFO Job 2423 start: parent_hunt Barking and Dagenham (attempt 1)
+2026-10-06 06:24:53,707 ERROR Job 2423 failed: No area named 'Barking and Dagenham' in config
+2026-10-06 06:24:58,821 INFO Job 2424 start: parent_hunt Barking and Dagenham (attempt 1)
+2026-10-06 06:24:58,828 ERROR Job 2424 failed: No area named 'Barking and Dagenham' in config
+2026-10-06 06:25:05,162 INFO Job 2425 start: parent_hunt Barking and Dagenham (attempt 1)
+2026-10-06 06:25:05,169 ERROR Job 2425 failed: No area named 'Barking and Dagenham' in config
+2026-10-06 06:25:12,665 INFO Job 2426 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:25:12,670 ERROR Job 2426 failed: No area named 'Barnet' in config
+2026-10-06 06:25:17,806 INFO Job 2427 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:25:17,813 ERROR Job 2427 failed: No area named 'Barnet' in config
+2026-10-06 06:25:22,881 INFO Job 2428 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:25:22,888 ERROR Job 2428 failed: No area named 'Barnet' in config
+2026-10-06 06:25:27,943 INFO Job 2429 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:25:27,949 ERROR Job 2429 failed: No area named 'Barnet' in config
+2026-10-06 06:25:33,008 INFO Job 2430 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:25:33,016 ERROR Job 2430 failed: No area named 'Barnet' in config
+2026-10-06 06:25:38,986 INFO Job 2431 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:25:38,992 ERROR Job 2431 failed: No area named 'Barnet' in config
+2026-10-06 06:25:44,525 INFO Job 2432 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:25:44,533 ERROR Job 2432 failed: No area named 'Barnet' in config
+2026-10-06 06:25:50,069 INFO Job 2433 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:25:50,075 ERROR Job 2433 failed: No area named 'Barnet' in config
+2026-10-06 06:25:55,489 INFO Job 2434 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:25:55,495 ERROR Job 2434 failed: No area named 'Barnet' in config
+2026-10-06 06:26:00,910 INFO Job 2435 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:26:00,939 ERROR Job 2435 failed: No area named 'Barnet' in config
+2026-10-06 06:26:06,232 INFO Job 2436 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:26:06,237 ERROR Job 2436 failed: No area named 'Barnet' in config
+2026-10-06 06:26:11,298 INFO Job 2437 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:26:11,304 ERROR Job 2437 failed: No area named 'Barnet' in config
+2026-10-06 06:26:16,395 INFO Job 2438 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:26:16,401 ERROR Job 2438 failed: No area named 'Barnet' in config
+2026-10-06 06:26:21,474 INFO Job 2439 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:26:21,479 ERROR Job 2439 failed: No area named 'Barnet' in config
+2026-10-06 06:26:26,539 INFO Job 2440 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:26:26,549 ERROR Job 2440 failed: No area named 'Barnet' in config
+2026-10-06 06:26:31,647 INFO Job 2441 start: parent_hunt Barnet (attempt 1)
+2026-10-06 06:26:31,651 ERROR Job 2441 failed: No area named 'Barnet' in config
+2026-10-06 06:26:36,872 INFO Job 2442 start: parent_hunt Bexley (attempt 1)
+2026-10-06 06:26:36,879 ERROR Job 2442 failed: No area named 'Bexley' in config
+2026-10-06 06:26:42,082 INFO Job 2443 start: parent_hunt Bexley (attempt 1)
+2026-10-06 06:26:42,088 ERROR Job 2443 failed: No area named 'Bexley' in config
+2026-10-06 06:26:47,266 INFO Job 2444 start: parent_hunt Bexley (attempt 1)
+2026-10-06 06:26:47,271 ERROR Job 2444 failed: No area named 'Bexley' in config
+2026-10-06 06:26:52,445 INFO Job 2445 start: parent_hunt Bexley (attempt 1)
+2026-10-06 06:26:52,452 ERROR Job 2445 failed: No area named 'Bexley' in config
+2026-10-06 06:26:57,653 INFO Job 2446 start: parent_hunt Bexley (attempt 1)
+2026-10-06 06:26:57,658 ERROR Job 2446 failed: No area named 'Bexley' in config
