@@ -270,6 +270,12 @@ class Ledger:
         event_dates = [e for e in (_as_date(d("start_date")), _as_date(d("decided_date")))
                        if e]
         insert_last_updated = min(max(event_dates), today) if event_dates else today
+        # An update is dated by the PlanIt event (decision date, else PlanIt's
+        # last_different), not by when we noticed it; never moves backwards.
+        update_event = next(
+            (e for e in (_as_date(d("decided_date")), _as_date(d("last_different")),
+                         _as_date(d("start_date"))) if e), today)
+        update_event = min(update_event, today)
         prev_state = self.get_state(row["uid"])
         new_state = row.get("app_state")
         # Record genuine state changes only; a first sighting adds nothing
@@ -303,11 +309,11 @@ class Ledger:
                 agent_display  = excluded.agent_display,
                 applicant_name = COALESCE(excluded.applicant_name, applications.applicant_name),
                 last_updated   = CASE WHEN {change_checks}
-                                      THEN ?
+                                      THEN GREATEST(applications.last_updated, ?)
                                       ELSE applications.last_updated END,
                 in_leads_sheet = (applications.in_leads_sheet OR excluded.in_leads_sheet)
             """,
-            (*values, today, insert_last_updated, bool(in_leads), today),
+            (*values, today, insert_last_updated, bool(in_leads), update_event),
         )
         self.conn.commit()
 

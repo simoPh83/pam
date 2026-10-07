@@ -4,6 +4,33 @@ Running log of working sessions — what's done, what's live, what's next.
 Newest entries at the top. Keep each entry short: date, what changed, state
 of the deploy, next step.
 
+## 2026-10-07 (evening) - last_updated fix, DB emergency, retention
+
+- **Bug:** insert path stamped `last_updated = today`, so parent-hunt/backfill
+  inserts of historical applications made ~109k projects look "updated".
+  Fixed in [ledger.py](../pam/ledger.py) (insert = latest PlanIt event date;
+  update = event date, never backwards). Spec:
+  [2026-10-07-last-activity-semantics.md](2026-10-07-last-activity-semantics.md).
+- **Data cleanup:** ~288k applications rewritten, then re-done with the final
+  event-date rule; projects updated in last 7 days 160k -> ~777.
+  `projects.refresh()` run over all projects (stale `latest_uid` fixed).
+- **Emergency:** the bulk UPDATEs bloated tables + WAL; the free-tier disk
+  (500 MB DB + ~960 MB WAL) filled and Supabase flipped the project
+  **read-only**. Recovered by backing up all tables to
+  `data/backup-2026-10-07/*.csv` (gitignored), `TRUNCATE applications`,
+  deleting stale projects, COPY-reloading the kept rows. DB 811 -> ~400 MB.
+  WAL (~860 MB) recycles by itself over time; cannot CHECKPOINT as non-superuser.
+- **Retention (new):** [retention.py](../pam/retention.py) `prune()` deletes
+  projects whose `last_updated` is older than `RETENTION_MONTHS` (default 16),
+  skipping starred/annotated projects; then orphan applications,
+  `missing_parents`, `state_history`. Worker runs it **after each sync** and
+  **before each parent_hunt**; manual: `python -m pam.worker prune`.
+  16 months chosen from CSV math (1y = 66k projects, 2y = 119k, 16m = 85k /
+  178k applications) accounting for pending parent hunts.
+- **Runbook:** see "DB full / read-only" in the semantics doc.
+- **Next:** commit/push, test app; watch WAL size; `ui_outreach` is not
+  covered by retention protection.
+
 ## 2026-10-07 (midday) — spec §2 + §4: practices RLS, alerts module
 
 All 5 spec points now have backend implementations (1 root semantics, 3

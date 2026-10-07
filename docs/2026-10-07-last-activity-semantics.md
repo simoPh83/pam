@@ -1,5 +1,64 @@
 # Worker fix spec — `last_updated` pollution from parent-hunt/backfill inserts
 
+> **STATUS (2026-10-07, implemented).** Final semantics, which supersede the
+> proposals below where they differ:
+>
+> - `applications.last_updated` = date of the latest **PlanIt event**, never
+>   the date we noticed it.
+>   - **Insert:** `min(max(start_date, decided_date), today)`, else today.
+>   - **Update** (a tracked field changed): `GREATEST(existing, event)` where
+>     event = `decided_date`, else PlanIt `last_different`, else `start_date`,
+>     else today (capped at today). Never moves backwards.
+> - `projects.last_updated` = `max(member.last_updated)` (via
+>   `projects.refresh()`). `projects.latest_uid` is ordered by
+>   `coalesce(decided_date, last_updated)`, so "latest application" and
+>   "project last_updated" can legitimately differ.
+> - The §2 cleanup SQL was run, but with `state_history.observed_at`
+>   **replaced** by `coalesce(decided_date, last_different::date)` because
+>   `observed_at` is the detection date (the same pollution). Run in batches
+>   of 5,000 uids with commits.
+> - `first_seen` unchanged (discovery date, debugging only).
+>
+> ## Retention policy (rolling window)
+>
+> `pam/retention.py::prune(conn, months=RETENTION_MONTHS)` (default **16**,
+> env `RETENTION_MONTHS`). Runs automatically **after every successful sync**
+> and **before every parent_hunt**; manual: `python -m pam.worker prune`.
+>
+> 1. Delete projects with `last_updated < today - N months` (FK cascade clears
+>    `project_applications`, aliases, stars, meta). Projects that are starred
+>    or annotated are **kept**.
+> 2. Delete applications no longer in any project (ungrouped ones get 7 days
+>    grace), `missing_parents` rows whose project is gone, and `state_history`
+>    for deleted applications.
+>
+> Rationale (measured on the 2026-10-07 backup): 1y = 66.7k projects/147k
+> apps; 16m = 84.7k/178k; 2y = 119k/233k. 16 months leaves room for pending
+> parent-hunt roots (10k pending refs) while staying well under the free-tier
+> 500 MB. Caveat: `ui_outreach` has no project FK and is not protected.
+> Widening the window means re-importing from a CSV backup
+> (`data/backup-2026-10-07/`, gitignored) or re-fetching.
+>
+> ## Runbook: DB full / project read-only (Supabase free tier)
+>
+> Symptoms: writes fail, `default_transaction_read_only = on`, disk ~99%.
+> Disk cannot be resized on the free plan.
+>
+> 1. **Avoid the cause:** never run big single-transaction UPDATE/DELETE on
+>    `applications`. Every rewritten row leaves a dead tuple and WAL; batch
+>    (≤5k rows), commit per batch. Stop the worker first (it holds locks).
+> 2. Use the **direct** connection (`DATABASE_URL`, port 5432); the pooler
+>    (6543) may refuse. Per session: `SET default_transaction_read_only = off`.
+> 3. `DELETE`/`UPDATE`/plain `VACUUM` do **not** shrink files and
+>    `VACUUM FULL` needs free disk. Only `TRUNCATE` reclaims space.
+> 4. Recovery that worked: export every public table to CSV (verify counts)
+>    -> `TRUNCATE applications` -> delete stale projects -> `COPY` back only
+>    the kept rows -> `ANALYZE`.
+> 5. WAL (up to ~1 GB, `max_wal_size` 1024 MB) cannot be checkpointed by the
+>    non-superuser role; it recycles by itself. A project restart does not
+>    clear it. If still stuck, contact Supabase support or upgrade.
+> 6. Check afterwards: `select pg_size_pretty(pg_database_size(current_database()))`.
+
 **Date:** 2026-10-07 · **For:** `simoPh83/pam` (worker) · **From:** `pam-client`
 session (see `docs/session-log.md` there)
 
