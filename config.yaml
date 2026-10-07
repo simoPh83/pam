@@ -106,8 +106,11 @@ defaults:
 
 api:
   page_size: 100                # PlanIt is flaky below ~10; 100 keeps requests few
-  delay_seconds: 5              # pacing between pages — PlanIt rate-limits (429)
-  timeout_seconds: 120          #   aggressively; keep well under the radar
+  delay_seconds: 60             # pacing between pages — PlanIt etiquette: >= 60s
+                                #   between requests (also enforced as a hard floor
+                                #   in pam.api, along with a 300/day cap and the
+                                #   18:00-06:00 Europe/London overnight window)
+  timeout_seconds: 120          #   PlanIt rate-limits (429) aggressively
   max_retries: 6
 
 output:

@@ -4,6 +4,46 @@ Running log of working sessions — what's done, what's live, what's next.
 Newest entries at the top. Keep each entry short: date, what changed, state
 of the deploy, next step.
 
+## 2026-10-07 — PlanIt etiquette enforced (429 with Retry-After 19134s)
+
+During syncs + hunts, PlanIt escalated from repeated `429 waiting 442s` to a
+single `429 waiting 19134s` (~5.3h block). Root cause: we were way over the
+etiquette PlanIt publishes (captured 2026-10-05 but never implemented —
+"point 5"): sync pages at 5s, hunts at 10s, ~2,800+ requests/night vs the
+300/day cap. Full compliance now coded:
+
+- [api.py](../pam/api.py): hard **60s floor** between all requests
+  (`_gate()`), **300 requests/day cap** counted per Europe/London day, and
+  the **18:00–06:00 Europe/London window** enforced before every request —
+  outside it, `_get` raises `PlanItPaused(resume_at)`. On 429/403 the
+  request gap doubles (max 8×) for the rest of the process; a Retry-After
+  longer than 30 min raises `PlanItPaused` instead of sleeping for hours
+  (job requeues, fetch progress is checkpointed, nothing lost). User-Agent
+  now carries the contact email (simone.morciano@gmail.com).
+- [worker.py](../pam/worker.py): catches `PlanItPaused` → job back to
+  `pending` with `not_before = resume_at`, attempt not burned. New
+  `api_usage` table + `DbUsageTracker` persist the daily counter across
+  redeploys. `HUNT_DELAY` default 10s → 0 (api floor is authoritative);
+  `SYNC_HOUR_UTC` default 5 → 18 and sync scheduling is gated on the
+  overnight window.
+- [config.yaml](../config.yaml): `delay_seconds` 5 → 60.
+- requirements.txt: + `tzdata` (zoneinfo on Windows).
+- Timezone note: Railway runs in Amsterdam (CEST), PlanIt etiquette is UK
+  time — all window logic uses the `Europe/London` tz database, so BST/GMT
+  transitions and server location don't matter. Logs print UK local time
+  for resume times.
+- Tested offline: window edges in BST and GMT, cap raise, 60s floor, usage
+  counting, long-Retry-After deferral (no multi-hour sleeps).
+- **Consequence:** hunts become a slow trickle — max ~300 API lookups/day
+  shared with syncs (sync jobs have higher priority, hunts use the rest).
+  The ~9k pending refs will take weeks, not nights; local-first resolution
+  (no API call) is unaffected and stays fast. Don't mass-enqueue hunts
+  expecting overnight completion anymore.
+- **To deploy:** commit + push (Railway redeploys; worker resumes jobs).
+  On Railway, clear/ignore `HUNT_DELAY_SECONDS` and `SYNC_HOUR_UTC` env
+  vars if set (new defaults are correct). `api_usage` table self-creates on
+  worker start.
+
 ## 2026-10-06 � Parent hunt rewrite, project merge, RLS
 
 **Evening (~23:45) — TH hunt 0% hit rate investigated, suffix fix:**

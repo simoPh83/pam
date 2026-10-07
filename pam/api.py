@@ -11,6 +11,14 @@ Verified API quirks (see docs/2026.09.27-planit-api-findings.md):
 - Small page sizes are flaky; use page_size >= 10.
 - Service is slow (7-30s/page) and volunteer-run: one request at a time,
   delay between pages, generous timeouts, retry with backoff.
+
+PlanIt's published etiquette (enforced below, after a 429 with
+Retry-After ~5h on 2026-10-07 showed we were upsetting the service):
+- run overnight only, 18:00-06:00 Europe/London (PlanIt's timezone;
+  handles BST/GMT transitions — server location is irrelevant)
+- minimum 60s between requests, adaptive backoff honouring Retry-After
+- daily request cap of 300 (tracked per Europe/London day)
+- User-Agent carries a contact email
 """
 
 from __future__ import annotations
@@ -19,33 +27,134 @@ import logging
 import time
 from datetime import date, datetime, timedelta
 from typing import Iterator
+from zoneinfo import ZoneInfo
 
 import requests
 
 from .config import Area, Config
 
 BASE_URL = "https://www.planit.org.uk/api/applics/json"
-USER_AGENT = "pam-lead-monitor/0.1 (personal research; github.com/planit)"
+USER_AGENT = "pam-lead-monitor/0.1 (contact: simone.morciano@gmail.com)"
+
+# PlanIt etiquette (see module docstring)
+MIN_REQUEST_GAP = 60.0        # seconds between request starts
+DAILY_REQUEST_CAP = 300       # requests per Europe/London day
+WINDOW_START_HOUR = 18        # overnight window, Europe/London local time
+WINDOW_END_HOUR = 6
+MAX_DEFER_SECONDS = 1800      # longer Retry-After -> requeue job instead of sleeping
+PLANIT_TZ = ZoneInfo("Europe/London")
 
 log = logging.getLogger(__name__)
 
 
+class PlanItPaused(Exception):
+    """Raised before sending a request that would break PlanIt's etiquette
+    (outside the overnight window, daily cap reached, or a Retry-After too
+    long to sleep through). Callers should resume work at `resume_at`."""
+
+    def __init__(self, reason: str, resume_at: datetime) -> None:
+        super().__init__(f"{reason}; resume at {resume_at:%Y-%m-%d %H:%M} {resume_at:%Z}")
+        self.resume_at = resume_at
+
+
+class UsageTracker:
+    """Process-local per-day request counter. The worker installs a
+    Postgres-backed one (set_usage_tracker) so the cap survives redeploys."""
+
+    def __init__(self) -> None:
+        self._day: date | None = None
+        self._count = 0
+
+    def today(self) -> int:
+        self._roll()
+        return self._count
+
+    def increment(self) -> None:
+        self._roll()
+        self._count += 1
+
+    def _roll(self) -> None:
+        today = datetime.now(PLANIT_TZ).date()
+        if self._day != today:
+            self._day, self._count = today, 0
+
+
+_usage: UsageTracker = UsageTracker()
+_last_request_started = 0.0
+_gap_multiplier = 1  # doubled on each 429/403 (adaptive backoff)
+
+
+def set_usage_tracker(tracker: UsageTracker) -> None:
+    global _usage
+    _usage = tracker
+
+
+def in_window(now: datetime | None = None) -> bool:
+    """True when PlanIt's overnight window (18:00-06:00 Europe/London) is open."""
+    now = (now or datetime.now(PLANIT_TZ)).astimezone(PLANIT_TZ)
+    return now.hour >= WINDOW_START_HOUR or now.hour < WINDOW_END_HOUR
+
+
+def next_window_start(now: datetime | None = None) -> datetime:
+    """Next 18:00 Europe/London at/after `now` (timezone-aware)."""
+    now = (now or datetime.now(PLANIT_TZ)).astimezone(PLANIT_TZ)
+    start = now.replace(hour=WINDOW_START_HOUR, minute=0, second=0, microsecond=0)
+    return start if now < start else start + timedelta(days=1)
+
+
+def _clamp_to_window(resume: datetime) -> datetime:
+    return resume if in_window(resume) else next_window_start(resume)
+
+
+def _gate() -> None:
+    """Block until we may politely send one request; raise PlanItPaused when
+    waiting is pointless (window closed or daily cap hit)."""
+    global _last_request_started
+    if not in_window():
+        raise PlanItPaused("outside the 18:00-06:00 Europe/London window",
+                           next_window_start())
+    if _usage.today() >= DAILY_REQUEST_CAP:
+        raise PlanItPaused(f"daily request cap ({DAILY_REQUEST_CAP}) reached",
+                           next_window_start())
+    wait = MIN_REQUEST_GAP * _gap_multiplier - (time.monotonic() - _last_request_started)
+    if wait > 0:
+        log.info("Pacing: %.0fs until next request", wait)
+        time.sleep(wait)
+
+
 def _get(params: dict, cfg: Config, url: str = BASE_URL) -> dict:
+    global _last_request_started, _gap_multiplier
     headers = {"User-Agent": USER_AGENT}
     last_exc: Exception | None = None
     for attempt in range(cfg.max_retries):
+        _gate()
         try:
-            resp = requests.get(url, params=params, headers=headers,
-                                timeout=cfg.timeout_seconds)
+            try:
+                resp = requests.get(url, params=params, headers=headers,
+                                    timeout=cfg.timeout_seconds)
+            finally:
+                # Count every attempt — the server saw it even if it failed
+                _usage.increment()
+                _last_request_started = time.monotonic()
             if resp.status_code in (429, 403):
                 # PlanIt rate-limits aggressively (403 is a temporary block that can
                 # outlast Retry-After); retrying early escalates the penalty
+                _gap_multiplier = min(_gap_multiplier * 2, 8)
                 retry_after = resp.headers.get("Retry-After")
                 wait = (float(retry_after) + 60.0) if retry_after else 300.0 * (attempt + 1)
+                if wait > MAX_DEFER_SECONDS:
+                    # Hours-long penalty: requeue the job instead of blocking
+                    # the worker (fetch progress is checkpointed, nothing lost)
+                    raise PlanItPaused(
+                        f"rate limited ({resp.status_code}) with a long Retry-After",
+                        _clamp_to_window(datetime.now(PLANIT_TZ)
+                                         + timedelta(seconds=wait)))
                 resume = datetime.now() + timedelta(seconds=wait)
-                log.warning("Rate limited (%d); waiting %.0fs (resume at %s) before retry %d/%d",
+                log.warning("Rate limited (%d); waiting %.0fs (resume at %s) before retry %d/%d "
+                            "(request gap now %.0fs)",
                             resp.status_code, wait, resume.strftime("%H:%M"),
-                            attempt + 1, cfg.max_retries)
+                            attempt + 1, cfg.max_retries,
+                            MIN_REQUEST_GAP * _gap_multiplier)
                 time.sleep(wait)
                 continue
             resp.raise_for_status()

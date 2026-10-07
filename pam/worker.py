@@ -26,7 +26,8 @@ from datetime import date, datetime, timedelta, timezone
 import psycopg
 
 from . import projects
-from .api import lookup_reference
+from .api import (PlanItPaused, UsageTracker, in_window, lookup_reference,
+                  set_usage_tracker)
 from .config import DEFAULT_CONFIG_PATH, load_config, load_dotenv
 from .ledger import Ledger
 from .main import execute, geocode_home
@@ -37,12 +38,16 @@ log = logging.getLogger("pam.worker")
 MAX_ATTEMPTS = 3
 RETRY_DELAY = timedelta(minutes=10)
 POLL_SECONDS = 30
-SYNC_HOUR_UTC = int(os.environ.get("SYNC_HOUR_UTC", "5"))
+# Daily sync is enqueued at the start of PlanIt's overnight window
+# (18:00-06:00 Europe/London, enforced by pam.api); SYNC_HOUR_UTC only
+# delays the enqueue within the window.
+SYNC_HOUR_UTC = int(os.environ.get("SYNC_HOUR_UTC", "18"))
 SYNC_DAYS = int(os.environ.get("SYNC_DAYS", "2"))  # --since = today - SYNC_DAYS
 # Off by default: parent hunts are only enqueued manually (enqueue-parent-hunt).
 AUTO_PARENT_HUNT = os.environ.get("AUTO_PARENT_HUNT", "0") == "1"
-# Pause between single-reference PlanIt lookups (seconds)
-HUNT_DELAY = float(os.environ.get("HUNT_DELAY_SECONDS", "10"))
+# Extra pause between single-reference PlanIt lookups, ON TOP of the global
+# 60s floor pam.api enforces (PlanIt etiquette). 0 = rely on the floor.
+HUNT_DELAY = float(os.environ.get("HUNT_DELAY_SECONDS", "0"))
 
 JOBS_DDL = """
 CREATE TABLE IF NOT EXISTS jobs (
@@ -64,6 +69,13 @@ CREATE TABLE IF NOT EXISTS jobs (
     dedupe_key  TEXT UNIQUE
 );
 CREATE INDEX IF NOT EXISTS idx_jobs_pick ON jobs (status, priority DESC, id)
+;
+-- Daily PlanIt request counter (pam.api enforces the 300/day cap;
+-- Postgres-backed so it survives redeploys). Day is Europe/London.
+CREATE TABLE IF NOT EXISTS api_usage (
+    day         DATE PRIMARY KEY,
+    requests    INTEGER NOT NULL DEFAULT 0
+)
 """
 
 
@@ -77,6 +89,26 @@ def connect() -> psycopg.Connection:
         if stmt.strip():
             conn.execute(stmt)
     return conn
+
+
+class DbUsageTracker(UsageTracker):
+    """PlanIt request counter persisted in Postgres (api_usage table), so the
+    daily cap holds across worker restarts and redeploys."""
+
+    def __init__(self, conn: psycopg.Connection) -> None:
+        self._conn = conn
+
+    def today(self) -> int:
+        row = self._conn.execute(
+            "SELECT requests FROM api_usage "
+            "WHERE day = (now() AT TIME ZONE 'Europe/London')::date").fetchone()
+        return row[0] if row else 0
+
+    def increment(self) -> None:
+        self._conn.execute(
+            "INSERT INTO api_usage (day, requests) "
+            "VALUES ((now() AT TIME ZONE 'Europe/London')::date, 1) "
+            "ON CONFLICT (day) DO UPDATE SET requests = api_usage.requests + 1")
 
 
 def enqueue(conn, *, kind: str, area: str, start: date | None = None,
@@ -181,6 +213,14 @@ def process(conn, job: dict) -> None:
             code, stats = execute(job_argv(job))
             if code != 0:
                 raise RuntimeError(f"pam exited with code {code}")
+    except PlanItPaused as exc:
+        # PlanIt etiquette stop (window closed / daily cap / long Retry-After):
+        # requeue for later, don't burn a retry attempt
+        log.info("Job %s paused: %s", job["id"], exc)
+        conn.execute(
+            "UPDATE jobs SET status = 'pending', attempts = attempts - 1, "
+            "not_before = %s WHERE id = %s", (exc.resume_at, job["id"]))
+        return
     except (Exception, SystemExit) as exc:
         err = traceback.format_exc() if isinstance(exc, Exception) else str(exc)
         log.error("Job %s failed: %s", job["id"], exc)
@@ -284,7 +324,10 @@ def requeue_interrupted(conn) -> None:
 
 
 def maybe_schedule_sync(conn) -> None:
-    if datetime.now(timezone.utc).hour >= SYNC_HOUR_UTC:
+    """Enqueue the daily sync once PlanIt's overnight window is open and the
+    configured hour has passed (whichever is later)."""
+    now = datetime.now(timezone.utc)
+    if in_window(now) and (now.hour >= SYNC_HOUR_UTC or now.hour < 12):
         added = enqueue_sync(conn)  # deduped per day by the since date
         if added:
             log.info("Scheduled %d daily sync job(s)", added)
@@ -297,6 +340,7 @@ def maybe_schedule_sync(conn) -> None:
 def loop(once: bool) -> None:
     conn = connect()
     Ledger(os.environ["DATABASE_URL"]).close()  # make sure the data schema exists
+    set_usage_tracker(DbUsageTracker(conn))  # persist the PlanIt daily cap
     requeue_interrupted(conn)
     while True:
         if not once:

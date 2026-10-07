@@ -8,7 +8,7 @@ from datetime import date, timedelta
 
 import requests
 
-from .api import fetch_area
+from .api import PlanItPaused, fetch_area
 from .config import load_config
 from .ledger import Ledger
 from . import projects
@@ -33,7 +33,13 @@ def geocode_home(postcode: str) -> tuple[float, float] | None:
 
 
 def run(argv: list[str] | None = None) -> int:
-    return execute(argv)[0]
+    try:
+        return execute(argv)[0]
+    except PlanItPaused as exc:
+        # PlanIt etiquette stop (window closed / daily cap): exit cleanly,
+        # everything fetched so far is already checkpointed
+        log.warning("Stopping: %s", exc)
+        return 0
 
 
 def execute(argv: list[str] | None = None) -> tuple[int, dict]:
