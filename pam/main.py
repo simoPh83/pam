@@ -11,7 +11,7 @@ import requests
 from .api import PlanItPaused, fetch_area
 from .config import load_config
 from .ledger import Ledger
-from . import projects
+from . import alerts, projects
 from .spreadsheet import LeadsSheet
 from .transform import matches_filters, normalize
 
@@ -134,6 +134,8 @@ def execute(argv: list[str] | None = None) -> tuple[int, dict]:
 
         if not dry_run and touched_uids:
             projects.group(touched_uids, ledger.conn)
+            stats["alerts"] = alerts.generate(ledger.conn, touched_uids,
+                                              cfg.lead_states)
             ledger.conn.commit()
 
         if not dry_run and sheet:

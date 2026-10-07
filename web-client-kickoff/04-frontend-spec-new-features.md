@@ -1,10 +1,16 @@
-# Frontend spec — new features (2026-10-05)
+# Frontend spec — new features (2026-10-05, revised 2026-10-07)
 
 **Repo:** `pam-client` (Next.js + Supabase on Vercel).
 **Backend counterpart:** `docs/2026.10.05-backend-spec-new-features.md` in the
 `pam` repo — the worker/schema changes land there. This document covers what
 the client builds on top. Read `01-database-contract.md` and
 `03-project-grouping-ui.md` first.
+
+*2026-10-07 revision: the backend points are now implemented (root semantics,
+parent finder, PlanIt etiquette, alert generation). The client has direct
+access to the live DB — inspect tables in the Supabase dashboard rather than
+relying on DDL copied here, so this doc now lists tables/fields instead of
+full SQL.*
 
 ---
 
@@ -22,102 +28,54 @@ the client builds on top. Read `01-database-contract.md` and
 
 ## 2. New/changed schema the client uses
 
-Worker-owned (read-only for the client):
+The client is connected to the live DB — treat the Supabase dashboard as the
+source of truth for column types. Below is what each table is **for** and the
+fields the UI touches.
 
-```text
-projects      + root_in_db boolean   -- true when no member cites an
-                                     -- unresolved parent reference
-project_applications + has_parent_refs boolean
-missing_parents (authority, reference, ref_year, status, found_uid ...)
-                -- read-only; powers the "root missing" tick
-```
+### Worker-owned (read-only for the client; RLS already enforced)
 
-Client-created tables (write migrations in the client repo; RLS as below):
+- `projects` — new field **`root_in_db`** (boolean): true when no member
+  application cites an unresolved parent reference. Drives the root-presence
+  tick (§4). Existing fields the UI uses: `id, name, authority, root_uid,
+  latest_uid, n_applications, first_seen, last_updated`.
+- `project_applications` — new field **`has_parent_refs`** (boolean);
+  existing `role`, `parent_ref`, `is_root` power the tabs in §4.
+- `missing_parents` — unresolved parent references the worker is hunting.
+  Fields: `authority, reference` (upper-case), `ref_year`, `requested_by`
+  (child uid), `project_id`, **`status` = `pending | found | exhausted`**,
+  `attempts`, `found_uid`. Powers the "root missing / being fetched" tick.
 
-```sql
--- GLOBAL: architectural practices (reusable entity → many projects)
-create table practices (
-  id bigint generated always as identity primary key,
-  name text not null,
-  website text,
-  notes text,
-  created_by uuid references auth.users(id),
-  created_at timestamptz not null default now()
-);
-create unique index on practices (lower(name));
+### Client-created tables (migrations live in the client repo)
 
-create table project_practices (
-  project_id bigint not null references projects(id) on delete cascade,
-  practice_id bigint not null references practices(id) on delete cascade,
-  notes text,
-  created_by uuid references auth.users(id),
-  created_at timestamptz not null default now(),
-  primary key (project_id, practice_id)
-);
--- RLS: authenticated read+write (all), anon denied. Shared by design.
+**Global/shared** — everyone reads and writes all rows; `created_by =
+auth.uid()` is attribution only:
+- `practices` — `name` (unique case-insensitive), `website`, `notes`.
+  Deleting a practice that still has links is blocked by FK — the UI must
+  unlink first.
+- `project_practices` — `(project_id → projects, practice_id → practices)`
+  pair as PK, plus per-link `notes`.
+- *RLS safety net:* the worker repo's `scripts/rls.sql` applies the
+  "authenticated read+write, anon denied" policies if the client migrations
+  haven't — same result either way.
 
--- PER-USER: stars at project level
-create table ui_project_stars (
-  user_id uuid not null references auth.users(id),
-  project_id bigint not null references projects(id) on delete cascade,
-  created_at timestamptz not null default now(),
-  primary key (user_id, project_id)
-);
+**Read-shared, write-own:**
+- `ui_project_stars` — `(user_id, project_id → projects)` pair as PK.
+  Everyone can *read* all stars (coordination), users can only insert/delete
+  their own rows (`auth.uid() = user_id`).
 
--- PER-USER: alert rules
-create table ui_alert_rules (
-  id bigint generated always as identity primary key,
-  user_id uuid not null references auth.users(id),
-  kind text not null,        -- 'nma_filed'|'nma_approved'|'large_approved'|'discharge_decided'
-  after_days int not null default 0,
-  app_size text,             -- optional filter ('Large' etc.)
-  enabled boolean not null default true
-);
+**Per-user, private** (`auth.uid() = user_id` on all policies):
+- `ui_alert_rules` — `kind`, `after_days` (0 = same day), `app_size`
+  (optional filter), `enabled`. Valid kinds: `nma_filed`, `nma_approved`,
+  `large_approved`, `discharge_decided`. Full CRUD by the owner.
+- `ui_alerts` — `project_id`, `uid` (triggering application), `rule_id`,
+  `kind`, `due_on`, `message`, `read_at`. Unique on `(user_id, rule_id,
+  uid)`. **Select + update of `read_at` only — inserts are worker-only** (no
+  client insert policy).
+- `ui_outreach` — private outreach log (own rows only); schema defined with
+  the outreach feature, not this spec.
 
--- PER-USER: generated alerts (worker inserts; user reads + marks read)
-create table ui_alerts (
-  id bigint generated always as identity primary key,
-  user_id uuid not null references auth.users(id),
-  project_id bigint not null references projects(id) on delete cascade,
-  uid text not null,
-  rule_id bigint references ui_alert_rules(id) on delete cascade,
-  kind text not null,
-  due_on date not null,
-  message text,
-  read_at timestamptz,
-  created_at timestamptz not null default now(),
-  unique (user_id, rule_id, uid)
-);
-```
-
-RLS for the per-user tables — stars are read-shared/write-own, the rest
-strictly private:
-```sql
-alter table ui_project_stars enable row level security;
-alter table ui_alert_rules  enable row level security;
-alter table ui_alerts       enable row level security;
-alter table ui_outreach     enable row level security;
-
--- stars: everyone reads (coordination), only the owner writes
-create policy "read all stars" on ui_project_stars for select to authenticated
-  using (true);
-create policy "write own stars" on ui_project_stars for insert to authenticated
-  with check (auth.uid() = user_id);
-create policy "delete own stars" on ui_project_stars for delete to authenticated
-  using (auth.uid() = user_id);
-
--- outreach: strictly personal, not visible to other users
-create policy "own outreach" on ui_outreach for all to authenticated
-  using (auth.uid() = created_by) with check (auth.uid() = created_by);
-
-create policy "own rules" on ui_alert_rules for all to authenticated
-  using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "read own alerts" on ui_alerts for select to authenticated
-  using (auth.uid() = user_id);
-create policy "mark read" on ui_alerts for update to authenticated
-  using (auth.uid() = user_id) with check (auth.uid() = user_id);
--- no insert for authenticated: the worker generates alerts
-```
+Enable RLS on all five client tables in the same migration that creates
+them; the policy rules above are the whole model.
 
 ## 3. Leads/projects list — project-centric search
 
@@ -163,9 +121,10 @@ Tabs in **filed order** (`start_date` ascending), root first
 - **Last update date** (`applications.last_updated`) if it differs from
   filing.
 - Root tab additionally: **presence tick** — `✓ in database` when
-  `projects.root_in_db`, otherwise "original application predates our records
-  (being fetched)" — driven by `missing_parents.status`
-  (`pending`/`fetching`/`exhausted`).
+  `projects.root_in_db` is true. Otherwise look up the project's unresolved
+  refs in `missing_parents`: `pending` → "original application predates our
+  records (being fetched)"; `exhausted` → "not found on PlanIt" (a `found`
+  ref means regrouping is imminent — treat like `pending`).
 
 Suggested colour tokens: pending amber-500, approved emerald-600,
 rejected rose-600, withdrawn/neutral zinc-500.
@@ -194,6 +153,24 @@ rejected rose-600, withdrawn/neutral zinc-500.
   same practice unknowingly. Write/delete is own-rows only.
 - **Alerts inbox:** in-app list of `ui_alerts` for the user, unread first,
   grouped by `due_on`; "mark read" sets `read_at`. No email in v1.
+- **How alerts are generated (worker, already live — read-only for you):**
+  at the end of each daily sync run (overnight, 18:00–06:00 UK time), for
+  every **starred project touched by that run**, the worker evaluates the
+  project's members against the starring user's enabled rules and inserts
+  due alerts. Key semantics to set user expectations:
+  - A rule fires when the triggering event date falls within the **last 3
+    days** (tolerance for PlanIt publishing filings/decisions late).
+  - `due_on` = event date + `after_days` (so `after_days: 730` on an
+    approval creates a far-future-due alert immediately — group by `due_on`
+    keeps these out of the way).
+  - At most **one alert per (user, rule, application)**, ever — no
+    duplicates on re-runs.
+  - Alerts only cover **starred** projects, and only rules that existed
+    *before* the event (a later "sweep" for retroactive rules is a planned
+    backend addition — worth an empty-state hint: "rules apply from when
+    you create them").
+  - Until the client ships these tables, the worker skips generation
+    silently — deploy order is flexible.
 - **Alert settings page:** CRUD for the user's `ui_alert_rules`. Preset
   templates to offer:
   - "Non-material amendment filed" (kind `nma_filed`, 0 days)

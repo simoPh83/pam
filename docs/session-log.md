@@ -4,6 +4,49 @@ Running log of working sessions — what's done, what's live, what's next.
 Newest entries at the top. Keep each entry short: date, what changed, state
 of the deploy, next step.
 
+## 2026-10-07 (midday) — spec §2 + §4: practices RLS, alerts module
+
+All 5 spec points now have backend implementations (1 root semantics, 3
+parent finder, 5 PlanIt etiquette were already done).
+
+- **§2 practices** — tables are created by the client repo's migrations
+  (per the frontend spec); added a guarded, idempotent RLS block to
+  [rls.sql](../scripts/rls.sql) as a safety net: `practices` /
+  `project_practices` = first user-writable tables (authenticated
+  read+write all rows, anon denied, sequence usage granted). No-op until
+  the client creates the tables. Re-applied `apply_rls.py` against the live
+  DB: block parses, existing policies unchanged.
+- **§4 stars + alerts** — new [alerts.py](../pam/alerts.py): after each
+  run's regroup, [main.py](../pam/main.py) calls `alerts.generate(conn,
+  touched_uids, lead_states)`. For each starred project touched, evaluates
+  members against the starring users' enabled rules
+  (`nma_filed`/`nma_approved`/`large_approved`/`discharge_decided`; rule
+  `app_size` overrides the `Large` default) and inserts into `ui_alerts`,
+  idempotent via `unique(user_id, rule_id, uid)`. Ships **dark**: if the
+  ui_* tables don't exist yet it logs once and skips — worker never blocks
+  the client rollout.
+- Deviation from spec (deliberate): triggers fire when the event date is
+  within the last 3 days, not only exactly today — PlanIt publishes
+  filings/decisions late, and "== today" would miss them; the unique
+  constraint keeps re-runs idempotent. `due_on = event_date + after_days`.
+- Note: `parent_hunt` jobs don't call `alerts.generate` — hunt-found
+  parents are old applications, their events are never recent, so it would
+  no-op anyway.
+- Not done (spec, deferred): the `alert_sweep` nightly job for rules
+  created *after* the triggering event — needs the ui_ tables live first.
+- Tested offline: full `_trigger_date` matrix, end-to-end generate() with
+  fake conn (multi-user, due-date math, lag window, idempotent insert
+  shape), dark mode, empty/no-stars short-circuits.
+- **To deploy:** commit + push. Alerts go live automatically once the
+  client repo ships its migrations; until then every run logs the skip once.
+- Also revised [04-frontend-spec-new-features.md](../web-client-kickoff/04-frontend-spec-new-features.md):
+  dropped the full DDL/RLS SQL (client reads the live DB), now lists
+  tables/fields per ownership tier; fixed `missing_parents.status` values
+  (pending/found/exhausted — spec draft said "fetching"); documented the
+  live alert-generation semantics (3-day trigger window, due_on = event +
+  after_days, one alert per user/rule/app, starred-only, rules not
+  retroactive until the sweep job exists).
+
 ## 2026-10-07 — PlanIt etiquette enforced (429 with Retry-After 19134s)
 
 During syncs + hunts, PlanIt escalated from repeated `429 waiting 442s` to a

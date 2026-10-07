@@ -62,3 +62,28 @@ revoke insert, update, delete on project_aliases from authenticated;
 grant select on project_aliases to authenticated;
 drop policy if exists "authenticated read" on project_aliases;
 create policy "authenticated read" on project_aliases for select to authenticated using (true);
+
+
+-- practices / project_practices (2026-10-05 spec §2): the FIRST tables users
+-- write. Global/shared — every signed-in user reads and writes all rows;
+-- created_by is attribution only. Tables are created by the client repo's
+-- migrations; this block is a safety net — a no-op until they exist, and
+-- idempotent after (matches the client-side policies exactly).
+do $$
+declare t text;
+begin
+  foreach t in array array['practices','project_practices']
+  loop
+    if to_regclass('public.'||t) is not null then
+      execute format('alter table public.%I enable row level security', t);
+      execute format('revoke all on public.%I from anon', t);
+      execute format('grant select, insert, update, delete on public.%I to authenticated', t);
+      execute format('drop policy if exists "authenticated all" on public.%I', t);
+      execute format('create policy "authenticated all" on public.%I for all to authenticated using (true) with check (true)', t);
+    end if;
+  end loop;
+  -- identity-column sequences need usage for user inserts
+  if to_regclass('public.practices') is not null then
+    execute 'grant usage on sequence public.practices_id_seq to authenticated';
+  end if;
+end $$;
