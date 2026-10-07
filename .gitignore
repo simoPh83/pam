@@ -14,3 +14,6 @@ __pycache__/
 # local backups / scratch
 *.bak
 *.sqlite.bak
+
+# one-off DB backups (large)
+data/backup-*/

@@ -31,6 +31,7 @@ from .api import (PlanItPaused, UsageTracker, in_window, lookup_reference,
 from .config import DEFAULT_CONFIG_PATH, load_config, load_dotenv
 from .ledger import Ledger
 from .main import execute, geocode_home
+from .retention import prune
 from .transform import normalize
 
 log = logging.getLogger("pam.worker")
@@ -208,11 +209,14 @@ def process(conn, job: dict) -> None:
              job["area"], job["attempts"])
     try:
         if job["kind"] == "parent_hunt":
+            prune(conn)  # keep the window fixed before fetching more parents
             stats = run_parent_hunt(conn, job)
         else:
             code, stats = execute(job_argv(job))
             if code != 0:
                 raise RuntimeError(f"pam exited with code {code}")
+            if job["kind"] == "sync":
+                stats = {**(stats or {}), **prune(conn)}
     except PlanItPaused as exc:
         # PlanIt etiquette stop (window closed / daily cap / long Retry-After):
         # requeue for later, don't burn a retry attempt
@@ -385,6 +389,7 @@ def main() -> None:
     sy.add_argument("--days", type=int, default=SYNC_DAYS)
     ph = sub.add_parser("enqueue-parent-hunt",
                         help="one job per authority with pending missing parents")
+    sub.add_parser("prune", help="drop projects outside the retention window")
     args = parser.parse_args()
 
     if args.cmd in ("run", "once"):
@@ -400,6 +405,8 @@ def main() -> None:
         print(f"Enqueued {added} of {len(names)} backfill job(s)")
     elif args.cmd == "enqueue-sync":
         print(f"Enqueued {enqueue_sync(conn, args.days)} sync job(s)")
+    elif args.cmd == "prune":
+        print(prune(conn))
     elif args.cmd == "enqueue-parent-hunt":
         print(f"Enqueued {enqueue_parent_hunt(conn)} parent-hunt job(s)")
 

@@ -120,6 +120,19 @@ def url_base(url: str) -> str:
     return url[: url.split("?", 1)[0].rfind("/") + 1]
 
 
+def _as_date(value) -> date | None:
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    if isinstance(value, str):
+        try:
+            return date.fromisoformat(value[:10])
+        except ValueError:
+            return None
+    return None
+
+
 def _full_urls_view_sql(replace: str) -> str:
     cols, joins = [], []
     for i, field in enumerate(URL_FIELDS):
@@ -252,6 +265,11 @@ class Ledger:
         mutable = [c for c in columns
                    if c not in ("uid", "agent_name", "agent_company", "agent_address",
                                   "agent_display", "applicant_name")]
+        # A newly inserted row is stamped with its latest PlanIt event date, not
+        # the discovery date, so historical backfills don't look like activity.
+        event_dates = [e for e in (_as_date(d("start_date")), _as_date(d("decided_date")))
+                       if e]
+        insert_last_updated = min(max(event_dates), today) if event_dates else today
         prev_state = self.get_state(row["uid"])
         new_state = row.get("app_state")
         # Record genuine state changes only; a first sighting adds nothing
@@ -285,11 +303,11 @@ class Ledger:
                 agent_display  = excluded.agent_display,
                 applicant_name = COALESCE(excluded.applicant_name, applications.applicant_name),
                 last_updated   = CASE WHEN {change_checks}
-                                      THEN excluded.last_updated
+                                      THEN ?
                                       ELSE applications.last_updated END,
                 in_leads_sheet = (applications.in_leads_sheet OR excluded.in_leads_sheet)
             """,
-            (*values, today, today, bool(in_leads)),
+            (*values, today, insert_last_updated, bool(in_leads), today),
         )
         self.conn.commit()
 
