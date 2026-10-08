@@ -19,11 +19,16 @@ Retry-After ~5h on 2026-10-07 showed we were upsetting the service):
 - minimum 60s between requests, adaptive backoff honouring Retry-After
 - daily request cap of 300 (tracked per Europe/London day)
 - User-Agent carries a contact email
+
+Env overrides (Railway): PLANIT_DAILY_CAP, PLANIT_WINDOW_START,
+PLANIT_WINDOW_END. Set PLANIT_WINDOW_START=0 and PLANIT_WINDOW_END=24 to
+suspend the overnight window (e.g. the 2026-10-08 hunt catch-up).
 """
 
 from __future__ import annotations
 
 import logging
+import os
 import time
 from datetime import date, datetime, timedelta
 from typing import Iterator
@@ -38,9 +43,9 @@ USER_AGENT = "pam-lead-monitor/0.1 (contact: simone.morciano@gmail.com)"
 
 # PlanIt etiquette (see module docstring)
 MIN_REQUEST_GAP = 60.0        # seconds between request starts
-DAILY_REQUEST_CAP = 300       # requests per Europe/London day
-WINDOW_START_HOUR = 18        # overnight window, Europe/London local time
-WINDOW_END_HOUR = 6
+DAILY_REQUEST_CAP = int(os.environ.get("PLANIT_DAILY_CAP", "300"))
+WINDOW_START_HOUR = int(os.environ.get("PLANIT_WINDOW_START", "18"))
+WINDOW_END_HOUR = int(os.environ.get("PLANIT_WINDOW_END", "6"))
 MAX_DEFER_SECONDS = 1800      # longer Retry-After -> requeue job instead of sleeping
 PLANIT_TZ = ZoneInfo("Europe/London")
 
@@ -90,14 +95,19 @@ def set_usage_tracker(tracker: UsageTracker) -> None:
 
 
 def in_window(now: datetime | None = None) -> bool:
-    """True when PlanIt's overnight window (18:00-06:00 Europe/London) is open."""
+    """True when PlanIt's overnight window (18:00-06:00 Europe/London) is open.
+    WINDOW_START_HOUR=0 + WINDOW_END_HOUR=24 suspends the window entirely."""
+    if WINDOW_START_HOUR == 0 and WINDOW_END_HOUR == 24:
+        return True
     now = (now or datetime.now(PLANIT_TZ)).astimezone(PLANIT_TZ)
     return now.hour >= WINDOW_START_HOUR or now.hour < WINDOW_END_HOUR
 
 
 def next_window_start(now: datetime | None = None) -> datetime:
-    """Next 18:00 Europe/London at/after `now` (timezone-aware)."""
+    """Next opening of the window at/after `now` (timezone-aware)."""
     now = (now or datetime.now(PLANIT_TZ)).astimezone(PLANIT_TZ)
+    if WINDOW_START_HOUR == 0 and WINDOW_END_HOUR == 24:
+        return now  # window suspended: "next window" is right now
     start = now.replace(hour=WINDOW_START_HOUR, minute=0, second=0, microsecond=0)
     return start if now < start else start + timedelta(days=1)
 

@@ -4,6 +4,32 @@ Running log of working sessions — what's done, what's live, what's next.
 Newest entries at the top. Keep each entry short: date, what changed, state
 of the deploy, next step.
 
+## 2026-10-08 — hunt catch-up: limits SUSPENDED via env vars
+
+**Problem:** with the 300/day cap + overnight window, daily syncs complete
+but the parent hunts (~9k refs) barely start before the cap stops them.
+
+**Action:** pacing knobs are now env-overridable in
+[api.py](../pam/api.py): `PLANIT_DAILY_CAP` (default 300),
+`PLANIT_WINDOW_START` / `PLANIT_WINDOW_END` (defaults 18/6; `0`+`24` =
+window suspended, runs any hour). The 60s pacing and adaptive 429 backoff
+stay ON (untouched — they work well).
+
+**To run the catch-up (now):** on Railway set
+`PLANIT_WINDOW_START=0`, `PLANIT_WINDOW_END=24`,
+`PLANIT_DAILY_CAP=999999`, then redeploy. Hunts resume immediately and run
+round the clock at 60s+ pacing (~1,400 requests/day max theoretical). User
+monitors the fetch over the next days.
+
+**⚠️ TODO — RESTORE LIMITS when hunts have caught up (expected a few
+days from 2026-10-08):** on Railway set `PLANIT_WINDOW_START=18`,
+`PLANIT_WINDOW_END=6` (or delete both vars), and **`PLANIT_DAILY_CAP=400`**
+(user chose 400, slightly above PlanIt's 300 guidance, as allowance).
+Check `missing_parents` pending count ≈ 0 before restoring. After that the
+system returns to overnight-only compliance mode.
+
+## 2026-10-07 (midday) — spec §2 + §4: practices RLS, alerts module
+
 ## 2026-10-07 (evening) - last_updated fix, DB emergency, retention
 
 - **Bug:** insert path stamped `last_updated = today`, so parent-hunt/backfill
