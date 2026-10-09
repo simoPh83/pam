@@ -1,9 +1,12 @@
 """Rolling retention window: keep the DB slim by dropping stale projects.
 
 A project is dropped when its last_updated (latest real PlanIt activity in the
-chain) is older than RETENTION_MONTHS. Its applications go with it, as do
-dangling missing_parents / state_history rows. Starred or annotated projects
-are always kept.
+chain) is older than RETENTION_MONTHS, and its member applications go with it
+in the same pass (project.last_updated is the max of theirs, so they are past
+the window too). Starred or annotated projects are always kept, as is any
+application also claimed by a surviving project. Applications that never
+grouped are pruned once stale and past a short first-seen grace; dangling
+missing_parents / state_history rows go with their owners.
 """
 from __future__ import annotations
 
@@ -33,11 +36,26 @@ def prune(conn, months: int = RETENTION_MONTHS) -> dict:
     stale = [r[0] for r in conn.execute(
         f"SELECT id FROM projects WHERE last_updated < {cutoff_sql} "
         f"AND id NOT IN ({_protected_sql(conn)})", (months,))]
+    apps = 0
     for i in range(0, len(stale), BATCH):
-        conn.execute("DELETE FROM projects WHERE id = ANY(%s)",
-                     (stale[i:i + BATCH],))
+        batch = stale[i:i + BATCH]
+        # Member applications go with the project, same pass:
+        # project.last_updated is the max of theirs, so they are all past
+        # the window too. Keep any app a surviving project also claims.
+        apps += conn.execute(
+            "DELETE FROM applications a WHERE a.uid IN ("
+            "  SELECT uid FROM project_applications WHERE project_id = ANY(%s)) "
+            "AND NOT EXISTS (SELECT 1 FROM project_applications pa "
+            "                WHERE pa.uid = a.uid AND pa.project_id <> ALL(%s))",
+            (batch, batch)).rowcount
+        conn.execute("DELETE FROM projects WHERE id = ANY(%s)", (batch,))
     conn.execute("DELETE FROM missing_parents WHERE project_id IS NULL")
-    apps = conn.execute(
+    # Legacy 'found' rows: hunts now delete resolved refs outright (worker.py)
+    conn.execute("DELETE FROM missing_parents WHERE status = 'found'")
+    # Orphans: apps that never grouped (no usable address) or lost their
+    # project in an earlier pass. The 7-day first-seen grace gives freshly
+    # fetched apps time to be claimed by the grouping pass.
+    apps += conn.execute(
         f"DELETE FROM applications a WHERE a.last_updated < {cutoff_sql} "
         f"AND a.first_seen < current_date - %s "
         "AND NOT EXISTS (SELECT 1 FROM project_applications pa WHERE pa.uid = a.uid)",
