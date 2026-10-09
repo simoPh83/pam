@@ -86,7 +86,7 @@ class UsageTracker:
 
 _usage: UsageTracker = UsageTracker()
 _last_request_started = 0.0
-_gap_multiplier = 1  # doubled on each 429/403 (adaptive backoff)
+_gap_multiplier = 1  # doubled on each 429/403, halved on each success (floor 1)
 
 
 def set_usage_tracker(tracker: UsageTracker) -> None:
@@ -126,9 +126,13 @@ def _gate() -> None:
     if _usage.today() >= DAILY_REQUEST_CAP:
         raise PlanItPaused(f"daily request cap ({DAILY_REQUEST_CAP}) reached",
                            next_window_start())
-    wait = MIN_REQUEST_GAP * _gap_multiplier - (time.monotonic() - _last_request_started)
+    gap = MIN_REQUEST_GAP * _gap_multiplier
+    wait = gap - (time.monotonic() - _last_request_started)
     if wait > 0:
-        log.info("Pacing: %.0fs until next request", wait)
+        at = datetime.now(PLANIT_TZ) + timedelta(seconds=wait)
+        log.info("Pacing: %.0fs until next request (at %s London; gap %.0fs = "
+                 "%.0fs x %d backoff)", wait, at.strftime("%H:%M"), gap,
+                 MIN_REQUEST_GAP, _gap_multiplier)
         time.sleep(wait)
 
 
@@ -168,6 +172,12 @@ def _get(params: dict, cfg: Config, url: str = BASE_URL) -> dict:
                 time.sleep(wait)
                 continue
             resp.raise_for_status()
+            if _gap_multiplier > 1:
+                # Recovery: halve the backoff on each success so one bad burst
+                # doesn't slow the worker for the rest of its lifetime
+                _gap_multiplier = max(1, _gap_multiplier // 2)
+                log.info("Request OK; request gap back down to %.0fs",
+                         MIN_REQUEST_GAP * _gap_multiplier)
             return resp.json()
         except requests.RequestException as exc:
             last_exc = exc
