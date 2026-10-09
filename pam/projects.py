@@ -81,7 +81,7 @@ _UNIT = re.compile(r"\b(?:FLAT|UNIT|APARTMENT|ROOM|APPT)\s+\w+\s*,?\s*", re.I)
 _POSTCODE = re.compile(r"\s+[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\s*$", re.I)
 
 PARENT_RE = re.compile(
-    r"(?:permission|application|consent|amendments?)\s*"
+    r"(?:permission|approval|application|consent|amendments?)\s*"
     r"(?:ref(?:erence)?[.:]?\s*|no[.:]?\s*|\(\s*)?"
     r"([A-Z0-9][A-Z0-9/_.-]{4,25}\d[A-Z0-9/_.-]*)",
     re.I,
