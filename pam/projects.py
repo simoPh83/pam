@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS missing_parents (
     ref_year     SMALLINT,               -- parsed from the ref, if possible
     requested_by TEXT,                   -- uid of the child application citing it
     project_id   BIGINT REFERENCES projects(id) ON DELETE SET NULL,
-    status       TEXT NOT NULL DEFAULT 'pending',  -- pending|found|exhausted
+    status       TEXT NOT NULL DEFAULT 'pending',  -- pending|exhausted (found rows are deleted)
     attempts     INTEGER NOT NULL DEFAULT 0,
     created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
     found_uid    TEXT,

@@ -248,7 +248,8 @@ def run_parent_hunt(conn, job: dict) -> dict:
     """Look up each pending missing parent of one authority by exact reference
     (PlanIt id_match). Only the matching application is stored (never as a
     lead); the parent and the children citing it are then regrouped. A lookup
-    is definitive, so a miss marks the ref 'exhausted'. Progress is per ref, so
+    is definitive: a hit deletes the catalogue row, a miss marks the ref
+    'exhausted' so it is never looked up again. Progress is per ref, so
     an interrupted job simply resumes. Parents may cite older parents; those
     new refs are picked up by the same job."""
     cfg = load_config(argv=job_argv(job))
@@ -258,9 +259,11 @@ def run_parent_hunt(conn, job: dict) -> dict:
     stats = {"looked_up": 0, "found": 0, "not_found": 0, "resolved_locally": 0}
 
     def mark_found(mp_id: int, ref: str, uid: str, requested_by: str | None) -> None:
-        conn.execute(
-            "UPDATE missing_parents SET status = 'found', found_uid = %s, "
-            "attempts = attempts + 1 WHERE id = %s", (uid, mp_id))
+        # Resolved refs are deleted outright: the parent now lives in
+        # applications and group() resolves the ref against it, so a kept
+        # 'found' row was dead weight. 'exhausted' rows stay — they block
+        # repeat API lookups of definitive misses.
+        conn.execute("DELETE FROM missing_parents WHERE id = %s", (mp_id,))
         children = {r[0] for r in conn.execute(
             "SELECT pa.uid FROM project_applications pa "
             "JOIN projects p ON p.id = pa.project_id "
