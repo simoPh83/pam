@@ -89,6 +89,18 @@ PARENT_RE = re.compile(
     re.I,
 )
 
+# "condition(s) <list> of <REF>" — a condition discharge that cites the parent
+# by reference after the condition number(s), e.g. "contrary to condition 3 of
+# PP/00/02566". Narrow (authority-style ref shapes only) so the condition list
+# itself is never captured. Kept separate from PARENT_RE: widening the main
+# pattern to tolerate the intervening number list caused large regressions.
+CONDITION_OF_RE = re.compile(
+    r"conditions?\s+[\d,\s&]+?of\s+"
+    r"(?:planning\s+)?(?:permission|application|consent|ref(?:erence)?)?\s*"
+    r"([A-Z]{1,3}/\d{2,4}/\d{3,6}(?:/[A-Z0-9]+)?)",
+    re.I,
+)
+
 
 def address_key(address: str | None, postcode: str | None = None) -> str | None:
     if not address:
@@ -168,13 +180,20 @@ def ref_year_of(ref: str) -> int | None:
 
 
 def parent_refs_of(description: str | None) -> list[str]:
-    """All planning references mentioned in a description (deduped, ordered)."""
+    """All planning references mentioned in a description (deduped, ordered).
+
+    The PlanIt feed occasionally corrupts punctuation/quotes to a literal '?'
+    (e.g. "condition?8?...of planning?permission?PP/22/06589"); normalise
+    those to spaces before matching so the keyword context still parses.
+    """
+    text = (description or "").replace("?", " ")
     refs, seen = [], set()
-    for m in PARENT_RE.finditer(description or ""):
-        ref = m.group(1).upper().rstrip(".,);")
-        if len(ref) >= 6 and any(ch.isdigit() for ch in ref) and ref not in seen:
-            seen.add(ref)
-            refs.append(ref)
+    for rx in (PARENT_RE, CONDITION_OF_RE):
+        for m in rx.finditer(text):
+            ref = m.group(1).upper().rstrip(".,);")
+            if len(ref) >= 6 and any(ch.isdigit() for ch in ref) and ref not in seen:
+                seen.add(ref)
+                refs.append(ref)
     return refs
 
 
