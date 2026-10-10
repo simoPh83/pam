@@ -97,8 +97,8 @@ def load(conn):
             "uid": uid, "authority": auth, "reference": (ref or "").upper(),
             "address": addr, "postcode": pc, "description": desc or "",
             "app_type": app_type, "start_date": start,
-            "refs": parent_refs_of(desc),
-            "role": role_of(desc, app_type),
+            "refs": parent_refs_of(desc, auth),
+            "role": role_of(desc, app_type, auth),
         }
     # authority -> {lookup key -> (start_date, uid)}. A stored reference is
     # indexed under itself and every prefix obtained by stripping trailing

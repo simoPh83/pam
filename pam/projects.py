@@ -140,7 +140,8 @@ def address_key(address: str | None, postcode: str | None = None) -> str | None:
     return _WS.sub(" ", key).strip() or None
 
 
-def role_of(description: str | None, app_type: str | None = None) -> str:
+def role_of(description: str | None, app_type: str | None = None,
+            authority: str | None = None) -> str:
     """Classify an application's role in its scheme.
 
     Reference-first, then precise keywords, then PlanIt app_type for
@@ -163,7 +164,7 @@ def role_of(description: str | None, app_type: str | None = None) -> str:
               or "s96a" in text or "section 96a" in text)
     is_dis = ("discharge" in text or "approval of details" in text
               or re.search(r"\bcondition\b", text))
-    if parent_refs_of(description):
+    if parent_refs_of(description, authority):
         if is_var:
             return "variation"
         if is_nma:
@@ -205,12 +206,32 @@ def ref_year_of(ref: str) -> int | None:
     return None
 
 
-def parent_refs_of(description: str | None) -> list[str]:
+# Authorities whose references have no '/' (invisible to the generic
+# patterns). Each maps to a narrow citation pattern applied only after a
+# keyword, and only within that authority — the formats are too generic
+# (bare digits / dotted) to match safely anywhere else.
+_AUTH_REF_PATTERNS = {
+    "Waltham Forest": r"(\d{6})\b",                 # 203833
+    "Ealing":         r"(\d{6}[A-Z]{2,5})\b",       # 253454PALHE
+    "Havering":       r"([A-Z]{1,3}\d{3,5}\.\d{2})\b",  # P1152.26
+}
+# Citation context for the no-slash authority formats: a keyword, an optional
+# condition-number list (as in "condition 4 of ref 234842FUL"), then an
+# optional label/date. Mirrors the generic patterns' contexts.
+_AUTH_KEYWORD = (
+    r"(?:permission|application|consent|approval|referenced|reference|condition)\s*"
+    r"[\d,\s&]*?(?:\([^)]*\))?\s*(?:of\s+)?"
+    r"(?:ref(?:erence)?[.:]?\s*|no[.:]?\s*)?(?:dated\s+[\d/]+\s*)?"
+)
+
+
+def parent_refs_of(description: str | None, authority: str | None = None) -> list[str]:
     """All planning references mentioned in a description (deduped, ordered).
 
     The PlanIt feed occasionally corrupts punctuation/quotes to a literal '?'
     (e.g. "condition?8?...of planning?permission?PP/22/06589"); normalise
     those to spaces before matching so the keyword context still parses.
+    `authority` enables the no-slash per-authority formats above.
     """
     text = (description or "").replace("?", " ")
     refs, seen = [], set()
@@ -218,6 +239,13 @@ def parent_refs_of(description: str | None) -> list[str]:
         for m in rx.finditer(text):
             ref = m.group(1).upper().rstrip(".,);")
             if _plausible_ref(ref) and ref not in seen:
+                seen.add(ref)
+                refs.append(ref)
+    auth_pat = _AUTH_REF_PATTERNS.get(authority or "")
+    if auth_pat:
+        for m in re.finditer(_AUTH_KEYWORD + auth_pat, text, re.I):
+            ref = m.group(1).upper().rstrip(".,);")
+            if ref not in seen:
                 seen.add(ref)
                 refs.append(ref)
     return refs
@@ -265,9 +293,10 @@ def group(uids, conn) -> int:
         key = address_key(address, postcode)
         if not key or not authority:
             continue
-        refs = parent_refs_of(description)
+        refs = parent_refs_of(description, authority)
         prepared.setdefault((authority, key), []).append(
-            (uid, (address or "").strip()[:100], role_of(description, app_type), refs))
+            (uid, (address or "").strip()[:100],
+             role_of(description, app_type, authority), refs))
         if refs:
             all_refs.setdefault(authority, set()).update(refs)
 
@@ -439,7 +468,7 @@ def _set_root_and_state(conn, pid) -> None:
     # resolve each member's refs authority-wide in one query per authority
     cited_by_auth = defaultdict(set)
     for uid, _role, _hpr, _sd, desc, auth in members:
-        cited_by_auth[auth].update(parent_refs_of(desc))
+        cited_by_auth[auth].update(parent_refs_of(desc, auth))
     resolved = {}
     for auth, refs in cited_by_auth.items():
         if refs:
@@ -459,7 +488,7 @@ def _set_root_and_state(conn, pid) -> None:
     no_parent = []  # members with no resolved parent ref
     has_unresolved = False
     for uid, role, _hpr, sd, desc, auth in members:
-        refs = parent_refs_of(desc)
+        refs = parent_refs_of(desc, auth)
         resolved_refs = [r for r in refs if (auth, r) in resolved]
         has_unresolved = has_unresolved or any(
             r not in {x for x in refs if (auth, x) in resolved} for r in refs)
