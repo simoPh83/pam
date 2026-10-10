@@ -28,6 +28,17 @@ import psycopg
 from pam.config import load_dotenv
 
 SQL = r"""
+-- Projects that need a root/grouping_state re-derivation after a manual
+-- assignment (the RPC moves membership but can't recompute the component
+-- root without the Python logic). Swept by the worker each run.
+CREATE TABLE IF NOT EXISTS regroup_pending (
+    project_id bigint PRIMARY KEY,
+    queued_at  timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE regroup_pending ENABLE ROW LEVEL SECURITY;
+-- worker/service-role only; authenticated users never touch it directly
+REVOKE ALL ON regroup_pending FROM anon, authenticated;
+
 CREATE OR REPLACE FUNCTION public.apply_grouping_resolution(
     p_review_id bigint, p_resolution text)
 RETURNS jsonb
@@ -90,6 +101,9 @@ BEGIN
         FROM project_applications pa JOIN applications a ON a.uid=pa.uid
         WHERE pa.project_id = v_pid GROUP BY pa.project_id
       ) s WHERE p.id = s.project_id;
+      -- defer root/grouping_state re-derivation to the worker sweep
+      INSERT INTO regroup_pending (project_id) VALUES (v_pid)
+        ON CONFLICT (project_id) DO NOTHING;
       -- mark resolved
       UPDATE grouping_review SET status='resolved', resolution=p_resolution,
         resolved_by=auth.uid(), resolved_at=now() WHERE id=p_review_id;

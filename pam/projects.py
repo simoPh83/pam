@@ -403,6 +403,22 @@ def _set_root_and_state(conn, pid) -> None:
                  "WHERE project_id = %s", (root_uid, pid))
 
 
+def drain_regroup_pending(conn) -> int:
+    """Re-derive root/grouping_state for projects queued by the
+    apply_grouping_resolution RPC after a manual assignment. Returns how many
+    were processed. Idempotent; safe to call every run.
+    """
+    pids = [r[0] for r in conn.execute(
+        "SELECT project_id FROM regroup_pending ORDER BY queued_at").fetchall()]
+    for pid in pids:
+        _set_root_and_state(conn, pid)
+        conn.execute("DELETE FROM regroup_pending WHERE project_id = %s", (pid,))
+    if pids:
+        log.info("Re-derived root/state for %s manually-assigned project(s)",
+                 len(pids))
+    return len(pids)
+
+
 _PC_RE = re.compile(r"\b[a-z]{1,2}\d[a-z\d]?\s*\d[a-z]{2}\b", re.I)
 _STOP = {"and", "the", "of", "london", "barking", "dagenham", "road", "rd",
          "street", "st", "avenue", "ave", "lane", "close", "way", "court",

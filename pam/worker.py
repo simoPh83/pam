@@ -217,6 +217,11 @@ def process(conn, job: dict) -> None:
                 raise RuntimeError(f"pam exited with code {code}")
             if job["kind"] == "sync":
                 stats = {**(stats or {}), **prune(conn)}
+        # Re-derive root/grouping_state for any projects a user manually
+        # assigned via the apply_grouping_resolution RPC since the last run.
+        n_regrouped = projects.drain_regroup_pending(conn)
+        if n_regrouped:
+            stats = {**(stats or {}), "regrouped_manual": n_regrouped}
     except PlanItPaused as exc:
         # PlanIt etiquette stop (window closed / daily cap / long Retry-After):
         # requeue for later, don't burn a retry attempt

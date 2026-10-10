@@ -92,20 +92,31 @@ resolves the parent, the row disappears and the application joins the scheme.
 
 ## Applying a resolution
 
-The UI only writes `status`/`resolution`/`resolved_by`/`resolved_at` on
-`grouping_review`. The actual data move is server-side:
+The UI calls one RPC — it does not write `grouping_review` directly:
 
-- **`unlinked_multi_scheme` assign** → insert into `project_applications`
-  (`project_id=resolution`, `linked_by='manual'`), refresh the project's
-  aggregates + `grouping_state`.
-- **`multi_root` split** → create new project(s), move members, refresh.
-- **dismiss (unlinked)** → the orphan application is left out of grouping (or
-  deleted, per product call — recommended: keep the `applications` row, just
-  never group it; deletion loses audit history).
+```ts
+await supabase.rpc("apply_grouping_resolution", {
+  p_review_id: review.id,
+  p_resolution: "<project_id>" | "merged" | "dismiss",
+});
+```
 
-Recommend a small Postgres function / RPC (e.g. `apply_grouping_resolution
-(review_id bigint)`) so the move + refresh is atomic and not duplicated in
-client code.
+`apply_grouping_resolution(review_id, resolution)` (SECURITY DEFINER,
+authenticated-only, validates the row is pending) applies the decision
+atomically:
+
+- **assign** (`resolution` = a project id): inserts the orphan into
+  `project_applications` (`linked_by='manual'`), refreshes the target
+  project's aggregates, queues the project in `regroup_pending`, and marks
+  the row `resolved`. The worker's `drain_regroup_pending()` sweep re-derives
+  `root_uid`/`grouping_state` on its next run (root/state logic lives in the
+  Python worker, not duplicated in SQL).
+- **`multi_root` keep merged** (`resolution='merged'`): sets the project's
+  `grouping_state='clean'`, marks the row resolved. **Split** is intentionally
+  not in the RPC — it's a worker-side operation (member-to-root assignment);
+  the UI should surface split as a worker-handled action.
+- **dismiss** (`resolution='dismiss'`): marks the row `dismissed`; the orphan
+  `applications` row is kept but never grouped (audit history preserved).
 
 ## Out of scope for this spec
 
