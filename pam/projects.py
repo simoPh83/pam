@@ -94,10 +94,14 @@ PARENT_RE = re.compile(
 # PP/00/02566". Narrow (authority-style ref shapes only) so the condition list
 # itself is never captured. Kept separate from PARENT_RE: widening the main
 # pattern to tolerate the intervening number list caused large regressions.
+# General reference shape: 1-4 alnum segments joined by '/', with a digit.
+# Tolerates Merton NN/PNNNN, Kensington PP/NN/NNNNN, Camden NNNN/NNNN/L, etc.
+_REF_SHAPE = r"([A-Z0-9]{1,4}(?:/[A-Z0-9]{1,6}){1,3})"
+
 CONDITION_OF_RE = re.compile(
-    r"conditions?\s+[\d,\s&]+?of\s+"
+    r"conditions?\s+[\d,\s&]+?(?:\s*\([^)]*\))?\s*of\s+"
     r"(?:planning\s+)?(?:permission|application|consent|ref(?:erence)?[.:]?|no[.:]?)?\s*"
-    r"([A-Z]{0,3}/?\d{2,4}/\d{3,6}(?:/[A-Z0-9]+)?)",
+    + _REF_SHAPE,
     re.I,
 )
 
@@ -213,10 +217,19 @@ def parent_refs_of(description: str | None) -> list[str]:
     for rx in (PARENT_RE, CONDITION_OF_RE, DATED_REF_RE, VARIED_BY_RE):
         for m in rx.finditer(text):
             ref = m.group(1).upper().rstrip(".,);")
-            if len(ref) >= 6 and any(ch.isdigit() for ch in ref) and ref not in seen:
+            if _plausible_ref(ref) and ref not in seen:
                 seen.add(ref)
                 refs.append(ref)
     return refs
+
+
+def _plausible_ref(ref: str) -> bool:
+    """Cheap junk filter: >=6 chars, contains a digit and a '/', and is not a
+    bare date like 12/05/2023. Real validation happens at resolution time
+    (a candidate only links if it matches a stored application)."""
+    return (len(ref) >= 6 and any(ch.isdigit() for ch in ref)
+            and "/" in ref
+            and not re.fullmatch(r"\d{2}/\d{2}/\d{4}", ref))
 
 
 def _resolve_refs(refs: set[str], authority: str, conn) -> dict[str, str]:
