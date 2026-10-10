@@ -101,6 +101,18 @@ CONDITION_OF_RE = re.compile(
     re.I,
 )
 
+# "permission [dated <date>] <REF>" — a citation where the decision date sits
+# between the keyword and the reference, e.g. "planning permission dated
+# 2 September 2022 PP/21/06400". Narrow ref shape; the optional date is bounded
+# so plain "permission dated 2020" (no ref) never matches.
+DATED_REF_RE = re.compile(
+    r"(?:permission|approval|application|consent)\s+"
+    r"(?:dated\s+(?:\d{1,2}\s+\w+\s+)?\d{4}\s*)"
+    r"(?:ref(?:erence)?[.:]?\s*|no[.:]?\s*)?"
+    r"([A-Z]{1,4}/\d{2,4}/\d{3,6}(?:/[A-Z0-9]+)?)",
+    re.I,
+)
+
 
 def address_key(address: str | None, postcode: str | None = None) -> str | None:
     if not address:
@@ -188,7 +200,7 @@ def parent_refs_of(description: str | None) -> list[str]:
     """
     text = (description or "").replace("?", " ")
     refs, seen = [], set()
-    for rx in (PARENT_RE, CONDITION_OF_RE):
+    for rx in (PARENT_RE, CONDITION_OF_RE, DATED_REF_RE):
         for m in rx.finditer(text):
             ref = m.group(1).upper().rstrip(".,);")
             if len(ref) >= 6 and any(ch.isdigit() for ch in ref) and ref not in seen:
