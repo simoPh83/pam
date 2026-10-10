@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import logging
 import re
+from collections import defaultdict
 
 log = logging.getLogger("pam.projects")
 
@@ -191,8 +192,10 @@ def group(uids, conn) -> int:
     # Pass 2: resolve refs per authority (one query each), pick earliest
     resolved = {a: _resolve_refs(refs, a, conn) for a, refs in all_refs.items()}
 
-    # Pass 3: bulk-insert projects, then read back their ids. Address keys
-    # that were merged into another project (project_aliases) map to it.
+    # Pass 3: find/create projects by address cluster (transitional — the
+    # unique(authority, address_key) constraint was dropped by the scheme
+    # regrouping; address now seeds a provisional project that refresh() then
+    # splits into reference components). Aliases still steer repeats.
     keys = list(prepared)
     alias = {(a, k): pid for a, k, pid in conn.execute(
         "SELECT al.authority, al.address_key, al.project_id FROM project_aliases al "
@@ -200,30 +203,36 @@ def group(uids, conn) -> int:
         "ON v.authority = al.authority AND v.address_key = al.address_key",
         ([k[0] for k in keys], [k[1] for k in keys])).fetchall()}
     new_keys = [k for k in keys if k not in alias]
-    conn.execute(
-        "INSERT INTO projects (authority, name, address_key) "
-        "SELECT authority, min(name), address_key FROM ("
-        "  SELECT * FROM unnest(%s::text[], %s::text[], %s::text[])"
-        ") v(authority, name, address_key) "
-        "GROUP BY authority, address_key "
-        "ON CONFLICT (authority, address_key) DO NOTHING",
-        ([k[0] for k in new_keys],
-         [min((m[1] for m in prepared[k] if m[1]), default=None) for k in new_keys],
-         [k[1] for k in new_keys]))
-    id_rows = conn.execute(
-        "SELECT p.authority, p.address_key, p.id FROM projects p "
-        "JOIN (SELECT * FROM unnest(%s::text[], %s::text[])) v(authority, address_key) "
-        "ON v.authority = p.authority AND v.address_key = p.address_key",
-        ([k[0] for k in new_keys], [k[1] for k in new_keys])).fetchall()
-    pid_of = {(a, k): pid for a, k, pid in id_rows}
-    pid_of.update(alias)
+    if new_keys:
+        with conn.cursor() as cur:
+            for auth, key in new_keys:
+                names = [m[1] for m in prepared[(auth, key)] if m[1]]
+                cur.execute(
+                    "INSERT INTO projects (authority, name, address_key, "
+                    "grouping_state) VALUES (%s, %s, %s, 'provisional') "
+                    "RETURNING id",
+                    (auth, min(names) if names else None, key))
+                alias[(auth, key)] = cur.fetchone()[0]
+    pid_of = alias
 
-    # Pass 4: bulk-upsert memberships
+    # Pass 4: bulk-upsert memberships. An application whose ref resolves to a
+    # member of an existing project joins that project directly (references
+    # trump the address bucket); others land in the address project.
     memberships = []
     for (auth, key), members in prepared.items():
-        pid = pid_of[(auth, key)]
+        bucket_pid = pid_of[(auth, key)]
         for uid, _name, role, refs in members:
             known = [r for r in resolved.get(auth, {}) if r in refs]
+            pid = bucket_pid
+            if known:
+                target_ref = resolved[auth][known[0]]
+                row = conn.execute(
+                    "SELECT pa.project_id FROM project_applications pa "
+                    "JOIN applications a ON a.uid = pa.uid "
+                    "WHERE a.authority = %s AND a.reference = %s LIMIT 1",
+                    (auth, target_ref)).fetchone()
+                if row:
+                    pid = row[0]
             memberships.append((pid, uid, known[0] if known else
                                 (refs[0] if refs else None), role, bool(refs)))
     with conn.cursor() as cur:
@@ -258,22 +267,24 @@ def group(uids, conn) -> int:
     pids = sorted(set(pid_of.values()))
     refresh(conn, pids)
 
-    # Pass 6: fold projects together when a child's parent_ref lives elsewhere
-    # and the addresses corroborate it
-    merge_linked(conn, pids)
-
     grouped = len(memberships)
     log.info("Grouped %s applications into %s projects", grouped, len(pid_of))
     return grouped
 
 
 def refresh(conn, pids) -> None:
-    """Recompute counts, root, latest and root_in_db for the given projects."""
+    """Recompute aggregates and root for the given projects.
+
+    Aggregates (n_applications, latest_uid, name, first_seen, last_updated,
+    root_in_db) come from set-based SQL over members. root_uid and
+    grouping_state follow the reference-component structure: the root is the
+    member with no *resolved* parent ref; multiple candidate roots mark the
+    project ambiguous. A project with no unresolved refs anywhere is clean.
+    """
     conn.execute(
         """
         UPDATE projects p SET
             n_applications = s.n,
-            root_uid       = s.root_uid,
             latest_uid     = s.latest_uid,
             name           = s.name,
             first_seen     = s.first_seen,
@@ -281,10 +292,6 @@ def refresh(conn, pids) -> None:
         FROM (
             SELECT pa.project_id,
                    count(*) AS n,
-                   (array_agg(a.uid ORDER BY
-                       (pa.role = 'original' AND NOT pa.has_parent_refs) DESC,
-                       (NOT pa.has_parent_refs) DESC,
-                       a.start_date ASC NULLS LAST, a.uid))[1] AS root_uid,
                    (array_agg(a.uid ORDER BY
                        coalesce(a.decided_date, a.last_updated) DESC NULLS LAST,
                        a.uid))[1] AS latest_uid,
@@ -300,9 +307,6 @@ def refresh(conn, pids) -> None:
         ) s
         WHERE p.id = s.project_id AND p.id = ANY(%s)
         """, (pids, pids))
-    conn.execute(
-        "UPDATE project_applications pa SET is_root = (pa.uid = p.root_uid) "
-        "FROM projects p WHERE p.id = pa.project_id AND p.id = ANY(%s)", (pids,))
     # root_in_db: no member still waiting on an unresolved parent ref
     conn.execute(
         "UPDATE projects p SET root_in_db = NOT EXISTS ("
@@ -311,6 +315,73 @@ def refresh(conn, pids) -> None:
         "    AND mp.reference = pa.parent_ref AND mp.status <> 'found'"
         "  WHERE pa.project_id = p.id) "
         "WHERE p.id = ANY(%s)", (pids,))
+
+    # root + grouping_state from the reference structure (one project at a
+    # time; pids in a sync batch are few)
+    for pid in pids:
+        _set_root_and_state(conn, pid)
+
+
+def _set_root_and_state(conn, pid) -> None:
+    """Set root_uid, is_root and grouping_state from resolved parent refs.
+
+    Root candidates = members with no resolved parent ref. Exactly one
+    candidate of role 'original' with no unresolved refs -> clean; one
+    candidate otherwise -> provisional; zero or several -> ambiguous.
+    """
+    members = conn.execute(
+        "SELECT pa.uid, pa.role, pa.has_parent_refs, a.start_date, "
+        "       a.description, a.authority "
+        "FROM project_applications pa JOIN applications a ON a.uid = pa.uid "
+        "WHERE pa.project_id = %s", (pid,)).fetchall()
+    if not members:
+        return
+
+    # resolve each member's refs authority-wide in one query per authority
+    cited_by_auth = defaultdict(set)
+    for uid, _role, _hpr, _sd, desc, auth in members:
+        cited_by_auth[auth].update(parent_refs_of(desc))
+    resolved = {}
+    for auth, refs in cited_by_auth.items():
+        if refs:
+            for ref, uid in conn.execute(
+                    "SELECT cand.ref, a.uid FROM unnest(%s::text[]) AS cand(ref) "
+                    "JOIN applications a ON a.authority = %s "
+                    "  AND (upper(a.reference) = cand.ref "
+                    "       OR starts_with(upper(a.reference), cand.ref || '/')) "
+                    "ORDER BY cand.ref, a.start_date ASC NULLS LAST",
+                    (list(refs), auth)):
+                resolved.setdefault((auth, ref), uid)
+
+    member_uids = {m[0] for m in members}
+    roots = []
+    has_unresolved = False
+    for uid, role, _hpr, sd, desc, auth in members:
+        refs = parent_refs_of(desc)
+        resolved_refs = [r for r in refs
+                         if (auth, r) in resolved
+                         and resolved[(auth, r)] in member_uids]
+        has_unresolved = has_unresolved or any(
+            r not in {x for x in refs if (auth, x) in resolved} for r in refs)
+        if not resolved_refs:
+            roots.append((uid, role, sd))
+
+    if len(roots) == 1:
+        root_uid, root_role, _ = roots[0]
+        state = ("clean" if root_role == "original" and not has_unresolved
+                 else "provisional")
+    else:
+        # 0 roots = reference cycle; 2+ = multiple candidate origins
+        state = "ambiguous"
+    # deterministic fallback root for cycles: earliest member
+    if not roots:
+        roots = [(m[0], m[1], m[3]) for m in members]
+    roots.sort(key=lambda r: (r[2] is None, r[2], r[0]))
+    root_uid = roots[0][0]
+    conn.execute("UPDATE projects SET root_uid = %s, grouping_state = %s "
+                 "WHERE id = %s", (root_uid, state, pid))
+    conn.execute("UPDATE project_applications SET is_root = (uid = %s) "
+                 "WHERE project_id = %s", (root_uid, pid))
 
 
 _PC_RE = re.compile(r"\b[a-z]{1,2}\d[a-z\d]?\s*\d[a-z]{2}\b", re.I)
