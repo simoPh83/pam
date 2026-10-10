@@ -103,14 +103,41 @@ def address_key(address: str | None, postcode: str | None = None) -> str | None:
 
 
 def role_of(description: str | None, app_type: str | None = None) -> str:
+    """Classify an application's role in its scheme.
+
+    Reference-first, then precise keywords, then PlanIt app_type for
+    conditions only:
+      1. A parsed parent citation makes it a follow-up (variation / nma /
+         discharge by keyword, else discharge). A real citation beats any type
+         label — PlanIt's app_type=Full is used for resubmissions too.
+      2. Keyword signals for the follow-up types (variation / nma / discharge)
+         are precise phrases, not loose stems. Bare "pursuant to" is NOT a
+         signal — it is legal boilerplate (ES regs, S106 schedules, the Act).
+      3. app_type='Conditions' -> discharge is reliable. app_type='Amendment'
+         is NOT trusted: PlanIt files Certificates of Lawfulness, HMO
+         conversions and other standalone originals under it.
+      4. Everything else is original.
+    """
     text = " ".join(t for t in (description, app_type) if t).lower()
-    if ("variation of condition" in text or "s73" in text or "section 73" in text):
+    is_var = ("variation of condition" in text or "s73" in text
+              or "section 73" in text)
+    is_nma = ("non-material amendment" in text or "non material amendment" in text
+              or "s96a" in text or "section 96a" in text)
+    is_dis = ("discharge" in text or "approval of details" in text
+              or re.search(r"\bcondition\b", text))
+    if parent_refs_of(description):
+        if is_var:
+            return "variation"
+        if is_nma:
+            return "nma"
+        return "discharge"
+    if is_var:
         return "variation"
-    if ("non-material amendment" in text or "non material amendment" in text
-            or "s96a" in text or "section 96a" in text):
+    if is_nma:
         return "nma"
-    if ("pursuant to" in text or "approval of details" in text
-            or "discharge" in text or "condition" in text):
+    if is_dis:
+        return "discharge"
+    if (app_type or "").strip() == "Conditions":
         return "discharge"
     return "original"
 
