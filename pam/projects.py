@@ -96,8 +96,18 @@ PARENT_RE = re.compile(
 # pattern to tolerate the intervening number list caused large regressions.
 CONDITION_OF_RE = re.compile(
     r"conditions?\s+[\d,\s&]+?of\s+"
-    r"(?:planning\s+)?(?:permission|application|consent|ref(?:erence)?)?\s*"
-    r"([A-Z]{1,3}/\d{2,4}/\d{3,6}(?:/[A-Z0-9]+)?)",
+    r"(?:planning\s+)?(?:permission|application|consent|ref(?:erence)?[.:]?|no[.:]?)?\s*"
+    r"([A-Z]{0,3}/?\d{2,4}/\d{3,6}(?:/[A-Z0-9]+)?)",
+    re.I,
+)
+
+# "(varied|amended|superseded|replaced) by <REF>" — a follow-up citing the
+# earlier application it modifies, e.g. "Ref: 22/00516/FUL (varied by
+# 24/03476/VAR)".
+VARIED_BY_RE = re.compile(
+    r"(?:varied|amended|superseded|replaced)\s+by\s+"
+    r"(?:planning\s+)?(?:permission|application|consent|ref(?:erence)?[.:]?)?\s*"
+    r"([A-Z0-9][A-Z0-9/_.-]{4,25}\d[A-Z0-9/_.-]*)",
     re.I,
 )
 
@@ -200,7 +210,7 @@ def parent_refs_of(description: str | None) -> list[str]:
     """
     text = (description or "").replace("?", " ")
     refs, seen = [], set()
-    for rx in (PARENT_RE, CONDITION_OF_RE, DATED_REF_RE):
+    for rx in (PARENT_RE, CONDITION_OF_RE, DATED_REF_RE, VARIED_BY_RE):
         for m in rx.finditer(text):
             ref = m.group(1).upper().rstrip(".,);")
             if len(ref) >= 6 and any(ch.isdigit() for ch in ref) and ref not in seen:
