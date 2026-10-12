@@ -86,7 +86,7 @@ PARENT_RE = re.compile(
     r"(?:permission|approval|application|consent|amendments?|reference)\s*"
     r"(?:planning\s+)?"
     r"[.:]?\s*"  # tolerate "application: 22/03720/FUL"
-    r"(?:ref(?:erence)?[.:]?\s*|no[.:]?\s*|\(\s*)?"
+    r"(?:ref(?:erence)?[.:]?\s*(?:no[.:]?\s*)?|no[.:]?\s*|\(\s*)?"
     r"([A-Z0-9][A-Z0-9/_.-]{4,25}\d[A-Z0-9/_.-]*)",
     re.I,
 )
@@ -134,13 +134,16 @@ REF_PREFIX_RE = re.compile(
 
 # "permission [dated <date>] <REF>" — a citation where the decision date sits
 # between the keyword and the reference, e.g. "planning permission dated
-# 2 September 2022 PP/21/06400". Narrow ref shape; the optional date is bounded
-# so plain "permission dated 2020" (no ref) never matches.
+# 2 September 2022 PP/21/06400" or "…dated 1st October 2024 (24/00152/FULL)".
+# The date tolerates ordinal suffixes (1st/16th) and the ref may be wrapped
+# in bare parentheses. The optional date is bounded so plain "permission
+# dated 2020" (no ref) never matches; junk shapes are filtered by
+# _plausible_ref.
 DATED_REF_RE = re.compile(
     r"(?:permission|approval|application|consent)\s+"
-    r"(?:dated\s+(?:\d{1,2}\s+\w+\s+)?\d{4}\s*)"
+    r"(?:dated\s+(?:\d{1,2}(?:st|nd|rd|th)?\s+\w+\s+)?\d{4}\s*)"
     r"(?:ref(?:erence)?[.:]?\s*|no[.:]?\s*)?"
-    r"([A-Z]{1,4}/\d{2,4}/\d{3,6}(?:/[A-Z0-9]+)?)",
+    r"\(?" + _REF_SHAPE,
     re.I,
 )
 

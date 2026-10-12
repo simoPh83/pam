@@ -130,3 +130,13 @@ patterns appear in grouped memberships and would improve future ingestion.
    reference-less), so the frontend queue shrinks as soon as
    `scripts/regroup_missed_parent_refs.py` is re-run — queue rows are all
    still project members, so that script covers them.
+5. **Case-review continued (2026-10-12, pm)** — three more formats, all in
+   `DATED_REF_RE`/`PARENT_RE`: dated citations with ordinal days and a
+   bare-parenthesised digit-leading ref ("dated 1st October 2024
+   (24/00152/FULL)") — the date part now allows `st|nd|rd|th`, the ref may
+   be `(`-wrapped, and the capture shape widened to `_REF_SHAPE`
+   (plausibility filter unchanged); and the "ref no." label combination
+   ("planning permission ref no. 25/AP/0349"). Of the 1,209 rows still
+   pending after the first sweep, 282 more yield refs (174 dated-ordinal
+   family, 161 "ref no." family, overlapping) — leaving ~950 genuinely
+   reference-less rows for human review.
