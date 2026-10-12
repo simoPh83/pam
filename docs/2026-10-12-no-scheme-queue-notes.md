@@ -2,6 +2,7 @@
 
 **Date:** 2026-10-12 · **For:** `simoPh83/pam` (worker + schema)
 **Related:** `2026-10-12-multi-root-split-backend-spec.md` (same repo, docs).
+Case-review procedure: `2026-10-12-queue-case-review-playbook.md`.
 Short companion note, not a full spec — two worker-side issues found while
 reviewing the queue from pam-client.
 
