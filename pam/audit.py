@@ -2,7 +2,7 @@
 actually carries (agent names, applicant names, docs links, tree-works share,
 crawl freshness).
 
-Continues docs/2026.09.27-borough-audit.csv — fills rows where fetched = -1.
+Continues docs/2026-09-27-borough-audit.csv — fills rows where fetched = -1.
 
 Method (matches the rows already audited): one 100-record page per authority,
 filtered to applications *started* in the last N days (default 90, same window
@@ -41,7 +41,7 @@ from .transform import _agent_name, _applicant_name
 
 log = logging.getLogger("pam.audit")
 
-CSV_PATH = Path(__file__).resolve().parent.parent / "docs" / "2026.09.27-borough-audit.csv"
+CSV_PATH = Path(__file__).resolve().parent.parent / "docs" / "2026-09-27-borough-audit.csv"
 AREAS_CACHE = Path(__file__).resolve().parent.parent / "docs" / "planit-areas.json"
 
 FIELDNAMES = ["authority", "fetched", "agent_names", "applicant_names",

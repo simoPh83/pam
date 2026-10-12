@@ -325,9 +325,9 @@ for future jobs; User-Agent with email).
 
 ## 2026-10-05 (day) — specs + key decisions
 
-- Wrote `docs/2026.10.05-backend-spec-new-features.md` and
+- Wrote `docs/2026-10-05-backend-spec-new-features.md` and
   `web-client-kickoff/04-frontend-spec-new-features.md` from
-  `docs/2026.10.05 new features.txt`.
+  `docs/2026-10-05-new-features.txt`.
 - Decisions: no data deletion for now (revisit at DB size pressure);
   PlanIt etiquette applies to future jobs only; practices = reusable entity.
 

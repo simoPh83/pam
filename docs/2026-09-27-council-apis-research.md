@@ -66,4 +66,4 @@
 
 ---
 
-*Companion docs: [2026.09.27-planit-project-brief.md](2026.09.27-planit-project-brief.md), [2026.09.27-planit-api-findings.md](2026.09.27-planit-api-findings.md), [2026.09.27-planning-data-gov-uk-comparison.md](2026.09.27-planning-data-gov-uk-comparison.md).*
+*Companion docs: [2026-09-27-planit-project-brief.md](2026-09-27-planit-project-brief.md), [2026-09-27-planit-api-findings.md](2026-09-27-planit-api-findings.md), [2026-09-27-planning-data-gov-uk-comparison.md](2026-09-27-planning-data-gov-uk-comparison.md).*

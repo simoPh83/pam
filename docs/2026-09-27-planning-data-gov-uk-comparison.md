@@ -60,11 +60,11 @@
 
 ## 3. Decision and future-proofing
 
-1. **Build on PlanIt** as the single data source for v1 (see [2026.09.27-planit-api-findings.md](2026.09.27-planit-api-findings.md)).
+1. **Build on PlanIt** as the single data source for v1 (see [2026-09-27-planit-api-findings.md](2026-09-27-planit-api-findings.md)).
 2. **Design seam:** keep the API client behind a small interface — `fetch(filters) -> normalized records` — so planning.data.gov.uk (or council-specific feeds) can be added as additional sources later without touching ledger/spreadsheet logic.
 3. **Re-check planning.data.gov.uk in ~12 months** (or on any MHCLG announcement making the planning-application spec mandatory). Trigger criteria for a migration or secondary-source integration: London LPAs publishing, a decision-outcome field in the schema, and per-record geometry.
 4. **Possible future enrichment from planning.data.gov.uk:** join leads against its constraint datasets (conservation area, listed building proximity) — a genuine differentiator for an architectural photographer's outreach ("I see your project is in the X conservation area…").
 
 ---
 
-*Companion docs: [2026.09.27-planit-project-brief.md](2026.09.27-planit-project-brief.md) (intent), [2026.09.27-planit-api-findings.md](2026.09.27-planit-api-findings.md) (PlanIt ground truth).*
+*Companion docs: [2026-09-27-planit-project-brief.md](2026-09-27-planit-project-brief.md) (intent), [2026-09-27-planit-api-findings.md](2026-09-27-planit-api-findings.md) (PlanIt ground truth).*

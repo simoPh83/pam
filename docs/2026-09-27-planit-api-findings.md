@@ -100,4 +100,4 @@ Camden `other_fields` keys (200-record scan): `application_type`, `case_officer`
 
 ---
 
-*Raw assumptions and purpose remain in [2026.09.27-planit-project-brief.md](2026.09.27-planit-project-brief.md); this document is the verified ground truth for implementation.*
+*Raw assumptions and purpose remain in [2026-09-27-planit-project-brief.md](2026-09-27-planit-project-brief.md); this document is the verified ground truth for implementation.*

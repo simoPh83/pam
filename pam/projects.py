@@ -5,11 +5,12 @@ s73 variations, condition discharges, NMAs). Outreach is per project, not per
 application. Clustering is by (authority, normalised address); parent
 references extracted from descriptions are kept for debugging/merges.
 
-See docs/2026.10.04 project-grouping-spec.md.
+See docs/2026-10-04-project-grouping-spec.md.
 """
 
 from __future__ import annotations
 
+import json
 import logging
 import re
 from collections import defaultdict
@@ -115,6 +116,17 @@ VARIED_BY_RE = re.compile(
     re.I,
 )
 
+# Bare "Ref:"/"RN" citation prefixes with no leading keyword, e.g. "reserved
+# matters approved under Ref: 23/02239/OUT", "(RN 24/05892/FULL)" or
+# "planning permission dated 22/05/2025 ref 2025/1231". Kept separate from
+# PARENT_RE (no keyword context), so junk is filtered by _plausible_ref:
+# the capture must be 6+ chars with a digit and a '/', and bare dates like
+# 12/05/2023 are excluded.
+REF_PREFIX_RE = re.compile(
+    r"\b(?:refs?|RN)\b[.:]?\s*" + _REF_SHAPE,
+    re.I,
+)
+
 # "permission [dated <date>] <REF>" — a citation where the decision date sits
 # between the keyword and the reference, e.g. "planning permission dated
 # 2 September 2022 PP/21/06400". Narrow ref shape; the optional date is bounded
@@ -140,6 +152,16 @@ def address_key(address: str | None, postcode: str | None = None) -> str | None:
     return _WS.sub(" ", key).strip() or None
 
 
+# Building-services usages role_of must ignore: "air condition(ing) unit"
+# is not a planning condition; "discharge flue"/"discharge of extracted air"
+# is not a condition discharge.
+_BUILDING_SERVICES_RE = re.compile(
+    r"\bair[- ]condition(?:ing|ers?|ed)?s?\b"
+    r"|\bdischarge\s+(?:of\s+extracted\s+air|flues?|stacks?|grilles?|pipes?)\b",
+    re.I,
+)
+
+
 def role_of(description: str | None, app_type: str | None = None,
             authority: str | None = None) -> str:
     """Classify an application's role in its scheme.
@@ -158,6 +180,10 @@ def role_of(description: str | None, app_type: str | None = None,
       4. Everything else is original.
     """
     text = " ".join(t for t in (description, app_type) if t).lower()
+    # Building-services phrasing that is NOT a planning keyword:
+    # "air condition unit" is not a planning condition; a "discharge flue" /
+    # "discharge of extracted air" is not a condition discharge.
+    text = _BUILDING_SERVICES_RE.sub(" ", text)
     is_var = ("variation of condition" in text or "s73" in text
               or "section 73" in text)
     is_nma = ("non-material amendment" in text or "non material amendment" in text
@@ -236,7 +262,8 @@ def parent_refs_of(description: str | None, authority: str | None = None) -> lis
     """
     text = (description or "").replace("?", " ")
     refs, seen = [], set()
-    for rx in (PARENT_RE, CONDITION_OF_RE, DATED_REF_RE, VARIED_BY_RE):
+    for rx in (PARENT_RE, CONDITION_OF_RE, DATED_REF_RE, VARIED_BY_RE,
+               REF_PREFIX_RE):
         for m in rx.finditer(text):
             ref = m.group(1).upper().rstrip(".,);")
             if _plausible_ref(ref) and ref not in seen:
@@ -276,6 +303,91 @@ def _resolve_refs(refs: set[str], authority: str, conn) -> dict[str, str]:
         "       OR starts_with(upper(a.reference), cand.ref || '/')) "
         "ORDER BY cand.ref, a.start_date ASC NULLS LAST",
         (list(refs), authority))}
+
+
+def _retire_projects(conn, pids) -> set:
+    """Delete the given empty projects (no members), re-pointing their
+    dependents to the project that absorbed their last members.
+
+    Followers: missing_parents rows that still point at the retired id,
+    project_aliases (its key belonged to the absorbed members), and the
+    UI-owned tables (ui_project_stars, ui_project_meta, ui_project_practices,
+    ui_project_agent_presence, ui_project_root_tsv) — same successor rule as
+    the migration: the absorbed component is the least surprising default.
+    grouping_review rows are left alone: pending multi_root rows are resolved
+    by the cascade refresh of the successor and survivors; address-keyed
+    unlinked rows (project_id NULL) are unaffected.
+
+    Returns the ids actually retired (a pid with remaining members is kept).
+    """
+    pids = {int(p) for p in pids if p is not None}
+    if not pids:
+        return set()
+    empty = {r[0] for r in conn.execute(
+        "SELECT p.id FROM projects p WHERE p.id = ANY(%s) AND NOT EXISTS ("
+        "  SELECT 1 FROM project_applications pa WHERE pa.project_id = p.id)",
+        (sorted(pids),)).fetchall()}
+    if not empty:
+        return set()
+    aliases = dict(conn.execute(
+        "SELECT project_id, address_key FROM project_aliases "
+        "WHERE project_id = ANY(%s)", (sorted(empty),)).fetchall())
+    for pid in sorted(empty):
+        # successor: the project holding an application that used to sit at
+        # this project's address key
+        succ = None
+        key = aliases.get(pid)
+        if key:
+            row = conn.execute(
+                "SELECT pa.project_id FROM project_applications pa "
+                "JOIN applications a ON a.uid = pa.uid "
+                "WHERE address_key(a.address, a.postcode) IS NOT NULL "
+                "  AND pa.project_id <> %s "
+                "  AND address_key(a.address, a.postcode) = %s LIMIT 1",
+                (pid, key)).fetchone()
+            succ = row[0] if row else None
+        if succ:
+            conn.execute("UPDATE missing_parents SET project_id = %s "
+                         "WHERE project_id = %s", (succ, pid))
+            conn.execute("UPDATE project_aliases SET project_id = %s "
+                         "WHERE project_id = %s", (succ, pid))
+            # UI rows follow to the successor, deduped on each table's
+            # natural key (mirrors the migration's repoint())
+            conn.execute(
+                "DELETE FROM ui_project_stars t WHERE t.project_id = %s "
+                "AND EXISTS (SELECT 1 FROM ui_project_stars x "
+                "  WHERE x.project_id = %s AND x.user_id = t.user_id)",
+                (pid, succ))
+            conn.execute("UPDATE ui_project_stars SET project_id = %s "
+                         "WHERE project_id = %s", (succ, pid))
+            conn.execute(
+                "DELETE FROM ui_project_meta t WHERE t.project_id = %s "
+                "AND EXISTS (SELECT 1 FROM ui_project_meta x "
+                "  WHERE x.project_id = %s AND x.user_id = t.user_id)",
+                (pid, succ))
+            conn.execute("UPDATE ui_project_meta SET project_id = %s "
+                         "WHERE project_id = %s", (succ, pid))
+            conn.execute(
+                "DELETE FROM ui_project_practices t WHERE t.project_id = %s "
+                "AND EXISTS (SELECT 1 FROM ui_project_practices x "
+                "  WHERE x.project_id = %s AND x.practice_id = t.practice_id)",
+                (pid, succ))
+            conn.execute("UPDATE ui_project_practices SET project_id = %s "
+                         "WHERE project_id = %s", (succ, pid))
+            for t in ("ui_project_agent_presence", "ui_project_root_tsv"):
+                conn.execute(
+                    f"DELETE FROM {t} t WHERE t.project_id = %s AND EXISTS ("
+                    f"  SELECT 1 FROM {t} x WHERE x.project_id = %s)",
+                    (pid, succ))
+                conn.execute(f"UPDATE {t} SET project_id = %s "
+                             f"WHERE project_id = %s", (succ, pid))
+            log.info("Retired empty project %s (dependents -> %s)", pid, succ)
+        else:
+            # orphan id: nothing points at it; dependents keep a dangling or
+            # cascaded reference exactly as a plain DELETE would leave them
+            log.info("Retired empty project %s (no successor found)", pid)
+        conn.execute("DELETE FROM projects WHERE id = %s", (pid,))
+    return empty
 
 
 def group(uids, conn) -> int:
@@ -355,7 +467,11 @@ def group(uids, conn) -> int:
         addr_pid[(auth, key)] = pid
         return pid
 
-    # Pass 4: bulk-upsert memberships
+    # Pass 4: move memberships. A uid belongs to exactly one project; the
+    # upsert can't see rows under other project ids, so delete them first.
+    # (Without this, a uid whose refs resolve after a singleton was created
+    # ended up in both projects — see
+    # docs/2026-10-12-backend-issue-dual-membership.md.)
     memberships = []
     for (auth, key), members in prepared.items():
         for uid, _name, role, refs in members:
@@ -363,6 +479,34 @@ def group(uids, conn) -> int:
             known = [r for r in resolved.get(auth, {}) if r in refs]
             memberships.append((pid, uid, known[0] if known else
                                 (refs[0] if refs else None), role, bool(refs)))
+    new_pid_of_uid = {uid: pid for pid, uid, *_ in memberships}
+    old_pids = {}  # uid -> pids it belonged to (excluding the new one)
+    for uid, pid in conn.execute(
+            "SELECT uid, project_id FROM project_applications "
+            "WHERE uid = ANY(%s)", (list(new_pid_of_uid),)).fetchall():
+        if pid != new_pid_of_uid[uid]:
+            old_pids.setdefault(uid, set()).add(pid)
+    if old_pids:
+        with conn.cursor() as cur:
+            cur.execute(
+                "CREATE TEMP TABLE _moves (uid text, new_pid bigint, "
+                "old_pid bigint) ON COMMIT DROP")
+            with cur.copy("COPY _moves FROM STDIN") as cp:
+                for uid, pids in old_pids.items():
+                    for pid in pids:
+                        cp.write_row((uid, new_pid_of_uid[uid], pid))
+            cur.execute(
+                "DELETE FROM project_applications pa USING _moves m "
+                "WHERE pa.uid = m.uid AND pa.project_id = m.old_pid")
+            # missing_parents / review rows follow the citing uid
+            cur.execute(
+                "UPDATE missing_parents mp SET project_id = m.new_pid "
+                "FROM _moves m WHERE mp.requested_by = m.uid "
+                "AND mp.project_id = m.old_pid")
+            cur.execute(
+                "UPDATE grouping_review g SET project_id = m.new_pid "
+                "FROM _moves m WHERE g.uid = m.uid "
+                "AND g.project_id = m.old_pid AND g.status = 'pending'")
     with conn.cursor() as cur:
         cur.executemany(
             "INSERT INTO project_applications (project_id, uid, parent_ref, role, "
@@ -372,6 +516,11 @@ def group(uids, conn) -> int:
             "SET parent_ref = excluded.parent_ref, role = excluded.role, "
             "has_parent_refs = excluded.has_parent_refs",
             memberships)
+    # Re-derive (and retire) the projects the uids were moved away from;
+    # they join the refresh pass below.
+    abandoned = {pid for pids in old_pids.values() for pid in pids}
+    retired = _retire_projects(conn, abandoned)
+    touched = abandoned - retired
 
     # Pass 4b: record unresolved refs for the parent hunt (scoped later to
     # recently-active projects; here we just keep the catalogue complete)
@@ -392,8 +541,9 @@ def group(uids, conn) -> int:
                 "ON CONFLICT (authority, reference) DO NOTHING",
                 unresolved)
 
-    # Pass 5: refresh aggregates + root/state for touched projects
-    pids = sorted({pid for pid, *_ in memberships})
+    # Pass 5: refresh aggregates + root/state for touched projects (targets,
+    # plus the still-populated projects memberships were moved away from)
+    pids = sorted({pid for pid, *_ in memberships} | touched)
     refresh(conn, pids)
 
     grouped = len(memberships)
@@ -460,7 +610,7 @@ def _set_root_and_state(conn, pid) -> None:
     """
     members = conn.execute(
         "SELECT pa.uid, pa.role, pa.has_parent_refs, a.start_date, "
-        "       a.description, a.authority "
+        "       a.description, a.authority, a.app_type "
         "FROM project_applications pa JOIN applications a ON a.uid = pa.uid "
         "WHERE pa.project_id = %s", (pid,)).fetchall()
     if not members:
@@ -468,7 +618,7 @@ def _set_root_and_state(conn, pid) -> None:
 
     # resolve each member's refs authority-wide in one query per authority
     cited_by_auth = defaultdict(set)
-    for uid, _role, _hpr, _sd, desc, auth in members:
+    for uid, _role, _hpr, _sd, desc, auth, _at in members:
         cited_by_auth[auth].update(parent_refs_of(desc, auth))
     resolved = {}
     for auth, refs in cited_by_auth.items():
@@ -488,7 +638,7 @@ def _set_root_and_state(conn, pid) -> None:
     # (or, failing that, any member) with no resolved parent can be the root.
     no_parent = []  # members with no resolved parent ref
     has_unresolved = False
-    for uid, role, _hpr, sd, desc, auth in members:
+    for uid, role, _hpr, sd, desc, auth, _at in members:
         refs = parent_refs_of(desc, auth)
         resolved_refs = [r for r in refs if (auth, r) in resolved]
         has_unresolved = has_unresolved or any(
@@ -513,6 +663,198 @@ def _set_root_and_state(conn, pid) -> None:
                  "WHERE id = %s", (root_uid, state, pid))
     conn.execute("UPDATE project_applications SET is_root = (uid = %s) "
                  "WHERE project_id = %s", (root_uid, pid))
+    _sync_multi_root_review(conn, pid, members, no_parent, state)
+
+
+def _sync_multi_root_review(conn, pid, members, no_parent, state) -> None:
+    """Keep one pending multi_root review row iff the project is ambiguous.
+
+    Ambiguous: insert a pending row if none exists, else refresh its
+    candidates snapshot in place (memberships drift as grouping runs).
+    Candidates are the members with no resolved parent ref (same set the
+    migration's classify() used) — NOT just has_parent_refs=false, which
+    would miss roots citing unresolvable refs.
+    Leaving ambiguous: pending rows are resolved with resolution='obsolete'
+    (no user action happened; resolved_by stays NULL).
+    """
+    if state != "ambiguous":
+        conn.execute(
+            "UPDATE grouping_review SET status = 'resolved', "
+            "resolution = 'obsolete', resolved_at = now() "
+            "WHERE reason = 'multi_root' AND project_id = %s "
+            "AND status = 'pending'", (pid,))
+        return
+    by_uid = {m[0]: m for m in members}
+    cands = []
+    for uid, _role, sd in sorted(no_parent,
+                                 key=lambda r: (r[2] is None, r[2], r[0])):
+        m = by_uid[uid]
+        cands.append({"uid": uid, "description": (m[4] or "")[:200],
+                      "app_type": m[6],
+                      "start_date": str(sd) if sd else None})
+    payload = json.dumps(cands)
+    row = conn.execute(
+        "SELECT id FROM grouping_review WHERE reason = 'multi_root' "
+        "AND project_id = %s AND status = 'pending'", (pid,)).fetchone()
+    if row:
+        conn.execute("UPDATE grouping_review SET candidates = %s::jsonb "
+                     "WHERE id = %s", (payload, row[0]))
+    else:
+        conn.execute(
+            "INSERT INTO grouping_review (authority, project_id, reason, "
+            "candidates) VALUES (%s, %s, 'multi_root', %s::jsonb)",
+            (members[0][5], pid, payload))
+
+
+def split_project(conn, project_id: int) -> dict:
+    """Split an ambiguous project into its reference-connected components.
+
+    Triggered by apply_grouping_resolution(..., 'split') which enqueues a
+    kind='split' job; the worker calls this (pure local DB work — refs are
+    resolved against the applications table only, no PlanIt calls).
+
+    The component containing the project's current root_uid keeps the
+    existing projects.id; every other component becomes a fresh projects row.
+    missing_parents rows follow the component containing their requested_by
+    uid and aliases follow their component's address keys. UI-owned tables
+    (ui_project_*) stay on the retained id — we can't know which scheme the
+    user cared about; the old root's component is the least surprising
+    default. linked_by is untouched: the user's decision is recorded on the
+    review row, not on memberships.
+
+    One transaction; the projects row is locked FOR UPDATE so a concurrent
+    sync regroup can't interleave.
+    """
+    stats: dict = {"components": 0, "new_project_ids": [],
+                   "moved_applications": 0}
+    with conn.transaction():
+        row = conn.execute(
+            "SELECT id, authority, root_uid FROM projects WHERE id = %s "
+            "FOR UPDATE", (project_id,)).fetchone()
+        if not row:
+            log.info("Split requested for deleted project %s", project_id)
+            return {**stats, "note": "project_gone"}
+        _pid, authority, root_uid = row
+        req = conn.execute(
+            "SELECT requested_by FROM split_requests WHERE project_id = %s",
+            (project_id,)).fetchone()
+        conn.execute(
+            "UPDATE split_requests SET status = 'running' "
+            "WHERE project_id = %s", (project_id,))
+
+        members = conn.execute(
+            "SELECT pa.uid, a.authority, a.description, a.address, a.postcode "
+            "FROM project_applications pa JOIN applications a ON a.uid = pa.uid "
+            "WHERE pa.project_id = %s", (project_id,)).fetchall()
+        info = {m[0]: m[1:] for m in members}  # uid -> (auth, desc, addr, pc)
+
+        # Re-parse refs and resolve authority-wide (exact + suffix-stripped,
+        # same as group()), keeping only edges whose both ends are members.
+        cited_by_auth: dict[str, set[str]] = defaultdict(set)
+        parsed = {}
+        for uid, (auth, desc, _addr, _pc) in info.items():
+            refs = parent_refs_of(desc, auth)
+            parsed[uid] = refs
+            cited_by_auth[auth].update(refs)
+        resolved = {}  # (authority, cited_ref) -> uid
+        for auth, refs in cited_by_auth.items():
+            if not refs:
+                continue
+            for ref, uid in conn.execute(
+                    "SELECT cand.ref, a.uid FROM unnest(%s::text[]) AS cand(ref) "
+                    "JOIN applications a ON a.authority = %s "
+                    "  AND (upper(a.reference) = cand.ref "
+                    "       OR starts_with(upper(a.reference), cand.ref || '/')) "
+                    "ORDER BY cand.ref, a.start_date ASC NULLS LAST",
+                    (list(refs), auth)):
+                resolved.setdefault((auth, ref), uid)
+
+        # undirected connected components (DSU) over the internal edges
+        parent = {uid: uid for uid in info}
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        for uid, (auth, _d, _a, _p) in info.items():
+            for ref in parsed[uid]:
+                target = resolved.get((auth, ref))
+                if target in info and target != uid:
+                    ra, rb = find(uid), find(target)
+                    if ra != rb:
+                        parent[rb] = ra
+        comps: dict[str, list[str]] = defaultdict(list)
+        for uid in info:
+            comps[find(uid)].append(uid)
+        if root_uid in info:
+            comps = sorted(comps.values(), key=lambda c: root_uid not in c)
+        else:  # stale root_uid — retain the largest component
+            comps = sorted(comps.values(), key=lambda c: -len(c))
+        stats["components"] = len(comps)
+
+        if len(comps) < 2:
+            # Data changed since the request (e.g. a parent-hunt linked the
+            # roots): nothing to split. Re-derive state — _set_root_and_state
+            # resolves the review obsolete if the project left ambiguous, or
+            # refreshes its candidates if it genuinely still is.
+            _set_root_and_state(conn, project_id)
+            conn.execute("DELETE FROM split_requests WHERE project_id = %s",
+                         (project_id,))
+            return {**stats, "note": "single_component_no_split"}
+
+        # Close out the old review rows BEFORE re-deriving, so a component
+        # that lands back in ambiguous gets a fresh pending row (Part 1)
+        # rather than inheriting the one resolved here.
+        conn.execute(
+            "UPDATE grouping_review SET status = 'resolved', "
+            "resolution = 'split', resolved_by = %s, resolved_at = now() "
+            "WHERE reason = 'multi_root' AND project_id = %s "
+            "AND status = 'pending'",
+            (req[0] if req else None, project_id))
+
+        retained_key = conn.execute(
+            "SELECT address_key FROM projects WHERE id = %s",
+            (project_id,)).fetchone()[0]
+        new_ids = []
+        for comp in comps[1:]:  # comps[0] contains the old root: retained
+            addr_opts = [(info[u][2], info[u][3]) for u in comp
+                         if info[u][2] and info[u][2].strip()]
+            addr, pc = (min(addr_opts, key=lambda ap: len(ap[0]))
+                        if addr_opts else (None, None))
+            new_id = conn.execute(
+                "INSERT INTO projects (authority, address_key, grouping_state) "
+                "VALUES (%s, %s, 'provisional') RETURNING id",
+                (authority, address_key(addr, pc))).fetchone()[0]
+            new_ids.append(new_id)
+            conn.execute(
+                "UPDATE project_applications SET project_id = %s "
+                "WHERE project_id = %s AND uid = ANY(%s)",
+                (new_id, project_id, comp))
+            conn.execute(
+                "UPDATE missing_parents SET project_id = %s "
+                "WHERE project_id = %s AND requested_by = ANY(%s)",
+                (new_id, project_id, comp))
+            comp_keys = {address_key(info[u][2], info[u][3]) for u in comp}
+            comp_keys.discard(None)
+            comp_keys.discard(retained_key)
+            if comp_keys:
+                conn.execute(
+                    "UPDATE project_aliases SET project_id = %s "
+                    "WHERE project_id = %s AND authority = %s "
+                    "AND address_key = ANY(%s)",
+                    (new_id, project_id, authority, sorted(comp_keys)))
+        stats["new_project_ids"] = new_ids
+        stats["moved_applications"] = sum(len(c) for c in comps[1:])
+
+        refresh(conn, [project_id] + new_ids)
+        conn.execute("DELETE FROM split_requests WHERE project_id = %s",
+                     (project_id,))
+    log.info("Split project %s into %s components (new ids %s, %s apps moved)",
+             project_id, stats["components"], new_ids,
+             stats["moved_applications"])
+    return stats
 
 
 def drain_regroup_pending(conn) -> int:

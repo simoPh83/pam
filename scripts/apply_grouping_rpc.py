@@ -1,5 +1,6 @@
 """Create the apply_grouping_resolution RPC used by pam-client to resolve
-grouping_review rows atomically. Run once (idempotent). Worker unaffected.
+grouping_review rows atomically, plus the split_requests table backing
+user-triggered multi_root splits. Run once (idempotent). Worker unaffected.
 
   python scripts/apply_grouping_rpc.py          # dry-run (rolls back)
   python scripts/apply_grouping_rpc.py --apply  # create/replace the function
@@ -38,6 +39,25 @@ CREATE TABLE IF NOT EXISTS regroup_pending (
 ALTER TABLE regroup_pending ENABLE ROW LEVEL SECURITY;
 -- worker/service-role only; authenticated users never touch it directly
 REVOKE ALL ON regroup_pending FROM anon, authenticated;
+
+-- User-requested multi_root splits, executed by the worker (kind='split'
+-- job). One row per project makes repeat clicks idempotent; the worker
+-- deletes the row on success so a future re-merge can be split again.
+CREATE TABLE IF NOT EXISTS split_requests (
+    project_id   bigint PRIMARY KEY REFERENCES projects(id) ON DELETE CASCADE,
+    requested_by uuid NOT NULL DEFAULT auth.uid(),
+    status       text NOT NULL DEFAULT 'pending',  -- pending|running|done|failed
+    error        text,
+    created_at   timestamptz NOT NULL DEFAULT now(),
+    finished_at  timestamptz
+);
+ALTER TABLE split_requests ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON split_requests FROM anon;
+GRANT SELECT ON split_requests TO authenticated;
+DROP POLICY IF EXISTS "authenticated read" ON split_requests;
+CREATE POLICY "authenticated read" ON split_requests
+    FOR SELECT TO authenticated USING (true);
+-- inserts/updates happen only via this SECURITY DEFINER RPC and the worker
 
 CREATE OR REPLACE FUNCTION public.apply_grouping_resolution(
     p_review_id bigint, p_resolution text)
@@ -121,8 +141,32 @@ BEGIN
       UPDATE grouping_review SET status='resolved', resolution='merged',
         resolved_by=auth.uid(), resolved_at=now() WHERE id=p_review_id;
       RETURN jsonb_build_object('action','kept_merged','project_id',v_pid);
+    ELSIF p_resolution = 'split' THEN
+      -- The review row STAYS pending until the worker completes the split
+      -- (marking it resolved here would silently lose it on a failed split).
+      IF NOT EXISTS (SELECT 1 FROM projects WHERE id = v_pid) THEN
+        RAISE EXCEPTION 'project % no longer exists', v_pid;
+      END IF;
+      IF (SELECT grouping_state FROM projects WHERE id = v_pid) <> 'ambiguous' THEN
+        RAISE EXCEPTION 'project % is no longer ambiguous; the review is stale', v_pid;
+      END IF;
+      -- idempotent: one pending request per project; re-arms only after the
+      -- previous attempt finished (done/failed)
+      INSERT INTO split_requests (project_id, requested_by)
+      VALUES (v_pid, auth.uid())
+      ON CONFLICT (project_id) DO UPDATE
+        SET status='pending', error=NULL, requested_by=auth.uid(),
+            created_at=now()
+        WHERE split_requests.status IN ('done','failed');
+      -- high-priority job (100 > sync/backfill); dedupe_key prevents
+      -- duplicate queued jobs for the same project
+      INSERT INTO jobs (kind, area, priority, dedupe_key)
+      VALUES ('split', r.authority, 100, 'split:' || v_pid)
+      ON CONFLICT (dedupe_key) DO NOTHING;
+      RETURN jsonb_build_object('action','split_queued','project_id',v_pid);
     ELSE
-      RAISE EXCEPTION 'multi_root split is performed by the worker, not the RPC';
+      RAISE EXCEPTION 'unsupported resolution for multi_root: % (use merged or split)',
+        p_resolution;
     END IF;
   ELSE
     RAISE EXCEPTION 'unknown reason %', r.reason;

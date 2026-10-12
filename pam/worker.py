@@ -53,7 +53,7 @@ HUNT_DELAY = float(os.environ.get("HUNT_DELAY_SECONDS", "0"))
 JOBS_DDL = """
 CREATE TABLE IF NOT EXISTS jobs (
     id          BIGSERIAL PRIMARY KEY,
-    kind        TEXT NOT NULL,              -- backfill | sync | parent_hunt
+    kind        TEXT NOT NULL,              -- backfill | sync | parent_hunt | split
     area        TEXT NOT NULL,
     start_date  DATE,
     end_date    DATE,
@@ -175,12 +175,14 @@ def claim(conn) -> dict | None:
             WHERE status = 'pending' AND not_before <= now()
             ORDER BY priority DESC, id
             FOR UPDATE SKIP LOCKED LIMIT 1)
-        RETURNING id, kind, area, start_date, end_date, since, attempts
+        RETURNING id, kind, area, start_date, end_date, since, attempts,
+                  dedupe_key
         """
     ).fetchone()
     if not row:
         return None
-    keys = ("id", "kind", "area", "start_date", "end_date", "since", "attempts")
+    keys = ("id", "kind", "area", "start_date", "end_date", "since",
+            "attempts", "dedupe_key")
     return dict(zip(keys, row))
 
 
@@ -208,7 +210,12 @@ def process(conn, job: dict) -> None:
     log.info("Job %s start: %s %s (attempt %s)", job["id"], job["kind"],
              job["area"], job["attempts"])
     try:
-        if job["kind"] == "parent_hunt":
+        if job["kind"] == "split":
+            # User-triggered split of an ambiguous project: pure local DB
+            # work (no PlanIt calls, no prune). Project id is in dedupe_key.
+            stats = projects.split_project(
+                conn, int(job["dedupe_key"].split(":", 1)[1]))
+        elif job["kind"] == "parent_hunt":
             prune(conn)  # keep the window fixed before fetching more parents
             stats = run_parent_hunt(conn, job)
         else:
@@ -234,6 +241,13 @@ def process(conn, job: dict) -> None:
         err = traceback.format_exc() if isinstance(exc, Exception) else str(exc)
         log.error("Job %s failed: %s", job["id"], exc)
         final = job["attempts"] >= MAX_ATTEMPTS
+        if final and job["kind"] == "split":
+            # flag the request; the review row stays pending so the user
+            # can retry the split
+            conn.execute(
+                "UPDATE split_requests SET status = 'failed', error = %s, "
+                "finished_at = now() WHERE project_id = %s",
+                (err[-2000:], int(job["dedupe_key"].split(":", 1)[1])))
         conn.execute(
             "UPDATE jobs SET status = %s, error = %s, finished_at = now(), "
             "not_before = %s WHERE id = %s",

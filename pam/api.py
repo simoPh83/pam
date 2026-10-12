@@ -4,7 +4,7 @@ Design seam: fetch_area() yields normalized record dicts. A second source
 (planning.data.gov.uk, Camden Socrata, ...) can be added later by emitting
 the same shape, without touching ledger/spreadsheet logic.
 
-Verified API quirks (see docs/2026.09.27-planit-api-findings.md):
+Verified API quirks (see docs/2026-09-27-planit-api-findings.md):
 - start_date/end_date params filter the application's start_date (registration),
   NOT decided_date. Decided-date filtering must be done client-side.
 - app_state param filters server-side and works.

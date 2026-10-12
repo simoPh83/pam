@@ -1,7 +1,7 @@
 # Backend spec — new features (2026-10-05)
 
 **Repo:** `simoPh83/pam` — Python worker on Railway + Supabase schema.
-**Source requirements:** `docs/2026.10.05 new features.txt`.
+**Source requirements:** `docs/2026-10-05-new-features.txt`.
 **Frontend counterpart:** `web-client-kickoff/04-backend-changes-2026-10-05.md`.
 
 Decisions already made with the owner:

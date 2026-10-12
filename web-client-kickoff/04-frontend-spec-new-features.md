@@ -1,7 +1,7 @@
 # Frontend spec — new features (2026-10-05, revised 2026-10-07)
 
 **Repo:** `pam-client` (Next.js + Supabase on Vercel).
-**Backend counterpart:** `docs/2026.10.05-backend-spec-new-features.md` in the
+**Backend counterpart:** `docs/2026-10-05-backend-spec-new-features.md` in the
 `pam` repo — the worker/schema changes land there. This document covers what
 the client builds on top. Read `01-database-contract.md` and
 `03-project-grouping-ui.md` first.

@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-10 · **Repo:** `simoPh83/pam` (worker + schema)
 **Supersedes:** the address-cluster grouping model of
-`docs/2026.10.04 project-grouping-spec.md` (kept for history).
+`docs/2026-10-04-project-grouping-spec.md` (kept for history).
 **UI spec:** deferred — a companion spec for `pam-client` will be written once
 the migration is running (see `grouping_review` below).
 
@@ -150,9 +150,10 @@ Implemented in `pam/projects.py` and validated read-only + synthetic-tx:
   ambiguous projects (the 2 are reference cycles with interchangeable roots);
   synthetic sync test confirmed a citing discharge joins its cited scheme
   and an unrelated new original at the same address becomes its own project.
-- `grouping_review` insertion on new ambiguity is **not yet wired** into the
-  worker (the table + migration backfill exist; the UI resolution endpoint
-  will call a regroup helper that also clears rows).
+- `grouping_review` insertion on new ambiguity is wired into the worker
+  since 2026-10-12 (`_sync_multi_root_review`, called from
+  `_set_root_and_state`); see
+  `docs/2026-10-12-multi-root-split-backend-spec.md`.
 - The `main_uid` headline spec (`pam-client` construction-timing docs) is
   rebased onto scheme-level projects afterwards.
 

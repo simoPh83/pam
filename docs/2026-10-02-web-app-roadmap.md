@@ -59,7 +59,7 @@ PlanIt API --> Railway worker (Python, cron + backfill job) --> Supabase Postgre
 
 ### Phase 5 — Scoring and linking
 - Project linking (normalised address + parent-reference in description).
-- Completion-window scoring and lanes (per `2026.09.29-next-steps-roadmap.md`)
+- Completion-window scoring and lanes (per `2026-09-29-next-steps-roadmap.md`)
   as SQL views.
 
 ## Decisions to make

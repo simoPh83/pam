@@ -1,4 +1,4 @@
-"""Stars + alerts — worker side (spec §4, docs/2026.10.05-backend-spec-new-features.md).
+"""Stars + alerts — worker side (spec §4, docs/2026-10-05-backend-spec-new-features.md).
 
 Stars are project-level (`ui_project_stars`); alerts are generated into
 `ui_alerts` from each user's `ui_alert_rules`. The ui_* tables are created

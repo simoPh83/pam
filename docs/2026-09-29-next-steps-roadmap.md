@@ -52,7 +52,7 @@ Distinct additions:
 1. **Backfill 3 years, all application types.** Householder included, since
    volume comes first. Re-check storage size and scrape time.
 2. **Fetch all London boroughs** (32 boroughs plus the City).
-   - Use the borough audit (`2026.09.27-borough-audit.csv`) to sequence them.
+   - Use the borough audit (`2026-09-27-borough-audit.csv`) to sequence them.
    - Record per-borough data quality: agent names, descriptions, expiry
      dates, document links.
    - Rank boroughs by number of usable leads. Don't drop any before seeing

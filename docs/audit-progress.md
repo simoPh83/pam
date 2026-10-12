@@ -2,7 +2,7 @@
 
 Living document tracking which London boroughs have been audited against the
 PlanIt API, what data each exposes, and what remains. Updated per session; see
-[2026.09.27-borough-audit.csv](2026.09.27-borough-audit.csv) for the raw numbers.
+[2026-09-27-borough-audit.csv](2026-09-27-borough-audit.csv) for the raw numbers.
 
 **Tooling:** `python -m pam.audit` ([pam/audit.py](../pam/audit.py)) — fills CSV
 rows where `fetched = -1`. Flags: `--refresh` (redo all), `--authority X Y`
