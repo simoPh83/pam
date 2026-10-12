@@ -114,3 +114,19 @@ patterns appear in grouped memberships and would improve future ingestion.
    `role` in place (never re-`group()`s a member — that could relocate it
    into an unrelated address bucket), re-derives state (provisional →
    clean), and resolves the review rows.
+4. **Two more parser gaps found while case-reviewing the queue**
+   (2026-10-12, e.g. `Enfield/26/03901/VAR` — "Variation of condition 02, 03
+   and 04 of application: 22/03720/FUL"): `CONDITION_OF_RE`'s number list
+   didn't allow the word "and" (nor repeated "(a)" sub-items), and
+   `PARENT_RE` didn't tolerate a colon directly after the keyword
+   ("application: <REF>"). A third the same day: `REF_PREFIX_RE`'s `\b`
+   after `RN` missed Westminster's no-space house style "(RN25/02937/FULL)"
+   — the left guard is now a `(?<![A-Z0-9])` lookbehind. Impact on the
+   pending unlinked queue: of 5,133 rows, 3,924 now yield refs (~1.2k
+   resolve to a stored parent immediately — no API call); the rest are
+   catalogued into `missing_parents` for the parent hunt. Companion
+   `group()` change: a uid that newly yields refs also has its pending
+   `unlinked_*` review rows auto-resolved `obsolete` (they were queued as
+   reference-less), so the frontend queue shrinks as soon as
+   `scripts/regroup_missed_parent_refs.py` is re-run — queue rows are all
+   still project members, so that script covers them.

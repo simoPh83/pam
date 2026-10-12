@@ -85,6 +85,7 @@ _POSTCODE = re.compile(r"\s+[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\s*$", re.I)
 PARENT_RE = re.compile(
     r"(?:permission|approval|application|consent|amendments?|reference)\s*"
     r"(?:planning\s+)?"
+    r"[.:]?\s*"  # tolerate "application: 22/03720/FUL"
     r"(?:ref(?:erence)?[.:]?\s*|no[.:]?\s*|\(\s*)?"
     r"([A-Z0-9][A-Z0-9/_.-]{4,25}\d[A-Z0-9/_.-]*)",
     re.I,
@@ -95,12 +96,14 @@ PARENT_RE = re.compile(
 # PP/00/02566". Narrow (authority-style ref shapes only) so the condition list
 # itself is never captured. Kept separate from PARENT_RE: widening the main
 # pattern to tolerate the intervening number list caused large regressions.
+# The list tolerates digits, separators, "(a)" sub-items and the word "and"
+# ("condition 02, 03 and 04 of application 22/03720/FUL").
 # General reference shape: 1-4 alnum segments joined by '/', with a digit.
 # Tolerates Merton NN/PNNNN, Kensington PP/NN/NNNNN, Camden NNNN/NNNN/L, etc.
 _REF_SHAPE = r"([A-Z0-9]{1,4}(?:/[A-Z0-9]{1,6}){1,3})"
 
 CONDITION_OF_RE = re.compile(
-    r"conditions?\s+[\d,\s&]+?(?:\s*\([^)]*\))?\s*of\s+"
+    r"conditions?\s+(?:[\d,\s&]|\([^)]*\)|\band\b)+?of\s+"
     r"(?:planning\s+)?(?:permission|application|consent|ref(?:erence)?[.:]?|no[.:]?)?\s*"
     + _REF_SHAPE,
     re.I,
@@ -118,12 +121,14 @@ VARIED_BY_RE = re.compile(
 
 # Bare "Ref:"/"RN" citation prefixes with no leading keyword, e.g. "reserved
 # matters approved under Ref: 23/02239/OUT", "(RN 24/05892/FULL)" or
-# "planning permission dated 22/05/2025 ref 2025/1231". Kept separate from
-# PARENT_RE (no keyword context), so junk is filtered by _plausible_ref:
-# the capture must be 6+ chars with a digit and a '/', and bare dates like
-# 12/05/2023 are excluded.
+# "planning permission dated 22/05/2025 ref 2025/1231". The left guard is a
+# lookbehind (not \b) so the no-space Westminster house style "(RN25/02937/
+# FULL)" matches while "RN" inside a longer alnum run (e.g. "MODERN25/1234")
+# does not. Kept separate from PARENT_RE (no keyword context), so junk is
+# filtered by _plausible_ref: the capture must be 6+ chars with a digit and a
+# '/', and bare dates like 12/05/2023 are excluded.
 REF_PREFIX_RE = re.compile(
-    r"\b(?:refs?|RN)\b[.:]?\s*" + _REF_SHAPE,
+    r"(?<![A-Z0-9])(?:refs?|RN)[.:]?\s*" + _REF_SHAPE,
     re.I,
 )
 
@@ -305,9 +310,14 @@ def _resolve_refs(refs: set[str], authority: str, conn) -> dict[str, str]:
         (list(refs), authority))}
 
 
-def _retire_projects(conn, pids) -> set:
+def _retire_projects(conn, pids, succ_of: dict | None = None) -> set:
     """Delete the given empty projects (no members), re-pointing their
     dependents to the project that absorbed their last members.
+
+    succ_of maps a retired id to its absorbing project when the caller knows
+    it (group() moves, the dual-membership repair); otherwise the successor
+    falls back to another live project with the same (authority,
+    address_key).
 
     Followers: missing_parents rows that still point at the retired id,
     project_aliases (its key belonged to the absorbed members), and the
@@ -329,22 +339,18 @@ def _retire_projects(conn, pids) -> set:
         (sorted(pids),)).fetchall()}
     if not empty:
         return set()
-    aliases = dict(conn.execute(
-        "SELECT project_id, address_key FROM project_aliases "
-        "WHERE project_id = ANY(%s)", (sorted(empty),)).fetchall())
+    succ_of = succ_of or {}
     for pid in sorted(empty):
-        # successor: the project holding an application that used to sit at
-        # this project's address key
-        succ = None
-        key = aliases.get(pid)
-        if key:
+        succ = succ_of.get(pid)
+        if succ is None:
             row = conn.execute(
-                "SELECT pa.project_id FROM project_applications pa "
-                "JOIN applications a ON a.uid = pa.uid "
-                "WHERE address_key(a.address, a.postcode) IS NOT NULL "
-                "  AND pa.project_id <> %s "
-                "  AND address_key(a.address, a.postcode) = %s LIMIT 1",
-                (pid, key)).fetchone()
+                "SELECT p2.id FROM projects p2 "
+                "JOIN projects p1 ON p1.id = %s "
+                "WHERE p2.authority = p1.authority "
+                "  AND p2.address_key = p1.address_key "
+                "  AND p2.id <> p1.id AND p2.n_applications > 0 "
+                "ORDER BY p2.n_applications DESC, p2.id LIMIT 1",
+                (pid,)).fetchone()
             succ = row[0] if row else None
         if succ:
             conn.execute("UPDATE missing_parents SET project_id = %s "
@@ -507,6 +513,8 @@ def group(uids, conn) -> int:
                 "UPDATE grouping_review g SET project_id = m.new_pid "
                 "FROM _moves m WHERE g.uid = m.uid "
                 "AND g.project_id = m.old_pid AND g.status = 'pending'")
+            cur.execute("DROP TABLE _moves")  # group() is called per batch
+                                              # within one transaction
     with conn.cursor() as cur:
         cur.executemany(
             "INSERT INTO project_applications (project_id, uid, parent_ref, role, "
@@ -519,8 +527,23 @@ def group(uids, conn) -> int:
     # Re-derive (and retire) the projects the uids were moved away from;
     # they join the refresh pass below.
     abandoned = {pid for pids in old_pids.values() for pid in pids}
-    retired = _retire_projects(conn, abandoned)
+    succ_of = {old: new_pid_of_uid[uid] for uid, pids in old_pids.items()
+               for old in pids}
+    retired = _retire_projects(conn, abandoned, succ_of)
     touched = abandoned - retired
+
+    # Pass 4c: a uid that now yields parsed refs no longer belongs in the
+    # unlinked review queue (queued when its description yielded none —
+    # parser improvements can change that). If the refs resolve it joined a
+    # scheme; if not, missing_parents (pass 4b) owns the follow-up.
+    uids_now_linked = [uid for _pid, uid, _pr, _role, hpr in memberships
+                       if hpr]
+    if uids_now_linked:
+        conn.execute(
+            "UPDATE grouping_review SET status = 'resolved', "
+            "resolution = 'obsolete', resolved_at = now() "
+            "WHERE uid = ANY(%s) AND reason LIKE 'unlinked%%' "
+            "AND status = 'pending'", (uids_now_linked,))
 
     # Pass 4b: record unresolved refs for the parent hunt (scoped later to
     # recently-active projects; here we just keep the catalogue complete)

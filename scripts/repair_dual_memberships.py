@@ -125,7 +125,9 @@ def _repair_pass(conn, duals, stats: Counter) -> None:
 
         if touched:
             refresh(conn, sorted(touched))
-            stats["projects_retired"] += len(_retire_projects(conn, touched))
+            succ_of = {old: keep for _uid, old, keep in moved}
+            stats["projects_retired"] += len(
+                _retire_projects(conn, touched, succ_of))
         log.info("Batch %s-%s done (%s moved so far)",
                  i, i + len(batch), stats["memberships_deleted"])
 
