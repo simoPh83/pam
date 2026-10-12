@@ -98,9 +98,12 @@ PARENT_RE = re.compile(
 # pattern to tolerate the intervening number list caused large regressions.
 # The list tolerates digits, separators, "(a)" sub-items and the word "and"
 # ("condition 02, 03 and 04 of application 22/03720/FUL").
-# General reference shape: 1-4 alnum segments joined by '/', with a digit.
-# Tolerates Merton NN/PNNNN, Kensington PP/NN/NNNNN, Camden NNNN/NNNN/L, etc.
-_REF_SHAPE = r"([A-Z0-9]{1,4}(?:/[A-Z0-9]{1,6}){1,3})"
+# General reference shape: 1-6 alnum first segment then up to 3 further
+# '/'-joined segments, with a digit. The first segment allows 6 chars for
+# legacy numeric refs (Westminster cites its 1960s permissions as
+# "101822/C"). Tolerates Merton NN/PNNNN, Kensington PP/NN/NNNNN,
+# Camden NNNN/NNNN/L, etc.
+_REF_SHAPE = r"([A-Z0-9]{1,6}(?:/[A-Z0-9]{1,6}){1,3})"
 
 CONDITION_OF_RE = re.compile(
     r"conditions?\s+(?:[\d,\s&]|\([^)]*\)|\band\b)+?of\s+"
@@ -165,7 +168,8 @@ def address_key(address: str | None, postcode: str | None = None) -> str | None:
 # is not a condition discharge.
 _BUILDING_SERVICES_RE = re.compile(
     r"\bair[- ]condition(?:ing|ers?|ed)?s?\b"
-    r"|\bdischarge\s+(?:of\s+extracted\s+air|flues?|stacks?|grilles?|pipes?)\b",
+    r"|\bdischarge\s+(?:of\s+extracted\s+air|flues?|stacks?|grilles?|pipes?"
+    r"|terminals?|points?|outlets?|vents?)\b",
     re.I,
 )
 
