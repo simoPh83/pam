@@ -14,7 +14,13 @@ AND its address matches no known scheme. Apps with refs that don't resolve
 are `provisional` projects owned by `missing_parents`/parent-hunt — they are
 never queue rows. No-ref non-originals at a single-scheme address are
 auto-attached (`linked_by='inferred'`). So every queue row is either (a) a
-genuine orphan (dismiss), or (b) a parser/classifier bug to fix.
+genuine orphan (dismiss), (b) a parser/classifier bug to fix, or (c) a
+long-tail case the user can now close by hand in pam-client (paste the
+missed ref / assign at postcode / make singleton — see
+`2026-10-12-manual-resolution-ui-spec.md`; backend: `manual_parent_refs`,
+`role_override`, `resolve_review_with_ref` / `resolve_review_singleton`).
+Manual refs paste-mining: `parent_ref` on memberships with
+`linked_by='manual'` is the catalogue of formats the parser still misses.
 
 ## Standard inspection (run this first, every time)
 
@@ -88,7 +94,8 @@ print("same address_key:", [(u, t) for u, t, a, p in rows
    resolve — expect these to be permanent.
 6. **No refs, non-original, but a scheme clearly exists under a different
    address form** (e.g. Southwark "Street Record …") → data limitation, not
-   a bug; queue stays correct; candidate for a future "search & attach" UI.
+   a bug; queue stays correct; the manual-resolution UI's postcode browse
+   (`2026-10-12-manual-resolution-ui-spec.md`, Mode 2) is the fix path.
 
 ## Regression suite (append every new format — keep ordered)
 

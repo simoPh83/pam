@@ -99,7 +99,8 @@ def main():
                 continue
             cur = conn.execute(
                 "UPDATE project_applications SET role = 'original' "
-                "WHERE uid = %s AND role IS DISTINCT FROM 'original'", (uid,))
+                "WHERE uid = %s AND role IS DISTINCT FROM 'original' "
+                "AND role_override IS NULL", (uid,))  # never stomp manual roles
             if cur.rowcount:
                 stats["roles_refreshed"] += cur.rowcount
                 stale_pids |= member_pids[uid]

@@ -60,6 +60,13 @@ CREATE TABLE IF NOT EXISTS missing_parents (
     found_uid    TEXT,
     UNIQUE (authority, reference)
 );
+CREATE TABLE IF NOT EXISTS manual_parent_refs (
+    uid         TEXT PRIMARY KEY REFERENCES applications(uid) ON DELETE CASCADE,
+    authority   TEXT NOT NULL,
+    reference   TEXT NOT NULL,          -- user-supplied parent ref (upper-case)
+    created_by  UUID,                   -- auth.uid() of the resolving user
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 """
 
 # Columns added after first release — applied idempotently by ensure_schema().
@@ -67,6 +74,9 @@ MIGRATIONS = (
     "ALTER TABLE project_applications ADD COLUMN IF NOT EXISTS "
     "has_parent_refs BOOLEAN NOT NULL DEFAULT false",
     "ALTER TABLE projects ADD COLUMN IF NOT EXISTS root_in_db BOOLEAN",
+    # user-set role (pam-client "make singleton"); group() never re-derives it
+    "ALTER TABLE project_applications ADD COLUMN IF NOT EXISTS "
+    "role_override TEXT",
 )
 
 
@@ -403,6 +413,18 @@ def _retire_projects(conn, pids, succ_of: dict | None = None) -> set:
     return empty
 
 
+def _manual_refs(conn, uids) -> dict[str, list[str]]:
+    """User-supplied parent refs (pam-client manual-resolution dialog),
+    keyed by uid. Unioned with the description-parsed refs everywhere refs
+    are derived, so a manual link survives re-parses and re-groups."""
+    out: dict[str, list[str]] = {}
+    for uid, ref in conn.execute(
+            "SELECT uid, reference FROM manual_parent_refs "
+            "WHERE uid = ANY(%s)", (list(uids),)).fetchall():
+        out.setdefault(uid, []).append(ref)
+    return out
+
+
 def group(uids, conn) -> int:
     """(Re)group the given application uids. Returns how many were grouped."""
     uids = list(uids)
@@ -411,6 +433,11 @@ def group(uids, conn) -> int:
     rows = conn.execute(
         "SELECT uid, authority, address, postcode, description, app_type "
         "FROM applications WHERE uid = ANY(%s)", (uids,)).fetchall()
+    manual_refs = _manual_refs(conn, [r[0] for r in rows])
+    role_overrides = dict(conn.execute(
+        "SELECT uid, role_override FROM project_applications "
+        "WHERE uid = ANY(%s) AND role_override IS NOT NULL",
+        ([r[0] for r in rows],)).fetchall())
 
     # Pass 1: normalise in memory
     prepared = {}  # (authority, address_key) -> list of (uid, name, role, refs)
@@ -420,9 +447,12 @@ def group(uids, conn) -> int:
         if not key or not authority:
             continue
         refs = parent_refs_of(description, authority)
+        if uid in manual_refs:
+            refs = list(dict.fromkeys(refs + manual_refs[uid]))
         prepared.setdefault((authority, key), []).append(
             (uid, (address or "").strip()[:100],
-             role_of(description, app_type, authority), refs))
+             role_overrides.get(uid)
+             or role_of(description, app_type, authority), refs))
         if refs:
             all_refs.setdefault(authority, set()).update(refs)
 
@@ -455,6 +485,12 @@ def group(uids, conn) -> int:
                 ([k[0] for k in keys], [k[1] for k in keys])):
             addr_pid[(auth, key)] = pid
 
+    # current membership (unique index project_applications_uid_key
+    # guarantees one row per uid) — manual singletons stay put
+    cur_pid = dict(conn.execute(
+        "SELECT uid, project_id FROM project_applications "
+        "WHERE uid = ANY(%s)", (uids,)).fetchall())
+
     def target_project(auth, key, uid, refs):
         """Project for a new/changed app: cited scheme > address bucket > new."""
         known = [r for r in resolved.get(auth, {}) if r in refs]
@@ -467,6 +503,10 @@ def group(uids, conn) -> int:
                 (auth, target_ref)).fetchone()
             if row:
                 return row[0]
+        # a user-marked singleton (role_override) is never relocated into an
+        # address bucket; only a resolved reference can move it
+        if uid in role_overrides and uid in cur_pid:
+            return cur_pid[uid]
         if (auth, key) in alias:
             return alias[(auth, key)]
         if addr_pid.get((auth, key)):
@@ -646,10 +686,18 @@ def _set_root_and_state(conn, pid) -> None:
     if not members:
         return
 
+    manual_refs = _manual_refs(conn, [m[0] for m in members])
+
+    def refs_of(uid: str, desc: str, auth: str) -> list[str]:
+        refs = parent_refs_of(desc, auth)
+        if uid in manual_refs:
+            refs = list(dict.fromkeys(refs + manual_refs[uid]))
+        return refs
+
     # resolve each member's refs authority-wide in one query per authority
     cited_by_auth = defaultdict(set)
     for uid, _role, _hpr, _sd, desc, auth, _at in members:
-        cited_by_auth[auth].update(parent_refs_of(desc, auth))
+        cited_by_auth[auth].update(refs_of(uid, desc, auth))
     resolved = {}
     for auth, refs in cited_by_auth.items():
         if refs:
@@ -669,7 +717,7 @@ def _set_root_and_state(conn, pid) -> None:
     no_parent = []  # members with no resolved parent ref
     has_unresolved = False
     for uid, role, _hpr, sd, desc, auth, _at in members:
-        refs = parent_refs_of(desc, auth)
+        refs = refs_of(uid, desc, auth)
         resolved_refs = [r for r in refs if (auth, r) in resolved]
         has_unresolved = has_unresolved or any(
             r not in {x for x in refs if (auth, x) in resolved} for r in refs)
@@ -888,18 +936,29 @@ def split_project(conn, project_id: int) -> dict:
 
 
 def drain_regroup_pending(conn) -> int:
-    """Re-derive root/grouping_state for projects queued by the
-    apply_grouping_resolution RPC after a manual assignment. Returns how many
-    were processed. Idempotent; safe to call every run.
+    """Re-derive aggregates and root/grouping_state for projects queued by
+    the manual-resolution RPCs (apply_grouping_resolution,
+    resolve_review_with_ref, resolve_review_singleton). Projects left
+    memberless by a membership move are retired. Returns how many were
+    processed. Idempotent; safe to call every run.
     """
     pids = [r[0] for r in conn.execute(
         "SELECT project_id FROM regroup_pending ORDER BY queued_at").fetchall()]
-    for pid in pids:
-        _set_root_and_state(conn, pid)
-        conn.execute("DELETE FROM regroup_pending WHERE project_id = %s", (pid,))
-    if pids:
-        log.info("Re-derived root/state for %s manually-assigned project(s)",
-                 len(pids))
+    if not pids:
+        return 0
+    refresh(conn, pids)  # aggregates + root/state (superset of
+                         # _set_root_and_state); the membership moved, so
+                         # n_applications etc. are stale too
+    empty = {r[0] for r in conn.execute(
+        "SELECT p.id FROM projects p WHERE p.id = ANY(%s) "
+        "AND NOT EXISTS (SELECT 1 FROM project_applications pa "
+        "                WHERE pa.project_id = p.id)", (pids,)).fetchall()}
+    if empty:
+        _retire_projects(conn, empty, {})
+    conn.execute("DELETE FROM regroup_pending WHERE project_id = ANY(%s)",
+                 (pids,))
+    log.info("Re-derived root/state for %s manually-assigned project(s)",
+             len(pids))
     return len(pids)
 
 

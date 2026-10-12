@@ -96,6 +96,15 @@ BEGIN
       RETURN jsonb_build_object('action','dismissed','uid',v_uid);
     ELSIF p_resolution ~ '^\d+$' THEN
       v_pid := p_resolution::bigint;
+      -- a uid belongs to exactly one project (unique index
+      -- project_applications_uid_key): move it out of any other project
+      -- first and queue the abandoned projects for re-derivation (the
+      -- worker's drain_regroup_pending refreshes them and retires any left
+      -- empty — typically the orphan's provisional singleton)
+      INSERT INTO regroup_pending (project_id)
+      SELECT project_id FROM project_applications WHERE uid = v_uid
+      ON CONFLICT (project_id) DO NOTHING;
+      DELETE FROM project_applications WHERE uid = v_uid AND project_id <> v_pid;
       -- attach to the chosen scheme (role/has_parent_refs recomputed by the
       -- worker on next regroup; we seed sensible values)
       INSERT INTO project_applications
