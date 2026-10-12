@@ -189,9 +189,10 @@ def ref_year_of(ref: str) -> int | None:
     """Year embedded in a council reference, e.g. P2018/2269/FUL → 2018,
     2018/1234/P → 2018, PA/18/01585 → 2018, 18/06246/FUL → 2018.
     Returns None for implausible years (condition numbers, drawing refs and
-    other regex false positives) and for pre-2000 years: PlanIt's historical
-    coverage starts 2000–2002 depending on the authority, so those refs can
-    never resolve."""
+    other regex false positives) and for pre-2000 years (PlanIt's historical
+    coverage starts 2000–2002 depending on the authority). The parent hunt
+    uses this only to order its queue, recent first — refs with no parseable
+    year are still looked up (id_match needs no date window)."""
     from datetime import date
     lo, hi = 2000, date.today().year + 1
     m = _YEAR4.search(ref)

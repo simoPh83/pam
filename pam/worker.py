@@ -256,7 +256,11 @@ def run_parent_hunt(conn, job: dict) -> dict:
     is definitive: a hit deletes the catalogue row, a miss marks the ref
     'exhausted' so it is never looked up again. Progress is per ref, so
     an interrupted job simply resumes. Parents may cite older parents; those
-    new refs are picked up by the same job."""
+    new refs are picked up by the same job.
+
+    id_match needs no date window, so every pending ref is hunted — refs with
+    no parseable year get the same single attempt (a miss turns 'exhausted'
+    forever). ref_year only orders the queue, recent first."""
     cfg = load_config(argv=job_argv(job))
     area = cfg.areas[0]
     home = geocode_home(cfg.home_postcode)
@@ -284,8 +288,9 @@ def run_parent_hunt(conn, job: dict) -> dict:
         while True:
             pending = conn.execute(
                 "SELECT id, reference, requested_by FROM missing_parents "
-                "WHERE authority = %s AND status = 'pending' AND ref_year IS NOT NULL "
-                "ORDER BY ref_year DESC, id LIMIT 200", (area.authority,)).fetchall()
+                "WHERE authority = %s AND status = 'pending' "
+                "ORDER BY ref_year DESC NULLS LAST, id LIMIT 200",
+                (area.authority,)).fetchall()
             if not pending:
                 break
             for mp_id, ref, requested_by in pending:
@@ -426,7 +431,7 @@ def enqueue_parent_hunt(conn) -> int:
     rows = conn.execute(
         """
         SELECT mp.authority FROM missing_parents mp
-        WHERE mp.status = 'pending' AND mp.ref_year IS NOT NULL
+        WHERE mp.status = 'pending'
           AND NOT EXISTS (SELECT 1 FROM jobs j WHERE j.kind = 'parent_hunt'
                           AND j.area = mp.authority
                           AND j.status IN ('pending', 'running'))
