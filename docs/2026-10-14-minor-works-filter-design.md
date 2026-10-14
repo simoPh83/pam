@@ -169,14 +169,20 @@ mains of previously fragment-only projects, without waiting for a sweep.
 4. Word-number multi-dwellings ("subdivision into two dwellings") purge
    today (digit-based counts only). Add number-words to the keep side?
 
-## Implementation checklist (after sign-off)
+## Implementation checklist
 
 - [x] pam/classify.py (validated by the analysis harness)
-- [ ] fetch fix: deterministic sort + server-driven paging + reconcile
-      (pam/api.py, pam/main.py stats, fetch_progress meta)
-- [ ] `worker enqueue-backfill --chunk month`
-- [ ] dismissed_projects / dismissed_refs tables + ingest flow
-- [ ] scripts/purge_minor_projects.py (batched, protection-aware)
-- [ ] grouping-time project verdict hook
-- [ ] sequencing: deploy ingest filter → purge → monthly re-backfill all
-      boroughs → resume normal syncs
+- [x] fetch fix: deterministic sort + server-driven paging + reconcile
+      (pam/api.py, pam/main.py stats, fetch_progress meta) — commit 7abc495
+- [x] `worker enqueue-backfill --chunk month` — commit 7abc495
+- [x] dismissed_projects / dismissed_refs tables + ingest flow — a26a9c6
+- [x] scripts/purge_minor_projects.py (dry-run by default) — a26a9c6
+- [x] grouping-time project verdict hook — a26a9c6
+- [ ] deploy to Railway (worker picks up the ingest filter + fetch fix)
+- [ ] `purge_minor_projects.py --apply` (owner's explicit go after dry-run
+      review: 20,938 projects / 23,590 applications)
+- [ ] monthly re-backfill 2025-06-01 → today, all boroughs:
+      `python -m pam.worker enqueue-backfill --from 2025-06-01
+      --to 2026-10-14 --chunk month` (≈17 windows x 33 areas ≈ 561 jobs,
+      ~6-7 nights under the 300/day cap; older than the 16-month retention
+      window is pointless — retention would prune it on arrival)
