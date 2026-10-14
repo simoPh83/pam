@@ -83,8 +83,13 @@ class Dismissals:
 
     def dismiss(self, conn, *, authority: str, address_key: str | None,
                 references: list[str], reason: str, n_members: int = 1,
-                main_reference: str | None = None) -> None:
-        """Record a dismissal (DB + memory). Caller commits."""
+                main_reference: str | None = None,
+                remember: bool = True) -> None:
+        """Record a dismissal (DB + memory). Caller commits.
+
+        remember=False skips the in-memory update — use it inside retried
+        transactions, where a rollback would leave memory diverged from the
+        DB (purge batches update memory only after a successful commit)."""
         main_reference = main_reference or (references[0] if references else None)
         pid = conn.execute(
             "INSERT INTO dismissed_projects (authority, address_key, "
@@ -98,9 +103,11 @@ class Dismissals:
                 "dismissed_project_id) VALUES (%s, %s, %s) "
                 "ON CONFLICT (authority, reference) DO NOTHING",
                 (authority, ref, pid))
-            self.refs.add((authority, ref))
-        if address_key:
-            self.addrs.add((authority, address_key))
+        if remember:
+            self.refs.update((authority, r) for r in dict.fromkeys(references))
+            if address_key:
+                self.addrs.add((authority, address_key))
+        return pid
 
 
 def record_verdict(d: Dismissals, row: dict) -> tuple[str, str | None]:

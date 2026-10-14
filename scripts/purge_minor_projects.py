@@ -37,9 +37,18 @@ def main() -> None:
                     help="execute the purge (default: dry run)")
     args = ap.parse_args()
 
+    import logging
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
+
     load_dotenv(Path(".env"))
     conn = psycopg.connect(os.environ["DATABASE_URL"], autocommit=True)
     ensure_schema(conn)
+
+    # Half-purged projects from an interrupted earlier run (tombstoned but
+    # project rows remain) are retired first.
+    zombies = purge.cleanup_zombie_projects(conn, dry_run=not args.apply)
+    if zombies:
+        print(f"  zombie (half-purged) projects retired: {zombies:,}")
 
     print("Classifying all projects by their main application ...")
     verdicts: dict[str, list] = {"purge": [], "keep": [], "postpone": [],

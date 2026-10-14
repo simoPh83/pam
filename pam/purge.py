@@ -95,60 +95,128 @@ def purge_projects(conn, dismissed: Dismissals | None, project_ids,
                    dry_run: bool = False) -> dict:
     """Purge the given projects with all members, writing tombstones first.
     Mirrors retention's dual-membership guard: an application also claimed
-    by a surviving project is kept."""
+    by a surviving project is kept.
+
+    Each batch is ONE transaction (conn.transaction()) with deadlock retry:
+    the worker runs concurrently and the ui_project_agent_presence triggers
+    on project_applications fire during the cascade — the 2026-10-14 run
+    deadlocked mid-batch. A short deadlock_timeout makes us the quick victim
+    (the worker is never held up); a rolled-back batch is fully redone.
+    """
+    import time
+
+    import psycopg
+
     stats = defaultdict(int)
     pids = sorted(set(int(p) for p in project_ids))
     if not pids:
         return stats
     ui_tables = _existing_tables(conn, _UI_FOLLOWERS)
+    if dry_run:
+        stats["projects"] = len(pids)
+        stats["applications"] = conn.execute(
+            "SELECT count(*) FROM project_applications "
+            "WHERE project_id = ANY(%s)", (pids,)).fetchone()[0]
+        return stats
     for i in range(0, len(pids), BATCH):
         batch = pids[i:i + BATCH]
         members = conn.execute(
             "SELECT pa.project_id, pa.uid, upper(a.reference) "
             "FROM project_applications pa JOIN applications a ON a.uid = pa.uid "
             "WHERE pa.project_id = ANY(%s)", (batch,)).fetchall()
-        by_pid: dict[int, list[tuple[str, str | None]]] = defaultdict(list)
-        for pid, uid, ref in members:
-            by_pid[pid].append((uid, ref))
-        if dry_run:
-            stats["projects"] += len(batch)
-            stats["applications"] += len(members)
-            continue
-        for pid in batch:
-            prow = conn.execute(
-                "SELECT authority, address_key, n_applications FROM projects "
-                "WHERE id = %s", (pid,)).fetchone()
-            if not prow:
-                continue
-            refs = [r for _u, r in by_pid.get(pid, []) if r]
-            (dismissed or Dismissals(set(), set())).dismiss(
-                conn, authority=prow[0], address_key=prow[1], references=refs,
-                reason=(reason_by_pid or {}).get(pid, "minor"),
-                n_members=prow[2])
-        apps = conn.execute(
-            "DELETE FROM applications a WHERE a.uid IN ("
-            "  SELECT uid FROM project_applications WHERE project_id = ANY(%s)) "
-            "AND NOT EXISTS (SELECT 1 FROM project_applications pa "
-            "                WHERE pa.uid = a.uid AND pa.project_id <> ALL(%s))",
-            (batch, batch)).rowcount
-        conn.execute("DELETE FROM missing_parents WHERE project_id = ANY(%s)",
-                     (batch,))
-        for t in ui_tables:
-            conn.execute(f"DELETE FROM {t} WHERE project_id = ANY(%s)", (batch,))
-        # projects cascade to project_applications / project_aliases /
-        # grouping_review (FK ON DELETE CASCADE)
-        conn.execute("DELETE FROM projects WHERE id = ANY(%s)", (batch,))
+        by_pid: dict[int, list[str]] = defaultdict(list)
+        for pid, _uid, ref in members:
+            if ref:
+                by_pid[pid].append(ref)
+        for attempt in range(5):
+            try:
+                with conn.transaction():
+                    conn.execute("SET LOCAL deadlock_timeout = '2s'")
+                    conn.execute("SET LOCAL lock_timeout = '60s'")
+                    for pid in batch:
+                        prow = conn.execute(
+                            "SELECT authority, address_key, n_applications "
+                            "FROM projects WHERE id = %s", (pid,)).fetchone()
+                        if not prow:
+                            continue
+                        (dismissed or Dismissals(set(), set())).dismiss(
+                            conn, authority=prow[0], address_key=prow[1],
+                            references=by_pid.get(pid, []),
+                            reason=(reason_by_pid or {}).get(pid, "minor"),
+                            n_members=prow[2], remember=False)
+                    apps = conn.execute(
+                        "DELETE FROM applications a WHERE a.uid IN ("
+                        "  SELECT uid FROM project_applications "
+                        "  WHERE project_id = ANY(%s)) "
+                        "AND NOT EXISTS (SELECT 1 FROM project_applications pa "
+                        "                WHERE pa.uid = a.uid "
+                        "                AND pa.project_id <> ALL(%s))",
+                        (batch, batch)).rowcount
+                    conn.execute(
+                        "DELETE FROM missing_parents WHERE project_id = ANY(%s)",
+                        (batch,))
+                    # projects cascade to project_applications / aliases /
+                    # grouping_review (FK ON DELETE CASCADE); the agent-
+                    # presence trigger fires here — ui followers are cleaned
+                    # AFTER it so no trigger-written rows survive.
+                    conn.execute("DELETE FROM projects WHERE id = ANY(%s)",
+                                 (batch,))
+                    for t in ui_tables:
+                        conn.execute(
+                            f"DELETE FROM {t} WHERE project_id = ANY(%s)",
+                            (batch,))
+                break
+            except psycopg.errors.DeadlockDetected:
+                conn.rollback()
+                wait = 5 * (attempt + 1)
+                log.warning("purge batch %d deadlocked (attempt %d/5); "
+                            "retrying in %ds", i, attempt + 1, wait)
+                time.sleep(wait)
+        else:
+            raise RuntimeError(f"purge batch at index {i} deadlocked 5 times")
+        conn.commit()  # real commit for non-autocommit conns; no-op otherwise
         stats["projects"] += len(batch)
         stats["applications"] += apps
-        conn.commit()
-        log.info("purge batch: %d projects, %d applications (running: %s)",
-                 len(batch), apps, dict(stats))
-    if not dry_run:
-        stats["state_history_orphans"] = conn.execute(
-            "DELETE FROM state_history sh WHERE NOT EXISTS "
-            "(SELECT 1 FROM applications a WHERE a.uid = sh.uid)").rowcount
-        conn.commit()
+        log.info("purge batch %d-%d: %d projects, %d applications",
+                 i, i + len(batch), len(batch), apps)
+    stats["state_history_orphans"] = conn.execute(
+        "DELETE FROM state_history sh WHERE NOT EXISTS "
+        "(SELECT 1 FROM applications a WHERE a.uid = sh.uid)").rowcount
+    conn.commit()
+    # In-memory tombstone refresh once everything committed.
+    if dismissed is not None:
+        fresh = Dismissals.load(conn)
+        dismissed.refs, dismissed.addrs = fresh.refs, fresh.addrs
     return stats
+
+
+def cleanup_zombie_projects(conn, dry_run: bool = False) -> int:
+    """Delete tombstoned projects whose applications are already gone.
+
+    A purged project can be left half-deleted when a deadlock victim rolls
+    back between the tombstone write and the project delete (first observed
+    2026-10-14). The dismissed_projects join restricts this to known-purged
+    projects, so a project mid-creation by the worker is never touched.
+    """
+    zombie_sql = (
+        "SELECT p.id FROM projects p "
+        "JOIN dismissed_projects dp ON dp.authority = p.authority "
+        "  AND dp.address_key = p.address_key "
+        "WHERE NOT EXISTS ("
+        "  SELECT 1 FROM project_applications pa JOIN applications a "
+        "  ON a.uid = pa.uid WHERE pa.project_id = p.id)")
+    pids = [r[0] for r in conn.execute(zombie_sql)]
+    if not pids or dry_run:
+        return len(pids)
+    ui_tables = _existing_tables(conn, _UI_FOLLOWERS)
+    for t in ui_tables:
+        conn.execute(f"DELETE FROM {t} WHERE project_id = ANY(%s)", (pids,))
+    conn.execute("DELETE FROM missing_parents WHERE project_id = ANY(%s)",
+                 (pids,))
+    cur = conn.execute("DELETE FROM projects WHERE id = ANY(%s)", (pids,))
+    conn.commit()
+    log.info("zombie cleanup: removed %d half-purged projects", cur.rowcount)
+    return cur.rowcount
 
 
 def purge_touched(conn, touched_uids) -> dict:
