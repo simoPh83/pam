@@ -128,8 +128,11 @@ every project has exactly one `is_root`.
 5. Rebuild `project_applications` (`TRUNCATE` + bulk insert with `linked_by`,
    `is_root`), upsert projects, insert `grouping_review` rows.
 6. Recompute aggregates (`n_applications`, `latest_uid`, `name`,
-   `first_seen`, `last_updated`, `root_in_db`) set-based; `root_uid` and
-   `grouping_state` are **not** recomputed by this step.
+   `first_seen`, `last_updated`) set-based; `root_uid` and
+   `grouping_state` are **not** recomputed by this step. Neither are the
+   chain flags (`root_in_db`, `has_missing_ancestors`) — since
+   2026-10-14 they are derived live in `_set_root_and_state()`; run
+   `scripts/refresh_project_flags.py` to recompute them after this regroup.
 7. Print validation counts; compare against the table above.
 
 ## Worker changes (done 2026-10-10, before restart)

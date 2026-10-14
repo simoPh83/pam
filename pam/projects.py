@@ -77,6 +77,11 @@ MIGRATIONS = (
     # user-set role (pam-client "make singleton"); group() never re-derives it
     "ALTER TABLE project_applications ADD COLUMN IF NOT EXISTS "
     "role_override TEXT",
+    # live chain-incomplete flag, derived with grouping_state in
+    # _set_root_and_state(); root_in_db is kept as its negation (legacy name —
+    # see docs/2026-10-14-backend-issue-root-in-db-vs-grouping-state.md)
+    "ALTER TABLE projects ADD COLUMN IF NOT EXISTS "
+    "has_missing_ancestors BOOLEAN",
 )
 
 
@@ -624,11 +629,13 @@ def group(uids, conn) -> int:
 def refresh(conn, pids) -> None:
     """Recompute aggregates and root for the given projects.
 
-    Aggregates (n_applications, latest_uid, name, first_seen, last_updated,
-    root_in_db) come from set-based SQL over members. root_uid and
-    grouping_state follow the reference-component structure: the root is the
-    member with no *resolved* parent ref; multiple candidate roots mark the
-    project ambiguous. A project with no unresolved refs anywhere is clean.
+    Aggregates (n_applications, latest_uid, name, first_seen, last_updated)
+    come from set-based SQL over members. root_uid and grouping_state follow
+    the reference-component structure: the root is the member with no
+    *resolved* parent ref; multiple candidate roots mark the project
+    ambiguous. A project with no unresolved refs anywhere is clean. The chain
+    flags (root_in_db, has_missing_ancestors) are derived live alongside
+    grouping_state in _set_root_and_state().
     """
     conn.execute(
         """
@@ -656,14 +663,27 @@ def refresh(conn, pids) -> None:
         ) s
         WHERE p.id = s.project_id AND p.id = ANY(%s)
         """, (pids, pids))
-    # root_in_db: no member still waiting on an unresolved parent ref
+    # Self-heal the hunt queue: drop missing_parents rows whose ref now
+    # resolves in applications (same rule as the hunt's local-first lookup).
+    # The hunt only deletes rows it looks up itself, so a parent arriving via
+    # ordinary sync/backfill would otherwise leave a stale row behind.
+    # Scoped to rows tied to the refreshed projects. The chain flags no
+    # longer read missing_parents — this is queue hygiene only.
     conn.execute(
-        "UPDATE projects p SET root_in_db = NOT EXISTS ("
-        "  SELECT 1 FROM project_applications pa "
-        "  JOIN missing_parents mp ON mp.authority = p.authority "
-        "    AND mp.reference = pa.parent_ref AND mp.status <> 'found'"
-        "  WHERE pa.project_id = p.id) "
-        "WHERE p.id = ANY(%s)", (pids,))
+        "DELETE FROM missing_parents mp "
+        "WHERE EXISTS (SELECT 1 FROM applications a "
+        "  WHERE a.authority = mp.authority "
+        "    AND (upper(a.reference) = mp.reference "
+        "         OR starts_with(upper(a.reference), mp.reference || '/'))) "
+        "AND (mp.project_id = ANY(%s) "
+        "     OR mp.requested_by IN (SELECT pa.uid FROM project_applications pa "
+        "                            WHERE pa.project_id = ANY(%s)) "
+        "     OR EXISTS (SELECT 1 FROM project_applications pa "
+        "                JOIN projects p ON p.id = pa.project_id "
+        "                WHERE pa.project_id = ANY(%s) "
+        "                  AND p.authority = mp.authority "
+        "                  AND pa.parent_ref = mp.reference))",
+        (pids, pids, pids))
 
     # root + grouping_state from the reference structure (one project at a
     # time; pids in a sync batch are few)
@@ -672,11 +692,17 @@ def refresh(conn, pids) -> None:
 
 
 def _set_root_and_state(conn, pid) -> None:
-    """Set root_uid, is_root and grouping_state from resolved parent refs.
+    """Set root_uid, is_root, grouping_state and the chain flags.
 
     Root candidates = members with no resolved parent ref. Exactly one
     candidate of role 'original' with no unresolved refs -> clean; one
     candidate otherwise -> provisional; zero or several -> ambiguous.
+
+    Chain flags, both derived here from the same live re-resolution so they
+    cannot diverge: has_missing_ancestors = any member cites a ref that does
+    not resolve to a stored application; root_in_db is its negation (legacy
+    name kept for the existing client contract — it never meant "the
+    root_uid row exists"; the root is always elected from stored members).
     """
     members = conn.execute(
         "SELECT pa.uid, pa.role, pa.has_parent_refs, a.start_date, "
@@ -737,8 +763,10 @@ def _set_root_and_state(conn, pid) -> None:
         state = "ambiguous"
     candidates.sort(key=lambda r: (r[2] is None, r[2], r[0]))
     root_uid = candidates[0][0]
-    conn.execute("UPDATE projects SET root_uid = %s, grouping_state = %s "
-                 "WHERE id = %s", (root_uid, state, pid))
+    conn.execute("UPDATE projects SET root_uid = %s, grouping_state = %s, "
+                 "has_missing_ancestors = %s, root_in_db = %s "
+                 "WHERE id = %s",
+                 (root_uid, state, has_unresolved, not has_unresolved, pid))
     conn.execute("UPDATE project_applications SET is_root = (uid = %s) "
                  "WHERE project_id = %s", (root_uid, pid))
     _sync_multi_root_review(conn, pid, members, no_parent, state)

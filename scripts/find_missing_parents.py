@@ -13,7 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from pam.config import load_dotenv  # noqa: E402
 from pam.ledger import Ledger  # noqa: E402
-from pam.projects import ref_year_of  # noqa: E402
+from pam.projects import ref_year_of, refresh  # noqa: E402
 
 
 def main() -> None:
@@ -47,13 +47,13 @@ def main() -> None:
     stats = conn.execute(
         "SELECT status, count(*), count(ref_year) FROM missing_parents "
         "GROUP BY 1 ORDER BY 1").fetchall()
-    # refresh root_in_db now that missing_parents is populated
-    conn.execute(
-        "UPDATE projects p SET root_in_db = NOT EXISTS ("
-        "  SELECT 1 FROM project_applications pa "
-        "  JOIN missing_parents mp ON mp.authority = p.authority "
-        "    AND mp.reference = pa.parent_ref AND mp.status <> 'found'"
-        "  WHERE pa.project_id = p.id)")
+    # Re-derive the chain flags now that missing_parents is populated.
+    # refresh() re-resolves refs live (also healing queue rows whose ref
+    # resolves via a suffix match, which the exact-match NOT EXISTS above
+    # misses) and sets root_in_db / has_missing_ancestors from that.
+    pids = sorted({pid for _auth, _ref, _uid, pid in rows})
+    for i in range(0, len(pids), 500):
+        refresh(conn, pids[i:i + 500])
     roots = conn.execute(
         "SELECT count(*), count(*) FILTER (WHERE root_in_db) FROM projects"
     ).fetchone()

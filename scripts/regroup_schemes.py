@@ -449,14 +449,10 @@ def main():
                     GROUP BY pa.project_id
                 ) s WHERE p.id = s.project_id
             """)
-            cur.execute("""
-                UPDATE projects p SET root_in_db = NOT EXISTS (
-                    SELECT 1 FROM project_applications pa
-                    JOIN missing_parents mp ON mp.authority = p.authority
-                        AND mp.reference = pa.parent_ref
-                        AND mp.status <> 'found'
-                    WHERE pa.project_id = p.id)
-            """)
+            # root_in_db / has_missing_ancestors deliberately left to the
+            # next projects.refresh() pass (same as root_uid/grouping_state
+            # above) — they are derived live in _set_root_and_state(). Run
+            # scripts/refresh_project_flags.py to recompute them on demand.
             cur.execute("SELECT count(*) FROM projects")
             stats["final_projects"] = cur.fetchone()[0]
             cur.execute("SELECT grouping_state, count(*) FROM projects "
