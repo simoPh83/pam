@@ -178,11 +178,18 @@ mains of previously fragment-only projects, without waiting for a sweep.
 - [x] dismissed_projects / dismissed_refs tables + ingest flow — a26a9c6
 - [x] scripts/purge_minor_projects.py (dry-run by default) — a26a9c6
 - [x] grouping-time project verdict hook — a26a9c6
-- [ ] deploy to Railway (worker picks up the ingest filter + fetch fix)
-- [ ] `purge_minor_projects.py --apply` (owner's explicit go after dry-run
-      review: 20,938 projects / 23,590 applications)
-- [ ] monthly re-backfill 2025-06-01 → today, all boroughs:
-      `python -m pam.worker enqueue-backfill --from 2025-06-01
-      --to 2026-10-14 --chunk month` (≈17 windows x 33 areas ≈ 561 jobs,
-      ~6-7 nights under the 300/day cap; older than the 16-month retention
-      window is pointless — retention would prune it on arrival)
+- [x] deploy to Railway (worker picks up the ingest filter + fetch fix) —
+      pushed 2026-10-14 (7abc495, a26a9c6, 870dbeb)
+- [x] `purge_minor_projects.py --apply` ran 2026-10-14: **20,938 projects /
+      ~23.5k applications purged** (1,000 half-purged by a deadlock on run 1,
+      retired as zombies on run 2; run 2 had zero deadlocks). Tombstones:
+      20,939 dismissed_projects / 23,510 dismissed_refs. Leads 91,751 →
+      77,623. Post-purge VACUUM ANALYZE done; files did not shrink (370 MB
+      reported) — pages are reusable for the re-backfill; a VACUUM FULL /
+      pg_repack in a stopped-worker window would physically reclaim.
+- [x] monthly re-backfill enqueued 2026-10-14: 561 jobs (33 areas × 17
+      windows, 2025-06-01 → 2026-10-14, `--chunk month`), priority 0 so
+      nightly syncs still run first. ~6-7 nights under the 300/day cap.
+      Watch: first jobs exercise the new sort/paging against the live API —
+      check `fetch_progress.reconcile` values and job stats `windows`
+      tomorrow.
