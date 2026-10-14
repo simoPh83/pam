@@ -25,7 +25,7 @@ from datetime import date, datetime, timedelta, timezone
 
 import psycopg
 
-from . import projects
+from . import projects, purge
 from .api import (PlanItPaused, UsageTracker, in_window, lookup_reference,
                   set_usage_tracker)
 from .config import DEFAULT_CONFIG_PATH, load_config, load_dotenv
@@ -306,6 +306,7 @@ def run_parent_hunt(conn, job: dict) -> dict:
     home = geocode_home(cfg.home_postcode)
     ledger = Ledger(cfg.database_url)
     stats = {"looked_up": 0, "found": 0, "not_found": 0, "resolved_locally": 0}
+    hunted_uids: set[str] = set()
 
     def mark_found(mp_id: int, ref: str, uid: str, requested_by: str | None) -> None:
         # Resolved refs are deleted outright: the parent now lives in
@@ -323,6 +324,7 @@ def run_parent_hunt(conn, job: dict) -> dict:
         projects.group({uid} | children, ledger.conn)
         ledger.conn.commit()
         stats["found"] += 1
+        hunted_uids.add(uid)
 
     try:
         while True:
@@ -368,6 +370,12 @@ def run_parent_hunt(conn, job: dict) -> dict:
                     conn.execute("UPDATE jobs SET stats = %s::jsonb WHERE id = %s",
                                  (json.dumps(stats), job["id"]))
                 time.sleep(HUNT_DELAY)
+        if hunted_uids:
+            # A hunted parent may be a project's MAIN application arriving
+            # late — classify the project now that it's here.
+            pstats = purge.purge_touched(ledger.conn, hunted_uids)
+            if pstats:
+                stats["purged_minor_projects"] = pstats["projects"]
     finally:
         ledger.close()
     return stats

@@ -177,6 +177,8 @@ class Ledger:
         self.conn.execute(AUTHORITY_URLS_DDL)
         from pam.projects import ensure_schema
         ensure_schema(self.conn)
+        from pam.dismissals import ensure_schema as ensure_dismissals_schema
+        ensure_dismissals_schema(self.conn)
         self.conn.execute(_full_urls_view_sql("CREATE OR REPLACE"))
         self._bases = {(a, f): b for a, f, b in self._exec(
             "SELECT authority, field, base_url FROM authority_urls").fetchall()}

@@ -10,8 +10,8 @@ import requests
 
 from .api import PlanItPaused, fetch_area
 from .config import load_config
+from . import alerts, dismissals, projects
 from .ledger import Ledger
-from . import alerts, projects
 from .spreadsheet import LeadsSheet
 from .transform import matches_filters, normalize
 
@@ -77,13 +77,15 @@ def execute(argv: list[str] | None = None) -> tuple[int, dict]:
         log.info("Window: %s -> %s | areas: %s", start, end, ", ".join(a.name for a in cfg.areas))
 
     ledger = Ledger(cfg.database_url)
+    dismissed = dismissals.Dismissals.load(ledger.conn)
     # With Postgres, leads are a query on applications.in_leads_sheet; the xlsx
     # is only maintained for local SQLite runs.
     sheet = None if cfg.database_url else LeadsSheet(cfg.leads_path)
     wanted_states = (["All"] if cfg.fetch_all_states
                      else list(dict.fromkeys(cfg.lead_states + cfg.watch_states)))
 
-    stats = {"fetched": 0, "new_tracked": 0, "leads_added": 0, "leads_updated": 0}
+    stats = {"fetched": 0, "new_tracked": 0, "leads_added": 0, "leads_updated": 0,
+             "skipped_minor": 0, "skipped_dismissed": 0}
     touched_uids: set[str] = set()
     window_reports: list[dict] = []
 
@@ -95,6 +97,16 @@ def execute(argv: list[str] | None = None) -> tuple[int, dict]:
                                   window_reports=window_reports):
                 row = normalize(raw, area.name, home)
                 if not matches_filters(row, cfg):
+                    continue
+                # Minor-works filter: skip (and tombstone) minor originals,
+                # skip anything tied to a previously dismissed project.
+                verdict, reason = dismissals.record_verdict(dismissed, row)
+                if verdict != "store":
+                    stats["skipped_minor" if verdict == "dismiss"
+                          else "skipped_dismissed"] += 1
+                    if verdict == "dismiss" and not dry_run:
+                        dismissals.dismiss_record(ledger.conn, dismissed, row,
+                                                  reason or "minor")
                     continue
                 stats["fetched"] += 1
 
@@ -136,6 +148,13 @@ def execute(argv: list[str] | None = None) -> tuple[int, dict]:
 
         if not dry_run and touched_uids:
             projects.group(touched_uids, ledger.conn)
+            # Grouping-time verdict: purge projects whose main application
+            # proves minor (e.g. main arrived late via a parent hunt).
+            from . import purge
+            pstats = purge.purge_touched(ledger.conn, touched_uids)
+            if pstats:
+                touched_uids -= pstats["purged_uids"]
+                stats["purged_minor_projects"] = pstats["projects"]
             stats["alerts"] = alerts.generate(ledger.conn, touched_uids,
                                               cfg.lead_states)
             ledger.conn.commit()
