@@ -1,7 +1,6 @@
 # Investigation: planningalerts apps missing from PAM (Haringey)
 
-**Status:** IN PROGRESS — paused mid-investigation on 2026-10-13 ~10:30. Resume from
-"Next steps" below.
+**Status:** RESOLVED (2026-10-14) — mechanism proven live; fix designed.
 **Trigger:** user gets daily planningalerts.org.uk emails for their location
 (Haringey) and can't find those applications in the pam-client frontend by
 address or description. Question: (a) PlanIt broken, or (b) gap in our logic?
@@ -70,45 +69,65 @@ checked and ruled out as primary cause):
   backfill fetched 21,625 but stores 2023:51, 2024:69 vs 2025:5,247) —
   every borough needs the same fix, not just Haringey.
 
-## Next steps (resume here)
+## Resolution (2026-10-14): mechanism proven, fix designed
 
-1. ~~Collect the pending probe result~~ — **DONE, conclusive.** PlanIt
-   `total` vs stored rows for Haringey:
+### Live probe verdict (scripts/planit_pagination_probe.py, 7 requests, 2026-10-14)
 
-   | Month | PlanIt | Stored | Capture |
-   |---|---|---|---|
-   | Jan 2025 | 245 | 33 | 13% |
-   | Jun 2025 | 299 | 221 | 74% |
-   | Jun 2026 | 307 | 238 | 78% |
+Probed a tiny stable window (Haringey 2026-06-01→02, `total=34`, pg_sz 5):
 
-   June 2026 is fully inside the 16-month retention window (and post-dates
-   the Oct-4 backfill by months, so retention cannot have touched it) — yet
-   **22% of it is missing**. Retention is definitively ruled out; the
-   backfill paging skip is proven. (If anything the true backfill capture
-   rate is worse: some stored 2025/2026 rows arrived via daily syncs, not
-   the backfill.)
+- **`offset` works** and is interchangeable with the documented `index` /
+  `page` params (identical results, `from`/`to` echo correctly). Not the bug.
+- **Adjacent pages fetched ~2 min apart OVERLAP**: page 1 = […1538, 1537,
+  1539, 1545, 1553], page 2 (offset=5) = [1542, **1539**, 1084, **1545**, 1543].
+  2 of 5 records duplicated across consecutive pages of a 34-record set that
+  did not change (`total` constant, same records). Duplicates at one end of a
+  page boundary imply skips elsewhere — this is the smoking gun.
+- **Root cause:** PlanIt's documented default order is `-start_date`. A borough
+  registers ~10–30 apps/day, so a 3-year window is thousands of records sharing
+  ~1,000 distinct sort keys. Tie order is **not stable across queries** (no
+  unique tiebreaker — classic OFFSET-over-non-unique-ORDER-BY). Every page is a
+  fresh query 60+s apart; each execution reshuffles the ties. Over 103 pages
+  (Haringey backfill: offset 0→10,300) roughly half the fetched records were
+  re-reads and ~45% of distinct records were never seen (fetched=8,001 incl.
+  dupes vs ~8,200 non-Trees expected; 4,333 stored). The loop terminated
+  "cleanly" because offsets kept returning full pages until past `total` —
+  `ON CONFLICT(uid)` upserts silently absorbed the dupes.
+- **Secondary hazards in the old loop** (not the cause here, but live):
+  any flaky short page ends the window early (`len(records) < page_size`
+  ⇒ done), and the response meta (`total`, `from`, `to`) was ignored.
+- **Fix availability proven:** `sort=start_date.asc,name.asc` is accepted and
+  yields a canonical, unique, immutable order (page 1 = 0878, 1182, 1195, 1406,
+  1407 — uid-ordered within the day). `total` is present on every response.
 
-2. **Decide remediation with user** (offered, not yet answered):
-   re-backfill in **monthly windows** per borough
-   (`python -m pam.worker enqueue-backfill --from … --to …` — each window
-   gets its own `fetch_progress` key; upserts are idempotent). Small windows
-   page far more reliably. Haringey-only vs all boroughs — evidence says all.
-3. **Harden the fetch loop** ([pam/api.py](../pam/api.py) `fetch_area`):
-   - log/record PlanIt's `total` (response meta field) per window and compare
-     against distinct-uid count at the end; flag mismatches instead of
-     silently marking `done`;
-   - treat a short/empty page in a long backfill as suspect (retry once
-     before declaring the window finished);
-   - count *distinct* uids in run stats, not just `fetched`.
-4. **Answer the retention product question** for stale-but-live Undecided
-   apps (see #2) — affects whether re-backfilled 2023-24 data would just be
-   pruned again. NOTE: re-backfilling stale apps IS safe from immediate
-   prune only if their `last_different` is within 16 months; older ones will
-   be pruned at the next sync by design. That's the intended slimming, but it
-   means "browsable history" for undecideds is capped at 16 months of
-   *activity*, not registration.
-5. Deploy sequencing per playbook: stop worker → run backfill/sweeps →
-   restart worker.
+### The fetch fix (to implement)
+
+1. `pam/api.py fetch_area`: always send `sort=start_date.asc,name.asc`
+   (unique + immutable ⇒ deterministic paging when membership is stable).
+2. Page by server-reported positions: stop when `to >= total - 1`; next page
+   starts at `to + 1` (self-heals short pages; no premature termination).
+3. Reconcile per window: distinct uids yielded vs `total`; on mismatch
+   re-scan the window once, then flag `reconcile=failed` in fetch_progress +
+   job stats instead of silently marking done.
+4. Chunk re-backfills into monthly windows
+   (`worker enqueue-backfill --chunk month`): each window gets its own
+   fetch_progress key; small windows minimise exposure to mid-crawl membership
+   changes (PlanIt ingesting old records) and to 429 pauses.
+   Budget: 33 boroughs × 36 months × ~3 pages ≈ 3,500 requests ≈ ~12 nights
+   under the 300/day cap + 60s pacing.
+5. Daily syncs (`different_start`): same sort + advisory reconcile; the
+   next-day watermark overlap self-heals residual misses.
+
+Deploy sequencing per playbook: stop worker → purge (see filtering design) →
+re-backfill in monthly chunks → restart worker. Ingest filtering must land
+BEFORE the re-backfill or it re-adds the minor works.
+
+## Topic B: minor-works filter + purge (2026-10-14)
+
+Full analysis + design: [2026-10-14-minor-works-filter-design.md](2026-10-14-minor-works-filter-design.md).
+Headline: 62.5% of projects (70,531, holding 79,655 applications) classify as
+minor by their MAIN application's description ⇒ ~171 MB net reclaim;
+51.3% of records would be blocked at ingest; 8,055 projects lack their main
+application (postpone set — never auto-purged).
 
 ## Evidence log (queries used)
 
@@ -128,3 +147,13 @@ checked and ruled out as primary cause):
   all boroughs — too small and too late to explain the Haringey 2024 hole.
 - Retention commits: `b00fb6e` (2026-10-07 "added retention job"),
   `09c269c` (2026-10-09 "Prune member applications with their project").
+
+
+
+
+
+USER: So for what I understand the paging mechanism on planIt is not reliable and we haven't fetched during our big initial backfill all the applications actually available on that period, but a portion of it.
+Now: fixing this with the current filtering logics (filtering out "trees" basically, only) would result in the db getting out of control in terms of size. I would like to introduce a new filtering system that would purge application (actually projects, so root + children applications) based on some sort of parsing over the root description.
+So two main topics
+A) make sure we got the pagination issue right and we are sure about how to fix the existing logics to be able to scan all applications given a certain time window
+B) analyse currently available main applications (where the most accurate description of a project is) and try to create an algorithm for applications that would not be useful for our goal (finding substantial architectural projects, either new builds or conversions, but let's analyse the data together to understand what we can safetly purge or never register, and what needs to be safe.) The db is already about 380mb and I want to stay below the 500mb supabase threshold.

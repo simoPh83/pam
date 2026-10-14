@@ -105,6 +105,15 @@ EXTRA_COLUMNS = {
 }
 
 
+# Reconciliation columns on fetch_progress (2026-10-14 fetch hardening):
+# per-window PlanIt total vs distinct uids we actually saw.
+FETCH_PROGRESS_COLUMNS = {
+    "expected_total": "INTEGER",
+    "distinct_uids": "INTEGER",
+    "reconcile": "TEXT",      # ok | rescanned_ok | rescanned_failed | failed
+}
+
+
 # URL columns stored as a tail after a per-authority base (table authority_urls).
 # source_url is the same portal page for every row, so only the base is kept.
 URL_FIELDS = ("council_url", "docs_url", "comment_url", "map_url")
@@ -162,6 +171,9 @@ class Ledger:
         for col, coltype in EXTRA_COLUMNS.items():
             self.conn.execute(
                 f"ALTER TABLE applications ADD COLUMN IF NOT EXISTS {col} {coltype}")
+        for col, coltype in FETCH_PROGRESS_COLUMNS.items():
+            self.conn.execute(
+                f"ALTER TABLE fetch_progress ADD COLUMN IF NOT EXISTS {col} {coltype}")
         self.conn.execute(AUTHORITY_URLS_DDL)
         from pam.projects import ensure_schema
         ensure_schema(self.conn)
@@ -213,6 +225,18 @@ class Ledger:
             "ON CONFLICT(run_window, area, state) DO UPDATE SET "
             "last_offset = excluded.last_offset, done = excluded.done",
             (window, area, state, offset, bool(done)),
+        )
+        self.conn.commit()
+
+    def save_progress_meta(self, window: str, area: str, state: str,
+                           expected_total: int | None, distinct_uids: int,
+                           reconcile: str) -> None:
+        """Record the end-of-window reconciliation (PlanIt total vs the
+        distinct uids we saw) alongside the paging checkpoint."""
+        self._exec(
+            "UPDATE fetch_progress SET expected_total = ?, distinct_uids = ?, "
+            "reconcile = ? WHERE run_window = ? AND area = ? AND state = ?",
+            (expected_total, distinct_uids, reconcile, window, area, state),
         )
         self.conn.commit()
 

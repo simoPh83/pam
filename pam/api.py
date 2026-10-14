@@ -11,6 +11,9 @@ Verified API quirks (see docs/2026-09-27-planit-api-findings.md):
 - Small page sizes are flaky; use page_size >= 10.
 - Service is slow (7-30s/page) and volunteer-run: one request at a time,
   delay between pages, generous timeouts, retry with backoff.
+- Default sort (-start_date) is NOT a stable paging order (thousands of
+  same-day ties reshuffle between queries); fetch_area always sends an
+  explicit unique sort and reconciles against the response `total`.
 
 PlanIt's published etiquette (enforced below, after a 429 with
 Retry-After ~5h on 2026-10-07 showed we were upsetting the service):
@@ -37,6 +40,7 @@ from zoneinfo import ZoneInfo
 import requests
 
 from .config import Area, Config
+from .transform import uid_of
 
 BASE_URL = "https://www.planit.org.uk/api/applics/json"
 USER_AGENT = "pam-lead-monitor/0.1 (contact: simone.morciano@gmail.com)"
@@ -196,7 +200,8 @@ def lookup_reference(authority: str, reference: str, cfg: Config) -> list[dict]:
 
 
 def fetch_area(area: Area, states: list[str], start: date | None, end: date,
-               cfg: Config, progress=None, since: date | None = None) -> Iterator[dict]:
+               cfg: Config, progress=None, since: date | None = None,
+               window_reports: list[dict] | None = None) -> Iterator[dict]:
     """Yield raw PlanIt records for one area, all states, paged.
 
     `progress` (optional) is a ledger-like object implementing
@@ -207,10 +212,28 @@ def fetch_area(area: Area, states: list[str], start: date | None, end: date,
     (Rejected, Withdrawn, ...) comes back. `since` switches to incremental
     mode: records whose data changed on/after that date (PlanIt
     different_start), regardless of registration date.
+
+    Paging reliability (see docs/2026-10-13-haringey-ingestion-gap-investigation.md):
+    - A fixed `sort=start_date.asc,name.asc` is always sent. PlanIt's default
+      -start_date order has thousands of same-day ties whose order reshuffles
+      between paged queries (probe 2026-10-14: adjacent pages of a stable
+      34-record window overlapped 40%), which silently skipped ~half the
+      records during the 3-year offset-paged backfills. `name` is a unique,
+      immutable tiebreaker.
+    - Paging is driven by the response meta (`from`/`to`/`total`), not by
+      counting page sizes: the next page starts at `to + 1` and the window
+      ends only when `to >= total - 1`, so a flaky short page can no longer
+      terminate a window early, and an empty page that shouldn't exist is
+      retried once.
+    - After the last page, the distinct uid count is reconciled against
+      `total`; a meaningful shortfall triggers one inline re-scan of the
+      window (bounded: only when <= RESCAN_MAX_TOTAL records), and the
+      outcome lands in `window_reports` / fetch_progress.
     """
     window = f"since_{since}" if since else f"{start or 'all'}_{end}"
     for state in states:
-        params: dict = {"pg_sz": cfg.page_size}
+        params: dict = {"pg_sz": cfg.page_size,
+                        "sort": "start_date.asc,name.asc"}
         if state != "All":
             params["app_state"] = state
         if since:
@@ -223,35 +246,118 @@ def fetch_area(area: Area, states: list[str], start: date | None, end: date,
             params["krad"] = area.radius_km or 5
         elif area.authority:
             params["auth"] = area.authority
+        yield from _fetch_window(area, state, window, params, cfg, progress,
+                                 window_reports)
 
-        offset = 0
-        if progress is not None:
-            offset, done = progress.progress(window, area.name, state)
-            if done:
-                log.info("[%s/%s] already fetched for this window — skipping",
-                         area.name, state)
+
+# Reconcile tolerance: a 1-2 record gap is usually a record PlanIt deleted
+# mid-crawl; rescanning the whole window for that is poor etiquette.
+RESCAN_MIN_GAP = 3
+# Never rescan huge windows inline — chunk them smaller instead.
+RESCAN_MAX_TOTAL = 2000
+
+
+def _fetch_window(area: Area, state: str, window: str, params: dict,
+                  cfg: Config, progress, window_reports: list[dict] | None
+                  ) -> Iterator[dict]:
+    seen: set[str] = set()
+    expected_total = yield from _page_window(area, state, window, params, cfg,
+                                             progress, seen)
+    if expected_total is _SKIPPED:
+        return
+    gap = (expected_total - len(seen)) if expected_total is not None else 0
+    if gap >= RESCAN_MIN_GAP and expected_total <= RESCAN_MAX_TOTAL:
+        log.warning("[%s/%s] reconcile: %d distinct uids vs total %d — "
+                    "re-scanning the window once", area.name, state,
+                    len(seen), expected_total)
+        # Upserts are idempotent; `fetched` job stats count the re-yielded
+        # records, distinct accounting lives in the window report.
+        total2 = yield from _page_window(area, state, window, {**params}, cfg,
+                                         None, seen)
+        if isinstance(total2, int):
+            expected_total = total2
+        gap = (expected_total - len(seen)) if expected_total is not None else 0
+        reconcile = "rescanned_ok" if gap < RESCAN_MIN_GAP else "rescanned_failed"
+    elif gap >= RESCAN_MIN_GAP:
+        reconcile = "failed"
+        log.warning("[%s/%s] reconcile FAILED: %d distinct uids vs total %d "
+                    "(window too big to rescan inline — re-enqueue it in "
+                    "smaller chunks)", area.name, state, len(seen),
+                    expected_total)
+    else:
+        reconcile = "ok"
+    report = {"window": window, "area": area.name, "state": state,
+              "expected_total": expected_total, "distinct_uids": len(seen),
+              "reconcile": reconcile}
+    if progress is not None:
+        progress.save_progress_meta(window, area.name, state,
+                                    expected_total, len(seen), reconcile)
+    if window_reports is not None:
+        window_reports.append(report)
+    time.sleep(cfg.delay_seconds)
+
+
+# _page_window generator-return sentinel: the window was already done.
+_SKIPPED = object()
+
+
+def _page_window(area: Area, state: str, window: str, params: dict,
+                 cfg: Config, progress, seen: set[str]) -> Iterator[dict]:
+    """Page through one window, filling `seen` with distinct record uids.
+    Generator-returns PlanIt's last-seen `total`, or _SKIPPED when the
+    window was already done."""
+    offset = 0
+    if progress is not None:
+        offset, done = progress.progress(window, area.name, state)
+        if done:
+            log.info("[%s/%s] already fetched for this window — skipping",
+                     area.name, state)
+            return _SKIPPED
+        if offset:
+            log.info("[%s/%s] resuming at index %d", area.name, state, offset)
+
+    expected_total: int | None = None
+    empty_retried = False
+    while True:
+        # PlanIt intermittently 400s on index=0 — omit the param on page one
+        if offset:
+            params["index"] = offset
+        else:
+            params.pop("index", None)
+        data = _get(params, cfg)
+        records = data.get("records") or []
+        total = data.get("total")
+        to = data.get("to")
+        if isinstance(total, int):
+            if expected_total is not None and total != expected_total:
+                log.info("[%s/%s] total moved %d -> %d mid-window (PlanIt "
+                         "ingested/dropped records while paging)",
+                         area.name, state, expected_total, total)
+            expected_total = total
+        seen.update(uid_of(r) for r in records)
+        log.info("[%s/%s] page from=%s to=%s total=%s (%d records, %d distinct)",
+                 area.name, state, data.get("from"), to, total,
+                 len(records), len(seen))
+        if not records:
+            more_claimed = isinstance(total, int) and offset < total
+            if more_claimed and not empty_retried:
+                empty_retried = True
+                log.warning("[%s/%s] empty page at index %d though total=%d — "
+                            "retrying once", area.name, state, offset, total)
+                time.sleep(cfg.delay_seconds)
                 continue
-            if offset:
-                log.info("[%s/%s] resuming at offset %d", area.name, state, offset)
-
-        while True:
-            # PlanIt intermittently 400s on offset=0 — omit the param on page one
-            if offset:
-                params["offset"] = offset
-            else:
-                params.pop("offset", None)
-            data = _get(params, cfg)
-            records = data.get("records") or []
-            log.info("[%s/%s] page at offset %d: %d records",
-                     area.name, state, offset, len(records))
-            yield from records
+            break
+        yield from records
+        if isinstance(total, int) and isinstance(to, int):
+            finished = to >= total - 1
+            offset = to + 1
+        else:  # meta missing (shouldn't happen): fall back to page-size rule
             finished = len(records) < cfg.page_size
-            if progress is not None:
-                progress.save_progress(window, area.name, state,
-                                       offset + cfg.page_size, finished)
-            if finished:
-                break
             offset += cfg.page_size
-            time.sleep(cfg.delay_seconds)
+        if progress is not None:
+            progress.save_progress(window, area.name, state, offset, finished)
+        if finished:
+            break
         time.sleep(cfg.delay_seconds)
+    return expected_total
 

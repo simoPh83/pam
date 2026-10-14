@@ -2,8 +2,8 @@
 
     python -m pam.worker run                      # loop forever (Railway entrypoint)
     python -m pam.worker once                     # process pending jobs, then exit
-    python -m pam.worker enqueue-backfill --from 2023-10-01 --to 2026-10-01 \
-        [--area camden ...] [--priority 10]
+    python -m pam.worker enqueue-backfill --from 2025-06-01 --to 2026-10-14 \
+        [--chunk month] [--area camden ...] [--priority 10]
     python -m pam.worker enqueue-sync [--days 2]  # one --since job per area
     python -m pam.worker status
 
@@ -126,6 +126,32 @@ def enqueue(conn, *, kind: str, area: str, start: date | None = None,
 
 def area_names() -> list[str]:
     return [a.name for a in load_config(argv=[]).areas]
+
+
+def chunk_windows(start: date, end: date, chunk: str) -> list[tuple[date, date]]:
+    """Split [start, end] into calendar-aligned sub-windows. Monthly chunks
+    page far more reliably than multi-year ones (each is a handful of pages,
+    reconciles against PlanIt's `total`, and resumes independently).
+    """
+    if chunk == "week":
+        out, s = [], start
+        while s <= end:
+            e = min(s + timedelta(days=6), end)
+            out.append((s, e))
+            s = e + timedelta(days=1)
+        return out
+    if chunk == "month":
+        out = []
+        y, m = start.year, start.month
+        while (y, m) <= (end.year, end.month):
+            first = date(y, m, 1)
+            nxt = date(y + 1, 1, 1) if m == 12 else date(y, m + 1, 1)
+            s, e = max(start, first), min(end, nxt - timedelta(days=1))
+            if s <= e:
+                out.append((s, e))
+            y, m = nxt.year, nxt.month
+        return out
+    raise ValueError(f"unknown chunk {chunk!r}")
 
 
 def sync_since(conn, area: str) -> date:
@@ -412,6 +438,10 @@ def main() -> None:
     bf.add_argument("--area", action="append",
                     help="repeatable; default = every area in config.yaml")
     bf.add_argument("--priority", type=int, default=0)
+    bf.add_argument("--chunk", choices=["month", "week"], default=None,
+                    help="split the window into calendar-month/weekly jobs "
+                         "(one fetch_progress key each; far more reliable "
+                         "paging than a multi-year window)")
     sy = sub.add_parser("enqueue-sync")
     sy.add_argument("--days", type=int, default=SYNC_DAYS)
     ph = sub.add_parser("enqueue-parent-hunt",
@@ -427,9 +457,14 @@ def main() -> None:
         status(conn)
     elif args.cmd == "enqueue-backfill":
         names = args.area or area_names()
-        added = sum(enqueue(conn, kind="backfill", area=n, start=args.start,
-                            end=args.end, priority=args.priority) for n in names)
-        print(f"Enqueued {added} of {len(names)} backfill job(s)")
+        windows = (chunk_windows(args.start, args.end, args.chunk)
+                   if args.chunk else [(args.start, args.end)])
+        added = sum(
+            enqueue(conn, kind="backfill", area=n, start=s, end=e,
+                    priority=args.priority)
+            for n in names for s, e in windows)
+        print(f"Enqueued {added} of {len(names) * len(windows)} backfill "
+              f"job(s) ({len(names)} areas x {len(windows)} windows)")
     elif args.cmd == "enqueue-sync":
         print(f"Enqueued {enqueue_sync(conn, args.days)} sync job(s)")
     elif args.cmd == "prune":

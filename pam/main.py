@@ -85,12 +85,14 @@ def execute(argv: list[str] | None = None) -> tuple[int, dict]:
 
     stats = {"fetched": 0, "new_tracked": 0, "leads_added": 0, "leads_updated": 0}
     touched_uids: set[str] = set()
+    window_reports: list[dict] = []
 
     try:
         for area in cfg.areas:
             # A dry run must not record fetch progress, or the real run would skip it
             for raw in fetch_area(area, wanted_states, start, end, cfg,
-                                  progress=None if dry_run else ledger, since=since):
+                                  progress=None if dry_run else ledger, since=since,
+                                  window_reports=window_reports):
                 row = normalize(raw, area.name, home)
                 if not matches_filters(row, cfg):
                     continue
@@ -142,6 +144,13 @@ def execute(argv: list[str] | None = None) -> tuple[int, dict]:
             sheet.save()
     finally:
         ledger.close()
+
+    if window_reports:
+        stats["distinct_uids"] = sum(r["distinct_uids"] for r in window_reports)
+        stats["windows"] = window_reports
+        bad = [r for r in window_reports if r.get("reconcile", "").endswith("failed")]
+        if bad:
+            log.warning("Reconcile failures (re-enqueue smaller): %s", bad)
 
     log.info("Done. fetched=%(fetched)d newly_tracked=%(new_tracked)d "
              "leads_added=%(leads_added)d leads_updated=%(leads_updated)d", stats)
