@@ -44,8 +44,8 @@ cluster — 629 components cross address-cluster boundaries).
 | Value | Meaning | UI |
 |---|---|---|
 | `clean` | exactly one root, role original, no unresolved refs | normal |
-| `ambiguous` | component has 2+ roots (kept merged provisionally) | badge + "resolve" prompt |
-| `provisional` | root is non-original, or root has unresolved refs (parent missing) | subtle "incomplete chain" indicator |
+| `ambiguous` | component has 2+ genuine roots, at least one an original (kept merged provisionally) | badge + "resolve" prompt |
+| `provisional` | root is non-original, or root has unresolved refs (parent missing — incl. schemes awaiting the parent hunt) | subtle "incomplete chain" indicator |
 
 The flag is written by the migration script for existing rows and maintained
 by the worker's incremental grouping for new/changed rows, so it never drifts.
@@ -148,7 +148,13 @@ Implemented in `pam/projects.py` and validated read-only + synthetic-tx:
   (earliest on tie; deterministic fallback for reference cycles). Sets
   `grouping_state`: one original root & no unresolved refs → `clean`, one
   non-original/unresolved root → `provisional`, zero or multiple roots →
-  `ambiguous`.
+  `ambiguous`. Exception (2026-10-19): if no candidate is an original and
+  every parentless member cites only *unresolved* refs, the project is
+  awaiting the parent hunt — the earliest citer is elected as provisional
+  root and no `multi_root` review is raised (a found parent re-forms the
+  structure via re-grouping; an exhausted hunt leaves a truthful
+  provisional chain). See
+  `docs/2026-10-19-backend-issue-stale-flags-and-hunt-queue-gap.md`.
 - Validated: migration roots reproduced on 300/300 clean and 198/200
   ambiguous projects (the 2 are reference cycles with interchangeable roots);
   synthetic sync test confirmed a citing discharge joins its cited scheme

@@ -142,3 +142,20 @@ being fetched" once the queue row exists.
 5. **Hunts are not auto-enqueued** (`AUTO_PARENT_HUNT` off): run
    `python -m pam.worker enqueue-parent-hunt` to start fetching the ~750
    newly catalogued refs (PlanIt etiquette floor ≈ 1 lookup/minute).
+6. **Pseudo-ambiguity fixed (follow-up, same day).** Healing 109185 exposed
+   that its `multi_root` review row listed 39 "candidates" — all discharge/
+   amendment *children* of the same missing parent, zero originals. Root
+   election in `_set_root_and_state()` now treats a project whose parentless
+   members are all non-originals citing only unresolved refs as **awaiting
+   the parent hunt**: the earliest citer is elected as provisional root
+   (`provisional`, amber incomplete-chain) and no `multi_root` review is
+   raised; a found parent re-groups the children and re-forms the structure,
+   an exhausted one leaves a truthful provisional chain. Genuine competing
+   origins (multiple originals, or parentless members citing nothing) still
+   go `ambiguous`. For 109185: `ambiguous → provisional`, review row
+   auto-resolved `obsolete`; the Barnet genuinely-ambiguous controls were
+   verified unchanged. Also closed the residual queue gap with a full
+   fresh-parse sweep (`scripts/sweep_fresh_parent_refs.py`): 355 members
+   whose stored refs disagreed with the current parser were re-grouped and
+   the final 73 unqueued refs catalogued (incl. the Kensington `PP/2x/…`
+   secondary refs).

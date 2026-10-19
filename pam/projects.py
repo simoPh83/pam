@@ -699,7 +699,11 @@ def _set_root_and_state(conn, pid) -> None:
 
     Root candidates = members with no resolved parent ref. Exactly one
     candidate of role 'original' with no unresolved refs -> clean; one
-    candidate otherwise -> provisional; zero or several -> ambiguous.
+    candidate otherwise -> provisional; zero or several -> ambiguous —
+    unless no candidate is an original and every parentless member cites
+    unresolved refs: that project is awaiting the parent hunt, so the
+    earliest citer is elected as provisional root instead of flagging N
+    children of the same missing parent as pseudo-candidate schemes.
 
     Chain flags, both derived here from the same live re-resolution so they
     cannot diverge: has_missing_ancestors = any member cites a ref that does
@@ -776,10 +780,21 @@ def _set_root_and_state(conn, pid) -> None:
         if not resolved_refs:
             no_parent.append((uid, role, sd))
 
-    # prefer original candidates; fall back to any no-parent member (e.g. a
-    # reference cycle of discharges), else earliest member overall
-    candidates = [c for c in no_parent if c[1] == "original"] or no_parent \
-        or [(m[0], m[1], m[3]) for m in members]
+    # Prefer original candidates. Failing that, a project whose parentless
+    # members all cite (unresolved) refs is awaiting the parent hunt, not
+    # ambiguous: elect the earliest citer as provisional root and raise no
+    # multi_root review — the hunt re-forms the structure when a parent
+    # arrives, and an exhausted hunt leaves a truthful provisional chain
+    # instead of N pseudo-candidate children of the same missing parent.
+    # Only a parentless blob citing nothing (e.g. a reference cycle of
+    # discharges) falls back to all members.
+    originals = [c for c in no_parent if c[1] == "original"]
+    if originals:
+        candidates = originals
+    elif no_parent and all(member_refs[uid] for uid, _r, _s in no_parent):
+        candidates = [min(no_parent, key=lambda r: (r[2] is None, r[2], r[0]))]
+    else:
+        candidates = no_parent or [(m[0], m[1], m[3]) for m in members]
     if len(candidates) == 1:
         root_uid, root_role, _ = candidates[0]
         state = ("clean" if root_role == "original" and not has_unresolved
