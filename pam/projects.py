@@ -635,7 +635,10 @@ def refresh(conn, pids) -> None:
     *resolved* parent ref; multiple candidate roots mark the project
     ambiguous. A project with no unresolved refs anywhere is clean. The chain
     flags (root_in_db, has_missing_ancestors) are derived live alongside
-    grouping_state in _set_root_and_state().
+    grouping_state in _set_root_and_state(), which also enqueues any
+    unresolved refs it finds to missing_parents — so the hunt queue cannot
+    drift behind the flags when refresh() runs without a group() pass
+    (parser updates, parents purged after a clean compute).
     """
     conn.execute(
         """
@@ -721,9 +724,11 @@ def _set_root_and_state(conn, pid) -> None:
         return refs
 
     # resolve each member's refs authority-wide in one query per authority
+    member_refs = {}  # uid -> parsed + manual parent refs
     cited_by_auth = defaultdict(set)
     for uid, _role, _hpr, _sd, desc, auth, _at in members:
-        cited_by_auth[auth].update(refs_of(uid, desc, auth))
+        member_refs[uid] = refs_of(uid, desc, auth)
+        cited_by_auth[auth].update(member_refs[uid])
     resolved = {}
     for auth, refs in cited_by_auth.items():
         if refs:
@@ -736,6 +741,27 @@ def _set_root_and_state(conn, pid) -> None:
                     (list(refs), auth)):
                 resolved.setdefault((auth, ref), uid)
 
+    # Keep the hunt queue complete: refs that parse but don't resolve must
+    # reach missing_parents from here too, not only from group() pass 4b.
+    # group() runs when membership is recomputed, so projects grouped by an
+    # older parser (or whose parent was purged after a clean compute) would
+    # otherwise never be hunted and their flags could never heal.
+    # ON CONFLICT preserves the first enqueue and any 'exhausted' verdict.
+    unresolved = {}  # (authority, ref) -> a citing member uid
+    for uid, _role, _hpr, _sd, _desc, auth, _at in members:
+        for ref in member_refs[uid]:
+            if (auth, ref) not in resolved:
+                unresolved.setdefault((auth, ref), uid)
+    if unresolved:
+        with conn.cursor() as cur:
+            cur.executemany(
+                "INSERT INTO missing_parents "
+                "(authority, reference, ref_year, requested_by, project_id) "
+                "VALUES (%s, %s, %s, %s, %s) "
+                "ON CONFLICT (authority, reference) DO NOTHING",
+                [(auth, ref, ref_year_of(ref), uid, pid)
+                 for (auth, ref), uid in unresolved.items()])
+
     # Root candidates = members citing no ref that resolves to a stored
     # application. A no-ref discharge/variation/nma is NOT a candidate — it
     # belongs to the scheme but isn't an origin; only role 'original' members
@@ -743,7 +769,7 @@ def _set_root_and_state(conn, pid) -> None:
     no_parent = []  # members with no resolved parent ref
     has_unresolved = False
     for uid, role, _hpr, sd, desc, auth, _at in members:
-        refs = refs_of(uid, desc, auth)
+        refs = member_refs[uid]
         resolved_refs = [r for r in refs if (auth, r) in resolved]
         has_unresolved = has_unresolved or any(
             r not in {x for x in refs if (auth, x) in resolved} for r in refs)
