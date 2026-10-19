@@ -699,11 +699,14 @@ def _set_root_and_state(conn, pid) -> None:
 
     Root candidates = members with no resolved parent ref. Exactly one
     candidate of role 'original' with no unresolved refs -> clean; one
-    candidate otherwise -> provisional; zero or several -> ambiguous —
-    unless no candidate is an original and every parentless member cites
-    unresolved refs: that project is awaiting the parent hunt, so the
-    earliest citer is elected as provisional root instead of flagging N
-    children of the same missing parent as pseudo-candidate schemes.
+    candidate otherwise -> provisional; several -> ambiguous. Two
+    no-candidate shapes are NOT ambiguous: if every parentless member cites
+    only unresolved refs the project is awaiting the parent hunt (earliest
+    citer elected as provisional root); if every member cites a ref that
+    resolves — a reference cycle (e.g. a Full permission and its
+    listed-building consent citing each other as siblings) or a fragment
+    whose chain head lives in another project — the earliest member is
+    elected as provisional root. Neither shape raises a multi_root review.
 
     Chain flags, both derived here from the same live re-resolution so they
     cannot diverge: has_missing_ancestors = any member cites a ref that does
@@ -786,21 +789,28 @@ def _set_root_and_state(conn, pid) -> None:
     # multi_root review — the hunt re-forms the structure when a parent
     # arrives, and an exhausted hunt leaves a truthful provisional chain
     # instead of N pseudo-candidate children of the same missing parent.
-    # Only a parentless blob citing nothing (e.g. a reference cycle of
-    # discharges) falls back to all members.
     originals = [c for c in no_parent if c[1] == "original"]
     if originals:
         candidates = originals
     elif no_parent and all(member_refs[uid] for uid, _r, _s in no_parent):
         candidates = [min(no_parent, key=lambda r: (r[2] is None, r[2], r[0]))]
+    elif not no_parent:
+        # Reference cycle (or a fragment whose chain head lives in another
+        # project): every member cites a ref that resolves, so no member is
+        # a root candidate. Not multi-origin competition — elect the
+        # earliest member as provisional root and raise no multi_root
+        # review (its candidates would be the empty no_parent list).
+        candidates = [min(((m[0], m[1], m[3]) for m in members),
+                          key=lambda r: (r[2] is None, r[2], r[0]))]
     else:
-        candidates = no_parent or [(m[0], m[1], m[3]) for m in members]
+        # parentless blob citing nothing -> genuinely competing origins
+        candidates = no_parent
     if len(candidates) == 1:
         root_uid, root_role, _ = candidates[0]
         state = ("clean" if root_role == "original" and not has_unresolved
                  else "provisional")
     else:
-        # multiple candidate origins (or a cycle of originals) -> ambiguous
+        # multiple candidate origins -> ambiguous
         state = "ambiguous"
     candidates.sort(key=lambda r: (r[2] is None, r[2], r[0]))
     root_uid = candidates[0][0]

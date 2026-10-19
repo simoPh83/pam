@@ -145,16 +145,21 @@ Implemented in `pam/projects.py` and validated read-only + synthetic-tx:
   Aliases still steer repeats. `merge_linked()` removed (superseded).
 - `refresh()` — aggregates only; no longer picks `root_uid` by date tiebreak.
 - `_set_root_and_state()` — root = member with no *resolved* parent ref
-  (earliest on tie; deterministic fallback for reference cycles). Sets
-  `grouping_state`: one original root & no unresolved refs → `clean`, one
-  non-original/unresolved root → `provisional`, zero or multiple roots →
-  `ambiguous`. Exception (2026-10-19): if no candidate is an original and
-  every parentless member cites only *unresolved* refs, the project is
-  awaiting the parent hunt — the earliest citer is elected as provisional
-  root and no `multi_root` review is raised (a found parent re-forms the
-  structure via re-grouping; an exhausted hunt leaves a truthful
-  provisional chain). See
-  `docs/2026-10-19-backend-issue-stale-flags-and-hunt-queue-gap.md`.
+  (earliest on tie). Sets `grouping_state`: one original root & no
+  unresolved refs → `clean`, one non-original/unresolved root →
+  `provisional`, multiple roots → `ambiguous`. Two zero-root shapes are
+  NOT ambiguous (2026-10-19): (a) every parentless member cites only
+  *unresolved* refs — the project is awaiting the parent hunt, earliest
+  citer elected provisional root (see
+  `docs/2026-10-19-backend-issue-stale-flags-and-hunt-queue-gap.md`);
+  (b) every member cites a ref that *resolves* — a reference cycle
+  (typically sibling consents: a Full and its LBC/Advertising application
+  citing each other, e.g. Greenwich 24/3426/F ↔ 24/3427/L) or a fragment
+  whose chain head lives in another project — the earliest member is
+  elected provisional root. Neither raises a `multi_root` review
+  (previously shape (b) produced `ambiguous` + an empty-candidates review
+  row — the UI's "0 candidate schemes"; healed by
+  `scripts/heal_cyclic_projects.py`, 300 projects).
 - Validated: migration roots reproduced on 300/300 clean and 198/200
   ambiguous projects (the 2 are reference cycles with interchangeable roots);
   synthetic sync test confirmed a citing discharge joins its cited scheme
