@@ -42,7 +42,8 @@ fields the UI touches.
   existing `role`, `parent_ref`, `is_root` power the tabs in §4.
 - `missing_parents` — unresolved parent references the worker is hunting.
   Fields: `authority, reference` (upper-case), `ref_year`, `requested_by`
-  (child uid), `project_id`, **`status` = `pending | found | exhausted`**,
+  (child uid), `project_id`, **`status` = `pending | exhausted`** (a resolved
+  ref's row is deleted outright — `found` is legacy and cleaned up),
   `attempts`, `found_uid`. Powers the "root missing / being fetched" tick.
 
 ### Client-created tables (migrations live in the client repo)
@@ -123,8 +124,10 @@ Tabs in **filed order** (`start_date` ascending), root first
 - Root tab additionally: **presence tick** — `✓ in database` when
   `projects.root_in_db` is true. Otherwise look up the project's unresolved
   refs in `missing_parents`: `pending` → "original application predates our
-  records (being fetched)"; `exhausted` → "not found on PlanIt" (a `found`
-  ref means regrouping is imminent — treat like `pending`).
+  records (being fetched)"; `exhausted` → "not found on PlanIt". A ref with
+  no row means the hunt just resolved it (rows are deleted on success) —
+  treat like `pending`, the regroup lands within the same worker job.
+  Mixed states: any `pending` wins over `exhausted`.
 
 Suggested colour tokens: pending amber-500, approved emerald-600,
 rejected rose-600, withdrawn/neutral zinc-500.
