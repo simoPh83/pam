@@ -35,7 +35,49 @@ with no machine-readable way to tell them apart:
 The UI copy was written for the first two; the third (new, ~300 projects
 healed 2026-10-19) falls through to a generic message.
 
-## Investigation notes for later
+## Investigation (2026-10-20) — measured, backend change NOT needed
+
+The "No root identified" copy lives in pam-client
+(`components/project-grouping-review.tsx` ~L102 and
+`components/projects-table.tsx` ~L280), keyed on
+`grouping_state === 'provisional' && !has_missing_ancestors`. That branch
+conflates two shapes. Measured on the live DB:
+
+| provisional, no missing ancestors | count | root | refs |
+|---|---|---|---|
+| **cycle / cross-project fragment** (every member ref resolves) | 558 | earliest member, **elected** | all resolve |
+| **reference-less** (nothing cites anything) | 586 | discharge 433 / nma 61 / variation 92 | none resolve |
+
+So the copy is wrong for **558** projects — every one has a root *and* every
+application references a resolving earlier one. The reference-less shape
+(586) has no original root either (all roots are discharge/nma/variation),
+so even there "none of its applications looks like an original" is accurate
+but "none references an earlier application" is the operative truth.
+
+**Conclusion: no schema change, no new backend column.** The distinction is
+already fully derivable from data the UI reads — a provisional project whose
+members all have `has_parent_refs = true` (and no missing ancestors) is the
+cycle shape; one with all `has_parent_refs = false` is the reference-less
+shape. `getProjectBundle` already returns members with `has_parent_refs`.
+A persisted `root_basis` column would only duplicate this. Recommended fix
+is a small copy-only change in pam-client.
+
+## UI fix (proposed, copy-only, pam-client)
+
+Replace the single provisional block with a shape-aware one. Badge stays
+"No root identified" for the reference-less shape; the cycle shape gets a
+distinct badge + copy, e.g. badge "Cross-referenced applications", copy
+"These applications reference each other (e.g. parallel consents for the
+same works); the earliest is shown as the provisional root." Derivation in
+`getProjectBundle` or inline:
+`const allRef = members.length > 0 && members.every(m => m.has_parent_refs)`.
+Two files: `components/project-grouping-review.tsx`, `components/projects-table.tsx`.
+
+Note: the cycle derivation must tolerate members lacking `has_parent_refs`
+visibility — confirm `getProjectBundle`'s member shape includes it before
+implementing; if not, fall back to `member.parent_ref != null`.
+
+## Parked / notes
 
 - Backend option: persist a `root_basis` / provisional-reason column
   (`natural` | `awaiting_hunt` | `cycle_elected`) in
